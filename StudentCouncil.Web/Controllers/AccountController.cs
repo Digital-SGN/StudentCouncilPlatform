@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StudentCouncil.Data.Models;
-using StudentCouncil.Logic.DTOs;
+using StudentCouncil.Logic.DTOs.LoginDTOs;
+using StudentCouncil.Logic.DTOs.UsersDTOs;
 using StudentCouncil.Logic.Services;
 
 namespace StudentCouncil.Web.Controllers;
@@ -18,7 +19,7 @@ public class AccountController : BaseController
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto request)
+    public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequestDTO request)
     {
         var user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
 
@@ -39,7 +40,7 @@ public class AccountController : BaseController
             var roles = await _signInManager.UserManager.GetRolesAsync(user);
             _logger.Info($"Успешный вход: {request.Email}");
 
-            return Ok(new LoginResponseDto
+            return Ok(new LoginResponseDTO
             {
                 Id = user.Id,
                 FirstName = user.FirstName,
@@ -63,7 +64,7 @@ public class AccountController : BaseController
     }
 
     [HttpGet("current")]
-    public async Task<ActionResult<CurrentUserDto>> GetCurrentUser()
+    public async Task<ActionResult<CurrentUserDTO>> GetCurrentUser()
     {
         if (!User.Identity.IsAuthenticated)
             return Unauthorized(new { error = "Не авторизован" });
@@ -76,7 +77,7 @@ public class AccountController : BaseController
 
         var roles = await _signInManager.UserManager.GetRolesAsync(user);
 
-        return Ok(new CurrentUserDto
+        return Ok(new CurrentUserDTO
         {
             Id = user.Id,
             Email = user.Email,

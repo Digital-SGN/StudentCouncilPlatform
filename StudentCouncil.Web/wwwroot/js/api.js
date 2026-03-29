@@ -30,11 +30,11 @@
     },
 
     async getUsers() {
-        return this.request('/users');
+        return this.request('/users', {method: 'GET'});
     },
 
     async getUser(id) {
-        return this.request(`/users/${id}`);
+        return this.request(`/users/${id}`, { method: 'GET' });
     },
 
     async deleteUser(id) {

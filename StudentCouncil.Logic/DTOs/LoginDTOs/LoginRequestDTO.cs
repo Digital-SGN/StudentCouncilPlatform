@@ -1,6 +1,6 @@
-﻿namespace StudentCouncil.Logic.DTOs
+﻿namespace StudentCouncil.Logic.DTOs.LoginDTOs
 {
-    public class LoginRequestDto
+    public class LoginRequestDTO
     {
         public required string Email { get; set; }
         public required string Password { get; set; }

@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StudentCouncil.Data.Models;
-using StudentCouncil.Logic.DTOs;
 using StudentCouncil.Logic.Interfaces;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using StudentCouncil.Logic.DTOs.UsersDTOs;
 
 namespace StudentCouncil.Logic.Services;
 
@@ -28,9 +28,9 @@ public class UserService : IUserService
         _userManager = userManager;
     }
 
-    private UserDto MapToDto(User user, string role)
+    private UserDTO MapToDto(User user, string role)
     {
-        return new UserDto
+        return new UserDTO
         {
             Id = user.Id,
             FirstName = user.FirstName,
@@ -55,10 +55,10 @@ public class UserService : IUserService
         };
     }
 
-    public async Task<List<UserDto>> GetAllUsersWithRolesAsync()
+    public async Task<List<UserDTO>> GetAllUsersWithRolesAsync()
     {
         var users = await _userManager.Users.ToListAsync();
-        var result = new List<UserDto>();
+        var result = new List<UserDTO>();
 
         foreach (var user in users)
         {
@@ -69,7 +69,7 @@ public class UserService : IUserService
         return result;
     }
 
-    public async Task<UserDto?> GetUserByIdAsync(int id)
+    public async Task<UserDTO?> GetUserByIdAsync(int id)
     {
         var user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null) return null;
@@ -78,7 +78,7 @@ public class UserService : IUserService
         return MapToDto(user, roles.FirstOrDefault() ?? "Member");
     }
 
-    public async Task<(UserDto? User, ProfileAccessResult Result)> GetUserProfileAsync(int id, ClaimsPrincipal currentUser)
+    public async Task<(UserDTO? User, ProfileAccessResult Result)> GetUserProfileAsync(int id, ClaimsPrincipal currentUser)
     {
         var user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null)
@@ -95,7 +95,7 @@ public class UserService : IUserService
         return (MapToDto(user, roles.FirstOrDefault() ?? "Member"), ProfileAccessResult.Success);
     }
 
-    public async Task<bool> CreateUserAsync(CreateUserDto dto, string password)
+    public async Task<bool> CreateUserAsync(CreateUserDTO dto, string password)
     {
         try
         {
@@ -150,7 +150,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<bool> UpdateUserAsync(int id, UpdateUserDto dto, ClaimsPrincipal currentUser)
+    public async Task<bool> UpdateUserAsync(int id, UpdateUserDTO dto, ClaimsPrincipal currentUser)
     {
         var user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null)

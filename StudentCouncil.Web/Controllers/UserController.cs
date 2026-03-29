@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StudentCouncil.Logic.DTOs;
 using StudentCouncil.Logic.Interfaces;
 using System.Security.Claims;
 using StudentCouncil.Logic.Services;
+using StudentCouncil.Logic.DTOs.UsersDTOs;
 
 namespace StudentCouncil.Web.Controllers;
 
@@ -19,7 +19,7 @@ public class UserController : BaseController
     }
 
     [HttpGet]
-    public async Task<ActionResult<UserListResponseDto>> GetAll()
+    public async Task<ActionResult<UserListResponseDTO>> GetAll()
     {
         try
         {
@@ -31,7 +31,7 @@ public class UserController : BaseController
 
             var users = await _userService.GetAllUsersWithRolesAsync();
 
-            var response = new UserListResponseDto
+            var response = new UserListResponseDTO
             {
                 Count = users.Count,
                 Users = users
@@ -47,7 +47,7 @@ public class UserController : BaseController
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserDto>> GetById(int id)
+    public async Task<ActionResult<UserDTO>> GetById(int id)
     {
         if (!User.Identity.IsAuthenticated)
             return Unauthorized(new { error = "Не авторизован" });
@@ -69,7 +69,7 @@ public class UserController : BaseController
 
     [HttpPost]
     [Authorize(Roles = "Admin,Leader")]
-    public async Task<ActionResult<UserDto>> Create([FromBody] CreateUserDto dto)
+    public async Task<ActionResult<UserDTO>> Create([FromBody] CreateUserDTO dto)
     {
         if (!User.Identity.IsAuthenticated)
             return Unauthorized(new { error = "Не авторизован" });
@@ -89,7 +89,7 @@ public class UserController : BaseController
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, [FromBody] UpdateUserDto dto)
+    public async Task<ActionResult> Update(int id, [FromBody] UpdateUserDTO dto)
     {
         if (!User.Identity.IsAuthenticated)
             return Unauthorized(new { error = "Не авторизован" });

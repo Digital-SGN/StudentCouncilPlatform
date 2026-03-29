@@ -1,6 +1,6 @@
-﻿namespace StudentCouncil.Logic.DTOs;
+﻿namespace StudentCouncil.Logic.DTOs.UsersDTOs;
 
-public class UserDto
+public class UserDTO
 {
     public int Id { get; set; }
     public string FirstName { get; set; } = string.Empty;

@@ -40,7 +40,8 @@ async function render() {
 
     if (user) {
         fillNavMenu(user);
-    } else {
+    }
+    else {
         fillPublicNavMenu();
     }
 }
@@ -56,6 +57,7 @@ async function getContent(path, user) {
     if (path === '/help') return window.renderHelp();
 
     if (path === '/home' || path === '/') return window.renderHome();
+
     return '<h1>404</h1>';
 }
 
@@ -81,7 +83,8 @@ function fillNavMenu(user) {
             <li class="nav-item"><span class="nav-link">Привет, ${escapeHtml(user.email)}!</span></li>
             <li class="nav-item"><a class="nav-link" href="#" onclick="logout()">Выйти</a></li>
         `;
-    } else {
+    }
+    else {
         menuHtml += `<li class="nav-item"><a class="nav-link" href="/login">Войти</a></li>`;
     }
     navMenu.innerHTML = menuHtml;

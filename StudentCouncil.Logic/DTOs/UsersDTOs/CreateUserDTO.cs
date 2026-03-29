@@ -1,7 +1,9 @@
-﻿namespace StudentCouncil.Logic.DTOs;
+﻿namespace StudentCouncil.Logic.DTOs.UsersDTOs;
 
-public class UpdateUserDto
+public class CreateUserDTO
 {
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;  
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string? Patronymic { get; set; }
@@ -10,6 +12,4 @@ public class UpdateUserDto
     public string? Telegram { get; set; }
     public string? ClothingSize { get; set; }
     public DateTime? BirthDate { get; set; }
-    public bool IsActive { get; set; }
-    public string Role { get; set; } = "Member";
 }

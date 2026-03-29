@@ -1,6 +1,6 @@
-﻿namespace StudentCouncil.Logic.DTOs
+﻿namespace StudentCouncil.Logic.DTOs.UsersDTOs
 {
-    public class CurrentUserDto
+    public class CurrentUserDTO
     {
         public int Id { get; set; }
         public required string Email { get; set; }
