@@ -1,0 +1,235 @@
+:root {
+    --primary: #0CBFA1;
+    --primary-dark: #148C9C;
+    --secondary: #09707C;
+    --dark: #2d3748;
+    --light: #f7fafc;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0CBFA1 0%, #148C9C 50%, #09707C 100%);
+    min-height: 100vh;
+}
+
+.navbar {
+    background: white !important;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+    padding: 0.8rem 0;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-link {
+    color: var(--dark) !important;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+    .nav-link:hover {
+        color: var(--primary) !important;
+    }
+
+.container-custom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border: none;
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+    padding: 1.5rem;
+    border: none;
+}
+
+    .card-header h1, .card-header h2 {
+        margin: 0;
+        color: white;
+    }
+
+.card-body {
+    padding: 2rem;
+}
+
+.table-custom {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+    .table-custom thead {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        color: white;
+    }
+
+    .table-custom th {
+        padding: 1rem;
+        font-weight: 600;
+        border: none;
+    }
+
+    .table-custom td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table-custom tr:hover {
+        background: #f7fafc;
+    }
+
+.badge-admin {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.badge-leader {
+    background: linear-gradient(135deg, #ffc107, #e0a800);
+    color: #212529;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.badge-member {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.btn-primary-custom {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    border: none;
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-weight: 600;
+    color: white;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+    .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(12, 191, 161, 0.4);
+        color: white;
+        text-decoration: none;
+    }
+
+.btn-secondary-custom {
+    background: #e2e8f0;
+    border: none;
+    color: var(--dark);
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+}
+
+    .btn-secondary-custom:hover {
+        background: #cbd5e0;
+        text-decoration: none;
+        color: var(--dark);
+    }
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: white;
+    font-size: 1.2rem;
+}
+
+footer {
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    padding: 1.5rem 0;
+    margin-top: 3rem;
+}
+
+    footer p {
+        text-align: center;
+        color: #718096;
+        margin: 0;
+    }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+footer {
+    background: white;
+    border-top: 1px solid #e2e8f0;
+    padding: 1.5rem 0;
+    margin-top: 3rem;
+}
+
+    footer p {
+        text-align: center;
+        color: #718096;
+        margin: 0;
+    }
+
+.footer-links {
+    margin-top: 8px;
+    font-size: 13px;
+}
+
+    .footer-links a {
+        color: #0CBFA1;
+        text-decoration: none;
+    }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
