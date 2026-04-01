@@ -1,5 +1,14 @@
 ﻿.users-page {
-    padding: 20px 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0CBFA2 0%, #764ba2 50%, #09707C 100%);
+    position: relative;
+    overflow-x: hidden;
+}
+
+.users-wrapper {
+    position: relative;
+    z-index: 1;
+    padding: 40px 20px;
 }
 
 .users-header {
@@ -15,7 +24,6 @@
         margin: 0;
         font-size: 28px;
         font-weight: 600;
-        background: linear-gradient(135deg, #0CBFA1 0%, #148C9C 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -331,27 +339,14 @@
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-
-.users-page {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #0CBFA1 0%, #148C9C 50%, #09707C 100%);
-    position: relative;
-    overflow-x: hidden;
-}
-
-.users-wrapper {
-    position: relative;
-    z-index: 1;
-    padding: 40px 20px;
-}
-
 @keyframes spin {
     to {
         transform: rotate(360deg);
     }
+}
+
+.users-page {
+    background: transparent;
 }
 
 .error-message-users {

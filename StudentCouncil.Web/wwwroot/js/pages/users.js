@@ -72,7 +72,7 @@
                                             </td>
                                             <td class="action-buttons">
                                                 <a href="/profile/${user.id}" class="action-btn view">👁️ Профиль</a>
-                                                <a href="/user/edit/${user.id}" class="action-btn edit">✏️ Редактировать</a>
+                                                <a href="/users/edit/${user.id}" class="action-btn edit">✏️ Редактировать</a>
                                                 <button onclick="deleteUser(${user.id})" class="action-btn delete">🗑️ Удалить</button>
                                             </td>
                                         </tr>
@@ -81,7 +81,7 @@
                             </table>
                         </div>
                         <div style="padding: 20px; text-align: right;">
-                            <a href="/user/create" class="create-btn">+ Создать участника</a>
+                            <a href="/users/create" class="create-btn">+ Создать участника</a>
                         </div>
                     </div>
                 </div>
