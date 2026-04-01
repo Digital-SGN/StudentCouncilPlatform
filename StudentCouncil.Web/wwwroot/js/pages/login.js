@@ -3,7 +3,6 @@
         <div class="login-page">
             <audio id="bg-music" loop><source src="/music/background.mp3" type="audio/mpeg"></audio>
 
-            <!-- 20 маленьких кругов -->
             <div class="circle circle-1"></div>
             <div class="circle circle-2"></div>
             <div class="circle circle-3"></div>
@@ -25,7 +24,6 @@
             <div class="circle circle-19"></div>
             <div class="circle circle-20"></div>
 
-            <!-- 8 больших кругов -->
             <div class="circle-large large-1"></div>
             <div class="circle-large large-2"></div>
             <div class="circle-large large-3"></div>
