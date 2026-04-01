@@ -176,14 +176,15 @@ public class UserService : IUserService
         user.PhoneNumber = dto.PhoneNumber;
         user.Telegram = dto.Telegram;
         user.ClothingSize = dto.ClothingSize;
+
         if (dto.BirthDate.HasValue)
-{
-    user.BirthDate = DateTime.SpecifyKind(dto.BirthDate.Value, DateTimeKind.Utc);
-}
-else
-{
-    user.BirthDate = null;
-}
+        {
+            user.BirthDate = DateTime.SpecifyKind(dto.BirthDate.Value, DateTimeKind.Utc);
+        }
+        else
+        {
+            user.BirthDate = null;
+        }
 
         if (isAdminOrLeader)
         {
@@ -192,6 +193,41 @@ else
                 _logger.Warning($"Попытка назначить несуществующую роль {dto.Role}");
                 return false;
             }
+
+            if (dto.IsActive == false && await _userManager.IsInRoleAsync(user, "Admin"))
+            {
+                var admins = await _userManager.GetUsersInRoleAsync("Admin");
+                var activeAdmins = admins.Count(a => a.IsActive);
+
+                if (activeAdmins <= 1)
+                {
+                    _logger.Warning($"Попытка заблокировать последнего активного администратора {user.Email}");
+                    return false;
+                }
+            }
+
+            var isCurrentlyAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+            var willBeAdmin = dto.Role == "Admin";
+
+            if (isCurrentlyAdmin && !willBeAdmin)
+            {
+                var admins = await _userManager.GetUsersInRoleAsync("Admin");
+                var activeAdmins = admins.Count(a => a.IsActive);
+
+                if (activeAdmins <= 1)
+                {
+                    _logger.Warning($"Попытка снять роль Admin у последнего администратора {user.Email}");
+                    return false;
+                }
+            }
+
+            var currentRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+            if (isOwnProfile && (dto.IsActive != user.IsActive || dto.Role != currentRole))
+            {
+                _logger.Warning($"Пользователь {currentUserId} попытался изменить свой статус или роль");
+                return false;
+            }
+
             user.IsActive = dto.IsActive;
             await _userManager.UpdateAsync(user);
 
@@ -203,8 +239,8 @@ else
         {
             await _userManager.UpdateAsync(user);
         }
-        _logger.Info($"Пользователь {currentUserId} изменил данные профиля");
 
+        _logger.Info($"Пользователь {currentUserId} изменил данные профиля");
         return true;
     }
 
@@ -235,6 +271,7 @@ else
     public async Task<bool> UpdateAvatarAsync(int userId, IFormFile avatar, ClaimsPrincipal currentUser)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
+
         if (user == null)
         {
             _logger.Warning($"Попытка загрузить аватар для несуществующего пользователя {userId}");
