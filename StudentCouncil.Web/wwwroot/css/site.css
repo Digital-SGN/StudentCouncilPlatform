@@ -4,6 +4,7 @@
     --secondary: #09707C;
     --dark: #2d3748;
     --light: #f7fafc;
+    --gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 50%, var(--secondary) 100%);
 }
 
 * {
@@ -14,10 +15,11 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #0CBFA1 0%, #148C9C 50%, #09707C 100%);
     min-height: 100vh;
+    /* Фон убран — будет задаваться на страницах */
 }
 
+/* ========== ШАПКА ========== */
 .navbar {
     background: white !important;
     box-shadow: 0 2px 20px rgba(0,0,0,0.1);
@@ -27,7 +29,7 @@ body {
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: bold;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    background: var(--gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -47,12 +49,7 @@ body {
         color: var(--primary) !important;
     }
 
-.container-custom {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 20px;
-}
-
+/* ========== КАРТОЧКИ (общие) ========== */
 .card {
     background: white;
     border-radius: 20px;
@@ -62,13 +59,14 @@ body {
 }
 
 .card-header {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    background: var(--gradient); /* исправлено: убрал # */
     color: white;
     padding: 1.5rem;
     border: none;
 }
 
-    .card-header h1, .card-header h2 {
+    .card-header h1,
+    .card-header h2 {
         margin: 0;
         color: white;
     }
@@ -77,6 +75,7 @@ body {
     padding: 2rem;
 }
 
+/* ========== ТАБЛИЦЫ ========== */
 .table-custom {
     background: white;
     border-radius: 15px;
@@ -85,7 +84,7 @@ body {
 }
 
     .table-custom thead {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        background: var(--gradient);
         color: white;
     }
 
@@ -105,6 +104,7 @@ body {
         background: #f7fafc;
     }
 
+/* ========== БЕЙДЖИ ========== */
 .badge-admin {
     background: linear-gradient(135deg, #dc3545, #c82333);
     color: white;
@@ -135,8 +135,9 @@ body {
     display: inline-block;
 }
 
+/* ========== КНОПКИ ========== */
 .btn-primary-custom {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    background: var(--gradient);
     border: none;
     padding: 10px 25px;
     border-radius: 25px;
@@ -171,42 +172,7 @@ body {
         color: var(--dark);
     }
 
-.loading {
-    text-align: center;
-    padding: 2rem;
-    color: white;
-    font-size: 1.2rem;
-}
-
-footer {
-    background: white;
-    border-top: 1px solid #e2e8f0;
-    padding: 1.5rem 0;
-    margin-top: 3rem;
-}
-
-    footer p {
-        text-align: center;
-        color: #718096;
-        margin: 0;
-    }
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.fade-in {
-    animation: fadeIn 0.5s ease-out;
-}
-
+/* ========== ПОДВАЛ ========== */
 footer {
     background: white;
     border-top: 1px solid #e2e8f0;
@@ -226,10 +192,53 @@ footer {
 }
 
     .footer-links a {
-        color: #0CBFA1;
+        color: var(--primary);
         text-decoration: none;
     }
 
         .footer-links a:hover {
             text-decoration: underline;
         }
+
+/* ========== ОБЩИЕ ЭЛЕМЕНТЫ ========== */
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.music-control {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    margin-left: 15px;
+    padding: 5px 10px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    opacity: 0.7;
+}
+
+    .music-control:hover {
+        opacity: 1;
+        transform: scale(1.1);
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+/* ========== АНИМАЦИИ ========== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}

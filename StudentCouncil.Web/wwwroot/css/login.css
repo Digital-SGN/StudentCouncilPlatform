@@ -248,6 +248,8 @@
 }
 
 .login-container {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
     background: white;
     border-radius: 20px;
     text-align: center;
@@ -413,4 +415,8 @@ button {
 button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
+}
+
+.login-page {
+    background: transparent;
 }
