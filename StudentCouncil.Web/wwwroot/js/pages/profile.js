@@ -85,43 +85,30 @@ window.initProfile = async function () {
                 </div>
                 <div class="profile-info">
                     <div class="info-card">
-                        <div class="info-card-header"><h2>${escapeHtml(user.lastName)} ${escapeHtml(user.firstName)}</h2></div>
+                        <div class="info-card-header"><h2>${escapeHtml(user.lastName)} ${escapeHtml(user.firstName)} ${escapeHtml(user.patronymic)}</h2></div>
                         <div class="info-card-body">
                             <div class="info-grid">
+                                <div class="info-label">Возраст</div>
+                                <div class="info-value">${user.birthDate ? calculateAge(user.birthDate) + ' лет' : '—'}</div>
+                                <div class="info-label">Дата рождения</div>
+                                <div class="info-value">${user.birthDate ? new Date(user.birthDate).toLocaleDateString('ru-RU') : '—'}</div>
+                                <div class="info-label">В студсовете с</div>
+                                <div class="info-value">${user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('ru-RU') : '—'}</div>
                                 <div class="info-label">Email</div><div class="info-value">${escapeHtml(user.email)}</div>
                                 <div class="info-label">Группа</div><div class="info-value">${escapeHtml(user.group || '—')}</div>
                                 <div class="info-label">Роль</div><div class="info-value">${user.role === 'Admin' ? 'Админ' : (user.role === 'Leader' ? 'Руководство' : 'Участник')}</div>
                                 <div class="info-label">Телефон</div><div class="info-value">${escapeHtml(user.phoneNumber || '—')}</div>
                                 <div class="info-label">Телеграм</div><div class="info-value">${escapeHtml(user.telegram || '—')}</div>
                                 <div class="info-label">Размер одежды</div><div class="info-value">${escapeHtml(user.clothingSize || '—')}</div>
+
                             </div>
                             <hr />
                             <h3>Статистика активности</h3>
-                            <div class="stats-charts">
-                                <div class="chart-card">
-                                    <div class="chart-title">Мероприятия</div>
-                                    <div class="bar-container">
-                                        <div class="chart-bar-vertical"><div class="bar" style="height: ${Math.min(user.eventsAttended * 8, 120)}px;"></div></div>
-                                        <div class="chart-value">${user.eventsAttended}</div>
-                                    </div>
-                                </div>
-                                <div class="chart-card">
-                                    <div class="chart-title">Задачи</div>
-                                    <div class="bar-container">
-                                        <div class="chart-bar-vertical"><div class="bar" style="height: ${Math.min(user.tasksCompleted * 5, 120)}px;"></div></div>
-                                        <div class="chart-value">${user.tasksCompleted}</div>
-                                    </div>
-                                </div>
-                                <div class="chart-card">
-                                    <div class="chart-title">Организовал</div>
-                                    <div class="bar-container">
-                                        <div class="chart-bar-vertical"><div class="bar" style="height: ${Math.min(user.eventsOrganized * 12, 120)}px;"></div></div>
-                                        <div class="chart-value">${user.eventsOrganized}</div>
-                                    </div>
-                                </div>
+                         <canvas id="statsChart" style="width: 400px; height: 600px; margin: 10px 0;"></canvas>
+                            
                             </div>
                             <div class="profile-actions">
-                                <a href="/user/edit/${user.id}" class="btn-edit">✏️ Редактировать</a>
+                                <a href="/users/edit/${user.id}" class="btn-edit">✏️ Редактировать</a>
                             </div>
                         </div>
                     </div>
@@ -131,7 +118,99 @@ window.initProfile = async function () {
     `;
 
     document.getElementById('profile-content').innerHTML = html;
+
+    const ctx = document.getElementById('statsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Мероприятия', 'Задачи', 'Организовал'],
+            datasets: [{
+                label: 'Мои достижения',
+                data: [user.eventsAttended, user.tasksCompleted, user.eventsOrganized],
+                backgroundColor: 'rgba(12, 191, 161, 0.25)', 
+                borderColor: '#0CBFA1',                      
+                borderWidth: 3,
+                pointBackgroundColor: '#0CBFA1',             
+                pointBorderColor: '#ffffff',                  
+                pointRadius: 6,                              
+                pointHoverRadius: 9,                          
+                pointBorderWidth: 2,
+                tension: 0.2                                 
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,  
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        backdropColor: 'transparent',
+                        color: '#2d3748',     
+                        font: { size: 12 }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)',  
+                    },
+                    angleLines: {
+                        color: 'rgba(0, 0, 0, 0.1)'   
+                    },
+                    pointLabels: {
+                        color: '#0CBFA1',           
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    backgroundColor: '#ffffff',
+                    titleColor: '#2d3748',
+                    bodyColor: '#4a5568',
+                    borderColor: '#0CBFA1',
+                    borderWidth: 2,
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.label}: ${context.raw}`;
+                        }
+                    }
+                },
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: '#2d3748',
+                        font: { size: 14, weight: 'bold' },
+                        boxWidth: 15,
+                        padding: 15
+                    }
+                }
+            },
+            layout: {
+                padding: {
+                    top: 20,
+                    bottom: 20,
+                    left: 20,
+                    right: 20
+                }
+            }
+        }
+    });
 };
+
+function calculateAge(birthDate) {
+    if (!birthDate) return '—';
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+        age--;
+    }
+    return age;
+}
 
 function getLevelBorderClass(level) {
     if (level >= 1 && level <= 3) return 'level-border-1';

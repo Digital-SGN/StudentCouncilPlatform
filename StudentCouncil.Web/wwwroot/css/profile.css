@@ -390,3 +390,9 @@ body {
     font-size: 14px;
     margin: 0;
 }
+
+#statsChart {
+    max-height: 400px;
+    width: 100%;
+    margin: 20px 0;
+}
