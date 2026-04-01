@@ -1,17 +1,14 @@
-﻿async function renderHeader(user) {
-    const headerHtml = await fetch('/html/header.html').then(r => r.text());
-    return headerHtml;
-}
-
-async function render() {
+﻿async function render() {
     const path = window.location.pathname;
     const publicPages = ['/login', '/help'];
-    const noHeaderPages = ['/login']; 
+    const noHeaderPages = ['/login'];
 
     let user = null;
 
     if (!publicPages.includes(path)) {
         user = await API.getCurrentUser();
+        window.currentUser = user;
+
         if (!user) {
             window.location.href = '/login';
             return;
@@ -26,7 +23,7 @@ async function render() {
         html = `<main><div class="container" id="content">${content}</div></main>`;
     }
     else {
-        const headerHtml = await renderHeader(user);
+        const headerHtml = await window.renderHeader(user); 
         html = `${headerHtml}<main><div class="container" id="content">${content}</div></main>${renderFooter()}`;
     }
 
@@ -34,68 +31,52 @@ async function render() {
 
     if (path === '/login' && window.initLogin) window.initLogin();
     if (path === '/users' && window.initUsers) window.initUsers();
+    if (path.startsWith('/users/edit/') && window.initUserEdit) window.initUserEdit();
+    if (path === '/users/create' && window.initUserCreate) window.initUserCreate();
     if (path.startsWith('/profile/') && window.initProfile) window.initProfile();
     if (path === '/help' && window.initHelp) window.initHelp();
     if (path === '/home' && window.initHome) window.initHome();
-
-    if (user) {
-        fillNavMenu(user);
-    }
-    else {
-        fillPublicNavMenu();
-    }
 }
 
 async function getContent(path, user) {
-    if (path === '/login') return window.renderLogin();
-    if (path === '/users' && user?.role === 'Admin') return await window.renderUsers();
+    if (path.startsWith('/users/edit/')) {
+        window.editUserId = path.split('/')[3];
+        return await window.renderUserEdit();
+    }
+
     if (path.startsWith('/profile/')) {
         window.profileUserId = path.split('/')[2];
-        return await window.renderProfile(window.profileUserId);
+        return await window.renderProfile();
     }
 
-    if (path === '/help') return window.renderHelp();
 
-    if (path === '/home' || path === '/') return window.renderHome();
+    switch (path) {
+        case '/login':
+            return window.renderLogin();
 
-    return '<h1>404</h1>';
-}
+        case '/users':
+            if (user?.role === 'Admin') {
+                return await window.renderUsers();
+            }
+            return '<h1>403 Доступ запрещён</h1>';
 
-function fillPublicNavMenu() {
-    const navMenu = document.getElementById('nav-menu');
-    if (!navMenu) return;
+        case '/users/create':
+            if (user?.role === 'Admin') {
+                return await window.renderUserCreate();
+            }
+            return '<h1>403 Доступ запрещён</h1>';
 
-    navMenu.innerHTML = `
-        <li class="nav-item"><a class="nav-link" href="/home">Главная</a></li>
-        <li class="nav-item"><a class="nav-link" href="/help">Помощь</a></li>
-        <li class="nav-item"><a class="nav-link" href="/login">Войти</a></li>
-    `;
-}
+        case '/help':
+            return window.renderHelp();
 
-function fillNavMenu(user) {
-    const navMenu = document.getElementById('nav-menu');
-    if (!navMenu) return;
-    let menuHtml = `<li class="nav-item"><a class="nav-link" href="/home">Главная</a></li>`;
-    if (user?.role === 'Admin') menuHtml += `<li class="nav-item"><a class="nav-link" href="/users">Участники</a></li>`;
-    if (user) {
-        menuHtml += `
-            <li class="nav-item"><a class="nav-link" href="/profile/${user.id}">Мой профиль</a></li>
-            <li class="nav-item"><span class="nav-link">Привет, ${escapeHtml(user.email)}!</span></li>
-            <li class="nav-item"><a class="nav-link" href="#" onclick="logout()">Выйти</a></li>
-        `;
+        case '/home':
+        case '/':
+            return window.renderHome();
+
+        default:
+            return '<h1>404</h1>';
     }
-    else {
-        menuHtml += `<li class="nav-item"><a class="nav-link" href="/login">Войти</a></li>`;
-    }
-    navMenu.innerHTML = menuHtml;
 }
-
-
-
-window.logout = async () => {
-    await API.logout();
-    window.location.href = '/login';
-};
 
 document.addEventListener('click', (event) => {
     const link = event.target.closest('a');

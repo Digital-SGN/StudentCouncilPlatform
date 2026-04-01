@@ -1,35 +1,36 @@
-﻿let currentUser = null;
+﻿window.currentUser = null;
+let listeners = [];
 
 window.initAuth = async function () {
-    currentUser = await API.getCurrentUser();
+    window.currentUser = await API.getCurrentUser();
     notifyListeners();
-    return currentUser;
+    return window.currentUser;
 };
 
 window.getCurrentUser = function () {
-    return currentUser;
+    return window.currentUser;
 };
 
 window.isAuthenticated = function () {
-    return currentUser !== null;
+    return window.currentUser !== null;
 };
 
 window.isAdmin = function () {
-    return currentUser?.role === 'Admin';
+    return window.currentUser?.role === 'Admin';
 };
 
 window.isLeader = function () {
-    return currentUser?.role === 'Leader';
+    return window.currentUser?.role === 'Leader';
 };
 
 window.isAdminOrLeader = function () {
-    return isAdmin() || isLeader();
+    return window.isAdmin() || window.isLeader();
 };
 
 window.login = async function (email, password) {
     const result = await API.login(email, password);
     if (result.ok) {
-        currentUser = await API.getCurrentUser();
+        window.currentUser = await API.getCurrentUser();
         notifyListeners();
     }
     return result;
@@ -37,7 +38,16 @@ window.login = async function (email, password) {
 
 window.logout = async function () {
     await API.logout();
-    currentUser = null;
+    window.currentUser = null;
     notifyListeners();
     window.location.href = '/login';
+};
+
+function notifyListeners() {
+    listeners.forEach(cb => cb(window.currentUser));
+}
+
+window.subscribeAuth = function (callback) {
+    listeners.push(callback);
+    callback(window.currentUser);
 };
