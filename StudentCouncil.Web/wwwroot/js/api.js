@@ -1,5 +1,9 @@
 ﻿const API = {
     async request(endpoint, options = {}) {
+        if (options.method === 'GET' || options.method === 'HEAD') {
+            delete options.body;
+        }
+
         const response = await fetch(`/api${endpoint}`, {
             credentials: 'include',
             ...options,
@@ -9,7 +13,31 @@
             }
         });
 
-        const data = await response.json();
+        let data = {};
+        try {
+            data = await response.json();
+        } catch (e) {
+            console.warn('Response is not JSON:', response);
+            data = { error: response.statusText || "Ошибка сервера" };
+        }
+
+        if (response.status === 403) {
+            return {
+                ok: false,
+                status: 403,
+                data: data  
+            };
+        }
+
+        if (response.status === 401) {
+            window.location.href = '/login';
+            return {
+                ok: false,
+                status: 401,
+                data: data
+            };
+        }
+
         return { ok: response.ok, status: response.status, data };
     },
 
@@ -30,15 +58,29 @@
     },
 
     async getUsers() {
-        return this.request('/users', {method: 'GET'});
+        return this.request('/users');
     },
 
     async getUser(id) {
-        return this.request(`/users/${id}`, { method: 'GET' });
+        return this.request(`/users/${id}`);
     },
 
     async deleteUser(id) {
         return this.request(`/users/${id}`, { method: 'DELETE' });
+    },
+
+    async updateUser(id, data) {
+        return this.request(`/users/${id}`, {
+            method: 'PUT',  
+            body: JSON.stringify(data)
+        });
+    },
+
+    async createUser(data) {
+        return this.request('/users', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
     },
 
     async uploadAvatar(userId, formData) {
@@ -47,14 +89,9 @@
             body: formData,
             credentials: 'include'
         });
-
-        if (response.ok) {
-            return { ok: true };
-        }
-        else {
-            const error = await response.json();
-            return { ok: false, error: error.error || 'Ошибка загрузки' };
-        }
+        if (response.ok) return { ok: true };
+        const error = await response.json();
+        return { ok: false, error: error.error || 'Ошибка загрузки' };
     },
 
     async deleteAvatar(userId) {
@@ -62,13 +99,8 @@
             method: 'DELETE',
             credentials: 'include'
         });
-
-        if (response.ok) {
-            return { ok: true };
-        }
-        else {
-            const error = await response.json();
-            return { ok: false, error: error.error || 'Ошибка удаления' };
-        }
+        if (response.ok) return { ok: true };
+        const error = await response.json();
+        return { ok: false, error: error.error || 'Ошибка удаления' };
     }
 };
