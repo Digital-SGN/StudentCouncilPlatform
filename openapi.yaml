@@ -1,0 +1,824 @@
+openapi: 3.0.1
+info:
+  title: Student Council API
+  description: API для управления студенческим советом СГН
+  version: 2.0.0
+servers:
+  - url: https://localhost:7107
+    description: Development server
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: .AspNetCore.Identity.Application
+
+  schemas:
+    LoginRequestDTO:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          example: admin@studsovet.ru
+        password:
+          type: string
+          example: password123
+
+    LoginResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+
+    CurrentUserDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+        avatarPath:
+          type: string
+        isActive:
+          type: boolean
+
+    UserDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        patronymic:
+          type: string
+        group:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        telegram:
+          type: string
+        clothingSize:
+          type: string
+        birthDate:
+          type: string
+        joinedAt:
+          type: string
+        isActive:
+          type: boolean
+        avatarPath:
+          type: string
+        balance:
+          type: integer
+        experiencePoints:
+          type: integer
+        level:
+          type: integer
+        eventsAttended:
+          type: integer
+        eventsOrganized:
+          type: integer
+        tasksCompleted:
+          type: integer
+        role:
+          type: string
+
+    UserListResponseDTO:
+      type: object
+      properties:
+        count:
+          type: integer
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDTO'
+
+    CreateUserDTO:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        patronymic:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        group:
+          type: string
+        phoneNumber:
+          type: string
+        telegram:
+          type: string
+        clothingSize:
+          type: string
+        birthDate:
+          type: string
+        role:
+          type: string
+        isActive:
+          type: boolean
+
+    UpdateUserDTO:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        patronymic:
+          type: string
+        group:
+          type: string
+        phoneNumber:
+          type: string
+        telegram:
+          type: string
+        clothingSize:
+          type: string
+        birthDate:
+          type: string
+        role:
+          type: string
+        isActive:
+          type: boolean
+
+    EventResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        eventDate:
+          type: string
+        location:
+          type: string
+        registrationLink:
+          type: string
+        status:
+          type: string
+        responsibleUserId:
+          type: integer
+        createdAt:
+          type: string
+
+    EventListResponseDTO:
+      type: object
+      properties:
+        count:
+          type: integer
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventResponseDTO'
+
+    CreateEventDTO:
+      type: object
+      required:
+        - title
+        - eventDate
+        - location
+        - responsibleUserId
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        eventDate:
+          type: string
+        location:
+          type: string
+        registrationLink:
+          type: string
+        responsibleUserId:
+          type: integer
+
+    UpdateEventDTO:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        eventDate:
+          type: string
+        location:
+          type: string
+        registrationLink:
+          type: string
+        responsibleUserId:
+          type: integer
+        status:
+          type: string
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+security:
+  - cookieAuth: []
+
+paths:
+  /api/account/login:
+    post:
+      summary: Вход в систему
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDTO'
+      responses:
+        '200':
+          description: Успешный вход
+          content:
+            application/json:
+              example:
+                id: 1
+                firstName: Дмитрий
+                lastName: Ананьев
+                role: Admin
+        '400':
+          description: Аккаунт заблокирован
+          content:
+            application/json:
+              example:
+                error: Аккаунт заблокирован
+        '401':
+          description: Неверный email или пароль
+          content:
+            application/json:
+              example:
+                error: Неверный email или пароль
+
+  /api/account/logout:
+    post:
+      summary: Выход из системы
+      responses:
+        '200':
+          description: Выход выполнен
+          content:
+            application/json:
+              example:
+                message: Выход выполнен
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+
+  /api/account/current:
+    get:
+      summary: Текущий пользователь
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              example:
+                id: 1
+                email: admin@studsovet.ru
+                firstName: Дмитрий
+                lastName: Ананьев
+                role: Admin
+                avatarPath: null
+                isActive: true
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+
+  /api/users:
+    get:
+      summary: Список пользователей
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              example:
+                count: 2
+                users:
+                  - id: 1
+                    firstName: Дмитрий
+                    lastName: Ананьев
+                    email: admin@studsovet.ru
+                    role: Admin
+                    level: 5
+                  - id: 2
+                    firstName: Иван
+                    lastName: Петров
+                    email: ivan@studsovet.ru
+                    role: Member
+                    level: 2
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+        '403':
+          description: Доступ запрещён
+          content:
+            application/json:
+              example:
+                error: Доступ запрещён
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              example:
+                error: Ошибка получения списка пользователей
+
+    post:
+      summary: Создать пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDTO'
+      responses:
+        '200':
+          description: Пользователь создан
+          content:
+            application/json:
+              example:
+                message: Пользователь успешно создан
+        '400':
+          description: Ошибка создания
+          content:
+            application/json:
+              example:
+                error: Пользователь с таким email уже существует
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+        '403':
+          description: Доступ запрещён
+          content:
+            application/json:
+              example:
+                error: Доступ запрещён
+
+  /api/users/{id}:
+    get:
+      summary: Получить пользователя
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              example:
+                id: 1
+                firstName: Дмитрий
+                lastName: Ананьев
+                email: admin@studsovet.ru
+                role: Admin
+                level: 5
+                balance: 150
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+        '403':
+          description: Доступ запрещён
+          content:
+            application/json:
+              example:
+                error: Доступ запрещён
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              example:
+                error: Пользователь не найден
+
+    put:
+      summary: Обновить пользователя
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserDTO'
+      responses:
+        '200':
+          description: Обновлено
+          content:
+            application/json:
+              example:
+                message: Данные успешно обновлены
+        '400':
+          description: Ошибка
+          content:
+            application/json:
+              example:
+                error: Недопустимая роль
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+        '403':
+          description: Доступ запрещён
+          content:
+            application/json:
+              example:
+                error: У вас нет прав на редактирование этого пользователя
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              example:
+                error: Пользователь не найден
+
+    delete:
+      summary: Удалить пользователя
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Удалён
+          content:
+            application/json:
+              example:
+                message: Пользователь успешно удалён
+        '400':
+          description: Ошибка
+          content:
+            application/json:
+              example:
+                error: Нельзя удалить последнего администратора
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+        '403':
+          description: Доступ запрещён
+          content:
+            application/json:
+              example:
+                error: Доступ запрещён
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              example:
+                error: Пользователь не найден
+
+  /api/users/{id}/avatar:
+    post:
+      summary: Загрузить аватар
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                avatar:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Загружен
+          content:
+            application/json:
+              example:
+                message: Аватар загружен
+        '400':
+          description: Файл не выбран
+          content:
+            application/json:
+              example:
+                error: Файл не выбран
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+        '403':
+          description: Доступ запрещён
+          content:
+            application/json:
+              example:
+                error: У вас нет прав на изменение аватара этого пользователя
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              example:
+                error: Пользователь не найден
+
+    delete:
+      summary: Удалить аватар
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Удалён
+          content:
+            application/json:
+              example:
+                message: Аватар удалён
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+        '403':
+          description: Доступ запрещён
+          content:
+            application/json:
+              example:
+                error: У вас нет прав на удаление аватара этого пользователя
+        '404':
+          description: Пользователь не найден
+          content:
+            application/json:
+              example:
+                error: Пользователь не найден
+
+  /api/events:
+    get:
+      summary: Список мероприятий
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              example:
+                count: 1
+                events:
+                  - id: 1
+                    title: Собрание студсовета
+                    description: Обсуждение планов
+                    eventDate: 2026-05-15T18:00:00Z
+                    location: Аудитория 123
+                    status: Upcoming
+                    responsibleUserId: 1
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+        '403':
+          description: Доступ запрещён
+          content:
+            application/json:
+              example:
+                error: Доступ запрещён
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              example:
+                error: Ошибка получения списка мероприятий
+
+    post:
+      summary: Создать мероприятие
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEventDTO'
+      responses:
+        '201':
+          description: Создано
+          content:
+            application/json:
+              example:
+                id: 1
+                title: Новое мероприятие
+                description: Описание
+                eventDate: 2026-06-01T14:00:00Z
+                location: Аудитория 456
+                status: Upcoming
+                responsibleUserId: 1
+        '400':
+          description: Ошибка
+          content:
+            application/json:
+              example:
+                error: Ответственный пользователь не найден
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+        '403':
+          description: Доступ запрещён
+          content:
+            application/json:
+              example:
+                error: Доступ запрещён
+
+  /api/events/{id}:
+    get:
+      summary: Получить мероприятие
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              example:
+                id: 1
+                title: Собрание студсовета
+                description: Обсуждение планов
+                eventDate: 2026-05-15T18:00:00Z
+                location: Аудитория 123
+                status: Upcoming
+                responsibleUserId: 1
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+        '403':
+          description: Доступ запрещён
+          content:
+            application/json:
+              example:
+                error: Доступ запрещён
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              example:
+                error: Мероприятие не найдено
+
+    put:
+      summary: Обновить мероприятие
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEventDTO'
+      responses:
+        '200':
+          description: Обновлено
+          content:
+            application/json:
+              example:
+                id: 1
+                title: Обновлённое мероприятие
+                status: Cancelled
+        '400':
+          description: Ошибка
+          content:
+            application/json:
+              example:
+                error: Ответственный пользователь не найден
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+        '403':
+          description: Доступ запрещён
+          content:
+            application/json:
+              example:
+                error: Доступ запрещён
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              example:
+                error: Мероприятие не найдено
+
+    delete:
+      summary: Удалить мероприятие
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Удалено
+          content:
+            application/json:
+              example:
+                message: Мероприятие удалено
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              example:
+                error: Не авторизован
+        '403':
+          description: Доступ запрещён
+          content:
+            application/json:
+              example:
+                error: Доступ запрещён
+        '404':
+          description: Не найдено
+          content:
+            application/json:
+              example:
+                error: Мероприятие не найдено
+
+  /api/events/test:
+    get:
+      summary: Тест
+      security: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example:
+                message: EventController works!
