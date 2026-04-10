@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Элементы решения/">
     <File Path=".gitignore" />
+    <File Path="openapi.yaml" />
   </Folder>
   <Project Path="StudentCouncil.Data/StudentCouncil.Data.csproj" />
   <Project Path="StudentCouncil.Logic/StudentCouncil.Logic.csproj" />
