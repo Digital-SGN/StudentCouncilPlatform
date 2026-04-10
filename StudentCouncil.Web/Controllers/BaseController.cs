@@ -15,6 +15,44 @@ public abstract class BaseController : ControllerBase
         _logger = logger;
     }
 
+    protected IActionResult HandleServiceResult(ServiceResult result)
+    {
+        if (result.Success)
+            return Ok(new { message = result.Message });
+
+        return result.ErrorCode switch
+        {
+            404 => NotFound(new { error = result.Message }),
+            403 => Forbid(),
+            400 => BadRequest(new { error = result.Message }),
+            500 => StatusCode(500, new { error = result.Message }),
+            _ => BadRequest(new { error = result.Message })
+        };
+    }
+
+    protected IActionResult HandleServiceResult<T>(ServiceResult<T> result)
+    {
+        if (result.Success)
+        {
+            if (result.Data != null)
+                return Ok(result.Data);
+
+            if (!string.IsNullOrEmpty(result.Message))
+                return Ok(new { message = result.Message });
+
+            return Ok();
+        }
+
+        return result.ErrorCode switch
+        {
+            404 => NotFound(new { error = result.Message }),
+            403 => Forbid(),
+            400 => BadRequest(new { error = result.Message }),
+            500 => StatusCode(500, new { error = result.Message }),
+            _ => BadRequest(new { error = result.Message })
+        };
+    }
+
     protected List<string> GetModelStateErrors()
     {
         return ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
@@ -32,6 +70,10 @@ public abstract class BaseController : ControllerBase
         return int.TryParse(userId, out var id) ? id : 0;
     }
 
+    protected bool IsAuthenticated()
+    {
+        return User?.Identity?.IsAuthenticated == true;
+    }
     protected bool IsAdminOrLeader() =>
         User.IsInRole("Admin") || User.IsInRole("Leader");
 }
