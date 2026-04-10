@@ -5,17 +5,26 @@ using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.Interfaces;
 using StudentCouncil.Logic.Services;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/login";  
     options.LogoutPath = "/logout";
     options.AccessDeniedPath = "/error/403";
+    
     options.Events.OnRedirectToLogin = context =>
     {
-        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        return Task.CompletedTask;
+        context.Response.StatusCode = 401;
+        context.Response.ContentType = "application/json";
+        return context.Response.WriteAsync("{\"error\":\"Не авторизован\"}");
+    };
+
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        context.Response.StatusCode = 403;
+        context.Response.ContentType = "application/json";
+        return context.Response.WriteAsync("{\"error\":\"Доступ запрещён\"}");
     };
 });
 
@@ -35,17 +44,17 @@ builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddSingleton<LoggerService>();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.UseStatusCodePagesWithReExecute("/Error/{0}");
-
-app.MapControllers();  
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
@@ -53,7 +62,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapFallbackToFile("html/home.html");  
+app.MapControllers();               
+app.MapFallbackToFile("html/home.html");
 
 using (var scope = app.Services.CreateScope())
 {
