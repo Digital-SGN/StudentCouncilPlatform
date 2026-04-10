@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StudentCouncil.Data.Models;
-using StudentCouncil.Logic.DTOs.LoginDTOs;
-using StudentCouncil.Logic.DTOs.UsersDTOs;
+using StudentCouncil.Logic.DTOs;
 using StudentCouncil.Logic.Services;
 
 namespace StudentCouncil.Web.Controllers;
@@ -21,7 +20,7 @@ public class AccountController : BaseController
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequestDTO request)
     {
-        var user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
+        User? user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
 
         if (user != null && !user.IsActive)
         {
@@ -29,15 +28,11 @@ public class AccountController : BaseController
             return BadRequest(new { error = "Аккаунт заблокирован" });
         }
 
-        var result = await _signInManager.PasswordSignInAsync(
-            request.Email,
-            request.Password,
-            false,
-            false);
+        Microsoft.AspNetCore.Identity.SignInResult result = await _signInManager.PasswordSignInAsync(request.Email, request.Password, false, false);
 
         if (result.Succeeded)
         {
-            var roles = await _signInManager.UserManager.GetRolesAsync(user);
+            IList<string> roles = await _signInManager.UserManager.GetRolesAsync(user);
             _logger.Info($"Успешный вход: {request.Email}");
 
             return Ok(new LoginResponseDTO
@@ -56,26 +51,26 @@ public class AccountController : BaseController
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
-        if (!User.Identity.IsAuthenticated)
+        if (!IsAuthenticated())
             return Unauthorized(new { error = "Не авторизован" });
 
         await _signInManager.SignOutAsync();
-        return Ok(new { message = "Выход выполнен" });
+        return Ok(new { message = "Выход успешно выполнен" });
     }
 
     [HttpGet("current")]
     public async Task<ActionResult<CurrentUserDTO>> GetCurrentUser()
     {
-        if (!User.Identity.IsAuthenticated)
+        if (!IsAuthenticated())
             return Unauthorized(new { error = "Не авторизован" });
 
-        var user = await _signInManager.UserManager.GetUserAsync(User);
+        User? user = await _signInManager.UserManager.GetUserAsync(User);
         if (user == null)
         {
             return Unauthorized(new { error = "Не авторизован" });
         }
 
-        var roles = await _signInManager.UserManager.GetRolesAsync(user);
+        IList<string> roles = await _signInManager.UserManager.GetRolesAsync(user);
 
         return Ok(new CurrentUserDTO
         {
@@ -88,5 +83,4 @@ public class AccountController : BaseController
             IsActive = user.IsActive
         });
     }
-
 }
