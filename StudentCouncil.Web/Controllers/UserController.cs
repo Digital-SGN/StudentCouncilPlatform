@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using StudentCouncil.Logic.Interfaces;
 using System.Security.Claims;
 using StudentCouncil.Logic.Services;
-using StudentCouncil.Logic.DTOs.UsersDTOs;
+using StudentCouncil.Logic.DTOs;
 
 namespace StudentCouncil.Web.Controllers;
 
@@ -19,138 +19,80 @@ public class UserController : BaseController
     }
 
     [HttpGet]
-    public async Task<ActionResult<UserListResponseDTO>> GetAll()
+    [Authorize(Roles = "Admin,Leader")]
+    public async Task<IActionResult> GetAll()
     {
-        try
-        {
-            if (!User.Identity.IsAuthenticated)
-                return Unauthorized(new { error = "Не авторизован" });
+        ServiceResult<List<UserDTO>> result = await _userService.GetAllUsersAsync();
 
-            if (!User.IsInRole("Admin") && !User.IsInRole("Leader"))
-                return StatusCode(403, new { error = "Доступ запрещён" });
+        if (!result.Success)
+            return HandleServiceResult(result);
 
-            var users = await _userService.GetAllUsersWithRolesAsync();
-
-            var response = new UserListResponseDTO
-            {
-                Count = users.Count,
-                Users = users
-            };
-
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.Error($"Ошибка получения списка пользователей: {ex.Message}");
-            return StatusCode(500, new { error = "Ошибка получения списка пользователей" });
-        }
+        return Ok(new { count = result.Data?.Count ?? 0, users = result.Data });
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserDTO>> GetById(int id)
+    [Authorize(Roles = "Admin,Leader")]
+    public async Task<IActionResult> GetById(int id)
     {
-        if (!User.Identity.IsAuthenticated)
-            return Unauthorized(new { error = "Не авторизован" });
+        ServiceResult<UserDTO> result = await _userService.GetUserByIdAsync(id);
 
-        var user = await _userService.GetUserByIdAsync(id);
-
-        if (user == null)
-            return NotFound(new { error = "Пользователь не найден" });
-
-        var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-        var isAdminOrLeader = User.IsInRole("Admin") || User.IsInRole("Leader");
-        var isOwnProfile = currentUserId == id;
-
-        if (!isOwnProfile && !isAdminOrLeader)
-            return StatusCode(403, new { error = "Доступ запрещён" });
-
-        return Ok(user);
+        return HandleServiceResult(result);
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Leader")]
-    public async Task<ActionResult<UserDTO>> Create([FromBody] CreateUserDTO dto)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Create([FromBody] CreateUserDTO dto)
     {
-        if (!User.Identity.IsAuthenticated)
-            return Unauthorized(new { error = "Не авторизован" });
-
         if (!ModelState.IsValid)
             return BadRequest(new { errors = GetModelStateErrors() });
 
-        var result = await _userService.CreateUserAsync(dto, dto.Password);
+        ServiceResult result = await _userService.CreateUserAsync(dto, dto.Password);
 
-        if (result)
-        {
-            _logger.Info($"Создан пользователь {dto.Email} админом {User.Identity.Name}");
-            return Ok(new { message = "Пользователь успешно создан" });
-        }
+        if (!result.Success)
+            return HandleServiceResult(result);
 
-        return BadRequest(new { error = "Ошибка создания пользователя" });
+        _logger.Info($"Создан пользователь {dto.Email} админом {User.Identity?.Name ?? "неизвестный"}");
+        return Ok(new { message = result.Message });
     }
+
 
     [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, [FromBody] UpdateUserDTO dto)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDTO dto)
     {
-        if (!User.Identity.IsAuthenticated)
-            return Unauthorized(new { error = "Не авторизован" });
-
-        var success = await _userService.UpdateUserAsync(id, dto, User);
-
-        if (!success)
-            return Forbid();
-
-        return Ok(new { message = "Данные успешно обновлены" });
+        var result = await _userService.UpdateUserAsync(id, dto, User);
+        return HandleServiceResult(result);
     }
 
-    [Authorize(Roles = "Admin,Leader")]
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(int id)
     {
-        if (!User.Identity.IsAuthenticated)
-            return Unauthorized(new { error = "Не авторизован" });
+        ServiceResult result = await _userService.DeleteUserAsync(id, User);
 
-        var user = await _userService.GetUserByIdAsync(id);
-        var success = await _userService.DeleteUserAsync(id, User);
+        if (!result.Success)
+            return HandleServiceResult(result);
 
-        if (!success)
-        {
-            return BadRequest(new { error = "Нельзя удалить последнего администратора" });
-        }
-
-        _logger.Info($"Пользователь {user?.Email} удалён пользователем {User.Identity.Name}");
-        return Ok(new { message = "Пользователь успешно удалён" });
+        _logger.Info($"Пользователь {id} удалён админом {User.Identity?.Name ?? "неизвестный"}");
+        return Ok(new { message = result.Message });
     }
 
     [HttpPost("{id}/avatar")]
     [Authorize]
     public async Task<IActionResult> UploadAvatar(int id, IFormFile avatar)
     {
-        if (!User.Identity.IsAuthenticated)
-            return Unauthorized(new { error = "Не авторизован" });
-
         if (avatar == null || avatar.Length == 0)
             return BadRequest(new { error = "Файл не выбран" });
 
-        var success = await _userService.UpdateAvatarAsync(id, avatar, User);
-
-        if (!success)
-            return Forbid();
-
-        return Ok(new { message = "Аватар загружен" });
+        ServiceResult result = await _userService.UpdateAvatarAsync(id, avatar, User);
+        return HandleServiceResult(result);
     }
 
     [HttpDelete("{id}/avatar")]
     [Authorize]
     public async Task<IActionResult> DeleteAvatar(int id)
     {
-        if (!User.Identity.IsAuthenticated)
-            return Unauthorized(new { error = "Не авторизован" });
-
-        var success = await _userService.DeleteAvatarAsync(id, User);
-
-        if (!success)
-            return Forbid();
-
-        return Ok(new { message = "Аватар удалён" });
+        ServiceResult result = await _userService.DeleteAvatarAsync(id, User);
+        return HandleServiceResult(result);
     }
 }
