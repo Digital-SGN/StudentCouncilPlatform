@@ -1,15 +1,16 @@
 ﻿async function render() {
-    const path = window.location.pathname;
-    const publicPages = ['/login', '/help'];
+    const path = window.location.pathname; 
+
     const noHeaderPages = ['/login'];
+    const publicPages = ['/login', '/help'];
 
     let user = null;
 
-    if (!publicPages.includes(path)) {
-        user = await API.getCurrentUser();
+    if (path !== '/login') {
+        user = await API.getCurrentUser();  
         window.currentUser = user;
 
-        if (!user) {
+        if (!user && !publicPages.includes(path)) {
             window.location.href = '/login';
             return;
         }
@@ -23,7 +24,7 @@
         html = `<main><div class="container" id="content">${content}</div></main>`;
     }
     else {
-        const headerHtml = await window.renderHeader(user); 
+        const headerHtml = await window.renderHeader(user);
         html = `${headerHtml}<main><div class="container" id="content">${content}</div></main>${renderFooter()}`;
     }
 

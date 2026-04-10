@@ -40,13 +40,44 @@ window.initProfile = async function () {
 
     const result = await API.getUser(userId);
     if (!result.ok) {
-        if (result.status === 401) {
-            window.location.href = '/login';
-            return;
+        switch (result.status) {
+            case 401:
+                window.location.href = '/login';
+                return;
+
+            case 403:
+                document.getElementById('profile-content').innerHTML = `
+                <div class="alert alert-danger">
+                    <div>
+                        ${result.data.error}
+                    </div>
+                </div>
+            `;
+                return;
+
+            case 404:
+                document.getElementById('profile-content').innerHTML = `
+                <div class="alert alert-warning">
+                    <div>
+                        ${result.data?.error}
+                    </div>
+                </div>
+            `;
+                return;
+
+            default:
+                document.getElementById('profile-content').innerHTML = `
+                <div class="alert alert-danger">
+                    <div>
+                        <strong>Ошибка загрузки</strong><br>
+                        ${result.data?.error}
+                    </div>
+                </div>
+            `;
+                return;
         }
-        document.getElementById('profile-content').innerHTML = '<div class="alert alert-danger">Ошибка загрузки профиля</div>';
-        return;
     }
+
 
     const user = result.data;
 
@@ -69,10 +100,18 @@ window.initProfile = async function () {
                     <div class="avatar-wrapper">
                         <div class="avatar-shine">${avatarHtml}</div>
                     </div>
-                    <div class="level-info">
-                        <div class="level-badge">Уровень ${user.level} — ${levelName}</div>
-                        <div class="xp-bar"><div class="xp-fill" style="width: ${xpPercent}%"></div></div>
-                        <div class="xp-text">${user.experiencePoints} / ${nextLevelXP} XP</div>
+                    <div class="level-info ${getLevelBorderClass(user.level)}">
+                        <div class="level-icon">${getLevelIcon(user.level)}</div>
+                        <div class="level-details">
+                            <div class="level-badge">
+                                <span class="level-number">Уровень ${user.level}</span>
+                                <span class="level-name">${levelName}</span>
+                            </div>
+                            <div class="xp-bar">
+                                <div class="xp-fill" style="width: ${xpPercent}%"></div>
+                            </div>
+                            <div class="xp-text">${user.experiencePoints} / ${nextLevelXP} XP</div>
+                        </div>
                     </div>
                     <div class="balance-info">💰 ${user.balance}</div>
                     <div class="avatar-actions">
@@ -88,25 +127,75 @@ window.initProfile = async function () {
                         <div class="info-card-header"><h2>${escapeHtml(user.lastName)} ${escapeHtml(user.firstName)} ${escapeHtml(user.patronymic)}</h2></div>
                         <div class="info-card-body">
                             <div class="info-grid">
-                                <div class="info-label">Возраст</div>
-                                <div class="info-value">${user.birthDate ? calculateAge(user.birthDate) + ' лет' : '—'}</div>
-                                <div class="info-label">Дата рождения</div>
-                                <div class="info-value">${user.birthDate ? new Date(user.birthDate).toLocaleDateString('ru-RU') : '—'}</div>
-                                <div class="info-label">В студсовете с</div>
-                                <div class="info-value">${user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('ru-RU') : '—'}</div>
-                                <div class="info-label">Email</div><div class="info-value">${escapeHtml(user.email)}</div>
-                                <div class="info-label">Группа</div><div class="info-value">${escapeHtml(user.group || '—')}</div>
-                                <div class="info-label">Роль</div><div class="info-value">${user.role === 'Admin' ? 'Админ' : (user.role === 'Leader' ? 'Руководство' : 'Участник')}</div>
-                                <div class="info-label">Телефон</div><div class="info-value">${escapeHtml(user.phoneNumber || '—')}</div>
-                                <div class="info-label">Телеграм</div><div class="info-value">${escapeHtml(user.telegram || '—')}</div>
-                                <div class="info-label">Размер одежды</div><div class="info-value">${escapeHtml(user.clothingSize || '—')}</div>
-
+                                <div class="info-item">
+                                    <div class="info-icon">📧</div>
+                                    <div class="info-content">
+                                        <div class="info-label">Email</div>
+                                        <div class="info-value">${escapeHtml(user.email)}</div>
+                                    </div>
+                                </div>
+    
+                                <div class="info-item">
+                                    <div class="info-icon">👥</div>
+                                    <div class="info-content">
+                                        <div class="info-label">Группа</div>
+                                        <div class="info-value">${escapeHtml(user.group || '—')}</div>
+                                    </div>
+                                </div>
+    
+                                <div class="info-item">
+                                    <div class="info-icon">⭐</div>
+                                    <div class="info-content">
+                                        <div class="info-label">Роль</div>
+                                        <div class="info-value">${user.role === 'Admin' ? 'Администратор' : (user.role === 'Leader' ? 'Руководитель' : 'Участник')}</div>
+                                    </div>
+                                </div>
+    
+                                <div class="info-item">
+                                    <div class="info-icon">📱</div>
+                                    <div class="info-content">
+                                        <div class="info-label">Телефон</div>
+                                        <div class="info-value">${escapeHtml(user.phoneNumber || '—')}</div>
+                                    </div>
+                                </div>
+    
+                                <div class="info-item">
+                                    <div class="info-icon">💬</div>
+                                    <div class="info-content">
+                                        <div class="info-label">Telegram</div>
+                                        <div class="info-value">${user.telegram ? `<a href="https://t.me/${user.telegram.replace('@', '')}" target="_blank">${escapeHtml(user.telegram)}</a>` : '—'}</div>
+                                    </div>
+                                </div>
+    
+                                <div class="info-item">
+                                    <div class="info-icon">👕</div>
+                                    <div class="info-content">
+                                        <div class="info-label">Размер одежды</div>
+                                        <div class="info-value">${escapeHtml(user.clothingSize || '—')}</div>
+                                    </div>
+                                </div>
+   
+    
+                                <div class="info-item">
+                                    <div class="info-icon">🎂</div>
+                                    <div class="info-content">
+                                        <div class="info-label">Дата рождения</div>
+                                        <div class="info-value">${user.birthDate ? new Date(user.birthDate).toLocaleDateString('ru-RU') : '—'}</div>
+                                    </div>
+                                </div>
+    
+                                <div class="info-item">
+                                    <div class="info-icon">📅</div>
+                                    <div class="info-content">
+                                        <div class="info-label">В студсовете с</div>
+                                        <div class="info-value">${user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('ru-RU') : '—'}</div>
+                                    </div>
+                                </div>
                             </div>
                             <hr />
                             <h3>Статистика активности</h3>
-                         <canvas id="statsChart" style="width: 400px; height: 600px; margin: 10px 0;"></canvas>
-                            
-                            </div>
+                                <canvas id="statsChart" style="width: 400px; height: 600px; margin: 10px 0;"></canvas>
+                         
                             <div class="profile-actions">
                                 <a href="/users/edit/${user.id}" class="btn-edit">✏️ Редактировать</a>
                             </div>
@@ -218,15 +307,24 @@ function getLevelBorderClass(level) {
     if (level >= 6 && level <= 8) return 'level-border-3';
     if (level >= 9 && level <= 12) return 'level-border-4';
     if (level >= 13 && level <= 15) return 'level-border-5';
-    return 'level-border-1';
+    return 'level-border-legend';  
+}
+
+function getLevelIcon(level) {
+    if (level >= 1 && level <= 3) return '⭐';
+    if (level >= 4 && level <= 5) return '⭐';
+    if (level >= 6 && level <= 8) return '🔮';
+    if (level >= 9 && level <= 12) return '💎';
+    if (level >= 13 && level <= 15) return '🔷';
+    return '👑';
 }
 
 function getLevelName(level) {
-    if (level >= 1 && level <= 3) return 'Бронза';
-    if (level >= 4 && level <= 5) return 'Серебро';
-    if (level >= 6 && level <= 8) return 'Золото';
-    if (level >= 9 && level <= 12) return 'Платина';
-    if (level >= 13 && level <= 15) return 'Алмаз';
+    if (level >= 1 && level <= 3) return 'Новичок';
+    if (level >= 4 && level <= 5) return 'Практик';
+    if (level >= 6 && level <= 8) return 'Профессионал';
+    if (level >= 9 && level <= 12) return 'Мастер';
+    if (level >= 13 && level <= 15) return 'Грандмастер';
     return 'Легенда';
 }
 

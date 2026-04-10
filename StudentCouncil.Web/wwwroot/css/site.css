@@ -16,10 +16,8 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
-    /* Фон убран — будет задаваться на страницах */
 }
 
-/* ========== ШАПКА ========== */
 .navbar {
     background: white !important;
     box-shadow: 0 2px 20px rgba(0,0,0,0.1);
@@ -49,7 +47,6 @@ body {
         color: var(--primary) !important;
     }
 
-/* ========== КАРТОЧКИ (общие) ========== */
 .card {
     background: white;
     border-radius: 20px;
@@ -59,7 +56,7 @@ body {
 }
 
 .card-header {
-    background: var(--gradient); /* исправлено: убрал # */
+    background: var(--gradient); 
     color: white;
     padding: 1.5rem;
     border: none;
@@ -75,7 +72,6 @@ body {
     padding: 2rem;
 }
 
-/* ========== ТАБЛИЦЫ ========== */
 .table-custom {
     background: white;
     border-radius: 15px;
@@ -104,7 +100,6 @@ body {
         background: #f7fafc;
     }
 
-/* ========== БЕЙДЖИ ========== */
 .badge-admin {
     background: linear-gradient(135deg, #dc3545, #c82333);
     color: white;
@@ -135,7 +130,6 @@ body {
     display: inline-block;
 }
 
-/* ========== КНОПКИ ========== */
 .btn-primary-custom {
     background: var(--gradient);
     border: none;
@@ -172,7 +166,6 @@ body {
         color: var(--dark);
     }
 
-/* ========== ПОДВАЛ ========== */
 footer {
     background: white;
     border-top: 1px solid #e2e8f0;
@@ -200,7 +193,6 @@ footer {
             text-decoration: underline;
         }
 
-/* ========== ОБЩИЕ ЭЛЕМЕНТЫ ========== */
 .loading {
     text-align: center;
     padding: 2rem;
@@ -226,7 +218,6 @@ footer {
         background: rgba(255, 255, 255, 0.2);
     }
 
-/* ========== АНИМАЦИИ ========== */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -241,4 +232,77 @@ footer {
 
 .fade-in {
     animation: fadeIn 0.5s ease-out;
+}
+
+.alert {
+    padding: 16px 20px;
+    border-radius: 16px;
+    margin: 20px 0;
+    font-family: inherit;
+    animation: slideIn 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border-left: 4px solid #dc2626;
+    color: #991b1b;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-left: 4px solid #f59e0b;
+    color: #92400e;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    border-left: 4px solid #0ea5e9;
+    color: #075985;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border-left: 4px solid #10b981;
+    color: #065f46;
+}
+
+.alert::before {
+    font-size: 24px;
+    display: inline-block;
+}
+
+.alert-danger::before {
+    content: "⚠️";
+}
+
+.alert-warning::before {
+    content: "⚡";
+}
+
+.alert-info::before {
+    content: "ℹ️";
+}
+
+.alert-success::before {
+    content: "✅";
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.profile-card .alert {
+    margin: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }

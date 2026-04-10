@@ -36,12 +36,11 @@ function renderNavMenu(user) {
     if (user) {
         menuHtml += `
             <li class="nav-item"><a class="nav-link" href="/profile/${user.id}">Мой профиль</a></li>
-           <li class="nav-item"><a class="nav-link" href="">Мой маскотик</a></li>
-            <li class="nav-item"><a class="nav-link" href="">Достижения</a></li>
             <li class="nav-item"><span class="nav-link">Привет, ${escapeHtml(user.email)}!</span></li>
             <li class="nav-item"><a class="nav-link" href="#" onclick="window.logout()">Выйти</a></li>
         `;
-    } else {
+    }
+    else {
         menuHtml += `
             <li class="nav-item"><a class="nav-link" href="/help">Помощь</a></li>
             <li class="nav-item"><a class="nav-link" href="/login">Войти</a></li>

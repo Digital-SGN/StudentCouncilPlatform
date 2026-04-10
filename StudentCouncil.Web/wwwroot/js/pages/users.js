@@ -44,6 +44,7 @@
                             <table class="users-table">
                                 <thead>
                                     <tr>
+                                        <th>Уровень</th>
                                         <th>Имя</th>
                                         <th>Фамилия</th>
                                         <th>Группа</th>
@@ -56,6 +57,7 @@
                                 <tbody>
                                     ${users.map(user => `
                                         <tr class="${user.role === 'Admin' ? 'admin-row' : (user.role === 'Leader' ? 'leader-row' : '')}">
+                                            <td>${user.level}</td> 
                                             <td>${escapeHtml(user.firstName)}</td>
                                             <td>${escapeHtml(user.lastName)}</td>
                                             <td>${escapeHtml(user.group || '—')}</td>

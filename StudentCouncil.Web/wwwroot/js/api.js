@@ -30,12 +30,7 @@
         }
 
         if (response.status === 401) {
-            window.location.href = '/login';
-            return {
-                ok: false,
-                status: 401,
-                data: data
-            };
+            return { ok: false, status: 401, data: { error: 'Unauthorized' } };
         }
 
         return { ok: response.ok, status: response.status, data };
@@ -43,7 +38,7 @@
 
     async getCurrentUser() {
         const res = await this.request('/account/current');
-        return res.ok ? res.data : null;
+        return res.ok ? res.data : null;  
     },
 
     async login(email, password) {
