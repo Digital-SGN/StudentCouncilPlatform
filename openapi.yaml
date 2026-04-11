@@ -246,6 +246,20 @@ components:
         message:
           type: string
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+
 security:
   - cookieAuth: []
 
@@ -292,7 +306,7 @@ paths:
           content:
             application/json:
               example:
-                message: Выход выполнен
+                message: Выход успешно выполнен
         '401':
           description: Не авторизован
           content:
@@ -314,7 +328,7 @@ paths:
                 firstName: Дмитрий
                 lastName: Ананьев
                 role: Admin
-                avatarPath: null
+                avatarPath: /avatars/1_123456.jpg
                 isActive: true
         '401':
           description: Не авторизован
@@ -332,20 +346,20 @@ paths:
           content:
             application/json:
               example:
-                count: 2
+                count: 3
                 users:
                   - id: 1
                     firstName: Дмитрий
                     lastName: Ананьев
                     email: admin@studsovet.ru
                     role: Admin
-                    level: 5
+                    level: 16
                   - id: 2
                     firstName: Иван
-                    lastName: Петров
-                    email: ivan@studsovet.ru
+                    lastName: Иванов
+                    email: test@gmail.con
                     role: Member
-                    level: 2
+                    level: 1
         '401':
           description: Не авторизован
           content:
@@ -398,6 +412,12 @@ paths:
             application/json:
               example:
                 error: Доступ запрещён
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              example:
+                error: Ошибка создания пользователя
 
   /api/users/{id}:
     get:
@@ -419,8 +439,8 @@ paths:
                 lastName: Ананьев
                 email: admin@studsovet.ru
                 role: Admin
-                level: 5
-                balance: 150
+                level: 16
+                balance: 400
         '401':
           description: Не авторизован
           content:
@@ -432,13 +452,19 @@ paths:
           content:
             application/json:
               example:
-                error: Доступ запрещён
+                error: У вас нет прав на просмотр этого профиля
         '404':
           description: Пользователь не найден
           content:
             application/json:
               example:
                 error: Пользователь не найден
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              example:
+                error: Ошибка получения пользователя
 
     put:
       summary: Обновить пользователя
@@ -485,6 +511,12 @@ paths:
             application/json:
               example:
                 error: Пользователь не найден
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              example:
+                error: Ошибка обновления пользователя
 
     delete:
       summary: Удалить пользователя
@@ -500,7 +532,7 @@ paths:
           content:
             application/json:
               example:
-                message: Пользователь успешно удалён
+                message: Пользователь успешно удален
         '400':
           description: Ошибка
           content:
@@ -525,6 +557,12 @@ paths:
             application/json:
               example:
                 error: Пользователь не найден
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              example:
+                error: Ошибка удаления пользователя
 
   /api/users/{id}/avatar:
     post:
@@ -551,7 +589,7 @@ paths:
           content:
             application/json:
               example:
-                message: Аватар загружен
+                message: Аватар успешно загружен
         '400':
           description: Файл не выбран
           content:
@@ -576,6 +614,12 @@ paths:
             application/json:
               example:
                 error: Пользователь не найден
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              example:
+                error: Ошибка загрузки аватара
 
     delete:
       summary: Удалить аватар
@@ -591,7 +635,7 @@ paths:
           content:
             application/json:
               example:
-                message: Аватар удалён
+                message: Аватар успешно удален
         '401':
           description: Не авторизован
           content:
@@ -610,6 +654,12 @@ paths:
             application/json:
               example:
                 error: Пользователь не найден
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              example:
+                error: Ошибка удаления аватара
 
   /api/events:
     get:
@@ -657,18 +707,12 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateEventDTO'
       responses:
-        '201':
+        '200':
           description: Создано
           content:
             application/json:
               example:
-                id: 1
-                title: Новое мероприятие
-                description: Описание
-                eventDate: 2026-06-01T14:00:00Z
-                location: Аудитория 456
-                status: Upcoming
-                responsibleUserId: 1
+                message: Мероприятие успешно создано
         '400':
           description: Ошибка
           content:
@@ -687,6 +731,12 @@ paths:
             application/json:
               example:
                 error: Доступ запрещён
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              example:
+                error: Ошибка создания мероприятия
 
   /api/events/{id}:
     get:
@@ -728,6 +778,12 @@ paths:
             application/json:
               example:
                 error: Мероприятие не найдено
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              example:
+                error: Ошибка получения мероприятия
 
     put:
       summary: Обновить мероприятие
@@ -749,9 +805,7 @@ paths:
           content:
             application/json:
               example:
-                id: 1
-                title: Обновлённое мероприятие
-                status: Cancelled
+                message: Мероприятие успешно обновлено
         '400':
           description: Ошибка
           content:
@@ -776,6 +830,12 @@ paths:
             application/json:
               example:
                 error: Мероприятие не найдено
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              example:
+                error: Ошибка обновления мероприятия
 
     delete:
       summary: Удалить мероприятие
@@ -791,7 +851,7 @@ paths:
           content:
             application/json:
               example:
-                message: Мероприятие удалено
+                message: Мероприятие успешно удалено
         '401':
           description: Не авторизован
           content:
@@ -810,15 +870,9 @@ paths:
             application/json:
               example:
                 error: Мероприятие не найдено
-
-  /api/events/test:
-    get:
-      summary: Тест
-      security: []
-      responses:
-        '200':
-          description: OK
+        '500':
+          description: Ошибка сервера
           content:
             application/json:
               example:
-                message: EventController works!
+                error: Ошибка удаления мероприятия
