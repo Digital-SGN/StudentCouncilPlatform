@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using StudentCouncil.Logic.Services;
 using System.Security.Claims;
 
@@ -58,22 +59,10 @@ public abstract class BaseController : ControllerBase
         return ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
     }
 
-    protected IActionResult UnauthorizedWithMessage() =>
-        Unauthorized(new { error = "Не авторизован" });
-
-    protected IActionResult ForbiddenWithMessage() =>
-        StatusCode(403, new { error = "Доступ запрещён" });
-
+    [Authorize]
     protected int GetCurrentUserId()
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         return int.TryParse(userId, out var id) ? id : 0;
     }
-
-    protected bool IsAuthenticated()
-    {
-        return User?.Identity?.IsAuthenticated == true;
-    }
-    protected bool IsAdminOrLeader() =>
-        User.IsInRole("Admin") || User.IsInRole("Leader");
 }

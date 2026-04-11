@@ -19,7 +19,7 @@ public class EventController : BaseController
 
     [HttpGet]
     [Authorize(Roles = "Admin,Leader")]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAllAsync()
     {
         ServiceResult<EventListResponseDTO> result = await _eventService.GetAllEventsAsync();
         return HandleServiceResult(result);
@@ -27,7 +27,7 @@ public class EventController : BaseController
 
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin,Leader")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetByIdAsync(int id)
     {
         ServiceResult<EventResponseDTO> result = await _eventService.GetEventByIdAsync(id);
         return HandleServiceResult(result);
@@ -35,14 +35,12 @@ public class EventController : BaseController
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create([FromBody] CreateEventDTO dto)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateEventDTO dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(new { errors = GetModelStateErrors() });
 
         int currentUserId = GetCurrentUserId();
-        if (currentUserId == 0)
-            return UnauthorizedWithMessage();
 
         ServiceResult result = await _eventService.CreateEventAsync(dto, currentUserId);
         return HandleServiceResult(result);
@@ -50,23 +48,19 @@ public class EventController : BaseController
 
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateEventDTO dto)
+    public async Task<IActionResult> UpdateAsync(int id, [FromBody] UpdateEventDTO dto)
     {
         int currentUserId = GetCurrentUserId();
-        if (currentUserId == 0)
-            return UnauthorizedWithMessage();
 
-        ServiceResult<EventResponseDTO> result = await _eventService.UpdateEventAsync(id, dto, currentUserId);
+        ServiceResult result = await _eventService.UpdateEventAsync(id, dto, currentUserId);
         return HandleServiceResult(result);
     }
 
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> DeleteAsync(int id)
     {
         int currentUserId = GetCurrentUserId();
-        if (currentUserId == 0)
-            return UnauthorizedWithMessage();
 
         ServiceResult result = await _eventService.DeleteEventAsync(id, currentUserId);
         return HandleServiceResult(result);

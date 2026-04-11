@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.DTOs;
@@ -7,7 +8,7 @@ using StudentCouncil.Logic.Services;
 namespace StudentCouncil.Web.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/account")]
 public class AccountController : BaseController
 {
     private readonly SignInManager<User> _signInManager;
@@ -18,7 +19,7 @@ public class AccountController : BaseController
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequestDTO request)
+    public async Task<ActionResult<LoginResponseDTO>> LoginAsync([FromBody] LoginRequestDTO request)
     {
         User? user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
 
@@ -49,33 +50,25 @@ public class AccountController : BaseController
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout()
+    [Authorize]
+    public async Task<IActionResult> LogoutAsync()
     {
-        if (!IsAuthenticated())
-            return Unauthorized(new { error = "Не авторизован" });
-
         await _signInManager.SignOutAsync();
         return Ok(new { message = "Выход успешно выполнен" });
     }
 
     [HttpGet("current")]
-    public async Task<ActionResult<CurrentUserDTO>> GetCurrentUser()
+    [Authorize]
+    public async Task<ActionResult<CurrentUserDTO>> GetCurrentUserAsync()
     {
-        if (!IsAuthenticated())
-            return Unauthorized(new { error = "Не авторизован" });
-
         User? user = await _signInManager.UserManager.GetUserAsync(User);
-        if (user == null)
-        {
-            return Unauthorized(new { error = "Не авторизован" });
-        }
 
         IList<string> roles = await _signInManager.UserManager.GetRolesAsync(user);
 
         return Ok(new CurrentUserDTO
         {
             Id = user.Id,
-            Email = user.Email,
+            Email = user.Email ?? string.Empty,
             FirstName = user.FirstName,
             LastName = user.LastName,
             Role = roles.FirstOrDefault() ?? "Member",

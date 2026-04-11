@@ -20,7 +20,7 @@ public class UserController : BaseController
 
     [HttpGet]
     [Authorize(Roles = "Admin,Leader")]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAllAsync()
     {
         ServiceResult<List<UserDTO>> result = await _userService.GetAllUsersAsync();
 
@@ -32,16 +32,16 @@ public class UserController : BaseController
 
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin,Leader")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetByIdAsync(int id)
     {
-        ServiceResult<UserDTO> result = await _userService.GetUserByIdAsync(id);
+        ServiceResult<UserDTO> result = await _userService.GetUserByIdAsync(id, User);
 
         return HandleServiceResult(result);
     }
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create([FromBody] CreateUserDTO dto)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateUserDTO dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(new { errors = GetModelStateErrors() });
@@ -58,7 +58,7 @@ public class UserController : BaseController
 
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDTO dto)
+    public async Task<IActionResult> UpdateAsync(int id, [FromBody] UpdateUserDTO dto)
     {
         var result = await _userService.UpdateUserAsync(id, dto, User);
         return HandleServiceResult(result);
@@ -66,7 +66,7 @@ public class UserController : BaseController
 
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> DeleteAsync(int id)
     {
         ServiceResult result = await _userService.DeleteUserAsync(id, User);
 
@@ -79,7 +79,7 @@ public class UserController : BaseController
 
     [HttpPost("{id}/avatar")]
     [Authorize]
-    public async Task<IActionResult> UploadAvatar(int id, IFormFile avatar)
+    public async Task<IActionResult> UploadAvatarAsync(int id, IFormFile avatar)
     {
         if (avatar == null || avatar.Length == 0)
             return BadRequest(new { error = "Файл не выбран" });
@@ -90,7 +90,7 @@ public class UserController : BaseController
 
     [HttpDelete("{id}/avatar")]
     [Authorize]
-    public async Task<IActionResult> DeleteAvatar(int id)
+    public async Task<IActionResult> DeleteAvatarAsync(int id)
     {
         ServiceResult result = await _userService.DeleteAvatarAsync(id, User);
         return HandleServiceResult(result);
