@@ -29,8 +29,9 @@ function renderNavMenu(user) {
         <li class="nav-item"><a class="nav-link" href="/home">Главная</a></li>
     `;
 
-    if (user?.role === 'Admin') {
+    if (user?.role === 'Admin' || user?.role === 'Leader') {
         menuHtml += `<li class="nav-item"><a class="nav-link" href="/users">Участники</a></li>`;
+        menuHtml += `<li class="nav-item"><a class="nav-link" href="/events">Мероприятия</a></li>`;
     }
 
     if (user) {

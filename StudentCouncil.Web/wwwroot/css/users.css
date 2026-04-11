@@ -3,6 +3,7 @@
     background: linear-gradient(135deg, #0CBFA2 0%, #764ba2 50%, #09707C 100%);
     position: relative;
     overflow-x: hidden;
+    background: transparent;
 }
 
 .users-wrapper {
@@ -49,8 +50,8 @@
     }
 
 .users-card-body {
-    padding: 0;
     overflow-x: auto;
+    padding: 0;
 }
 
 .role-badge {
@@ -182,46 +183,41 @@
 
 .users-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
+    min-width: 1000px; 
+    border-collapse: collapse;
+    white-space: nowrap;
 }
-
-    .users-table th {
-        background: #f8f9fa;
-        padding: 15px 16px;
-        text-align: left;
-        font-weight: 600;
-        color: #1a202c; 
-        border-bottom: 2px solid #e2e8f0;
-        font-size: 16px;
-        letter-spacing: 0.3px;
-    }
-
+    .users-table th,
     .users-table td {
-        padding: 16px 20px;
+        color: #1a202c;
         font-size: 16px;
-        color: #2d3748; 
-        font-weight: 500; 
-        border-bottom: 1px solid #edf2f7;
+        font-weight: bold;
+        padding: 16px 16px;
+        text-align: left;
+        vertical-align: middle;
+        border-bottom: 1px solid #e2e8f0;
     }
 
-        .users-table td:nth-child(1),
-        .users-table td:nth-child(2) {
-            font-weight: 600;
-            text-align: left;
-            color: #1a202c;
+        .users-table th:nth-child(1) {
+            width: 3%;
         }
-
-        .users-table td:nth-child(4) {
-            color: #4a5568;
-            font-family: monospace;
-            font-size: 15px;
-            text-align: left;
+        .users-table th:nth-child(2) {
+            width: 6%;
         }
-
-        .users-table td:nth-child(5),
-        .users-table td:nth-child(6) {
-            text-align: left;
+        .users-table th:nth-child(3) {
+            width: 6%;
+        }
+        .users-table th:nth-child(4) {
+            width: 6%;
+        }
+        .users-table th:nth-child(5) {
+            width: 5%;
+        }
+        .users-table th:nth-child(6) {
+            width: 5%;
+        }
+        .users-table th:nth-child(7) {
+            width: 30%;
         }
 
 .role-badge,
@@ -230,7 +226,7 @@
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: bold;
     text-align: center;
     white-space: nowrap;
 }
@@ -268,26 +264,28 @@
 .action-buttons {
     display: flex;
     gap: 8px;
-    justify-content: center;
+    justify-content: flex-start; 
     flex-wrap: nowrap;
 }
 
 .action-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 5px;
     padding: 6px 12px;
     border-radius: 8px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: bold;
     text-decoration: none;
     transition: all 0.2s;
     cursor: pointer;
     border: none;
-    width: 130px;
+    width: auto;
+    min-width: 75px;
     background: #f1f5f9;
     color: #334155;
-    flex-wrap: nowrap;
+    white-space: nowrap;
 }
 
     .action-btn:hover {
@@ -345,14 +343,110 @@
     }
 }
 
-.users-page {
-    background: transparent;
-}
-
 .error-message-users {
     background: #fee2e2;
     color: #dc2626;
     padding: 12px 20px;
     border-radius: 12px;
     text-align: center;
+}
+
+@media (max-width: 768px) {
+    .users-card-body {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .users-table {
+        min-width: 700px;
+        font-size: 13px;
+    }
+
+        .users-table th,
+        .users-table td {
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+    .action-btn {
+        min-width: 55px;
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+
+    .action-buttons {
+        gap: 4px;
+    }
+}
+
+@media (max-width: 768px) {
+    .users-card-body {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .users-table {
+        min-width: 650px; 
+        font-size: 12px;
+    }
+
+        .users-table th,
+        .users-table td {
+            padding: 8px 8px; /
+            font-size: 12px;
+            font-weight: 500; 
+        }
+
+            .users-table th:nth-child(1) {
+                width: 5%;
+            }
+            .users-table th:nth-child(2) {
+                width: 10%;
+            }
+            .users-table th:nth-child(3) {
+                width: 10%;
+            }
+            .users-table th:nth-child(4) {
+                width: 10%;
+            }
+            .users-table th:nth-child(5) {
+                width: 20%;
+            }
+            .users-table th:nth-child(6) {
+                width: 10%;
+            }
+            .users-table th:nth-child(7) {
+                width: 10%;
+            }
+            .users-table th:nth-child(8) {
+                width: 25%;
+            }
+
+    .action-btn {
+        min-width: 55px;
+        padding: 4px 6px;
+        font-size: 10px;
+    }
+
+    .action-buttons {
+        gap: 4px;
+    }
+
+    .role-badge,
+    .status-badge {
+        padding: 2px 8px;
+        font-size: 10px;
+    }
+    .users-table th:nth-child(5),
+    .users-table td:nth-child(5) {
+        display: none; 
+    }
+    .users-table th:nth-child(6),
+    .users-table td:nth-child(6) {
+        display: none;
+    }
+
+    .users-table {
+        min-width: 550px;
+    }
 }
