@@ -7,7 +7,7 @@ public interface IEventService
 {
     Task<ServiceResult<EventListResponseDTO>> GetAllEventsAsync();
     Task<ServiceResult<EventResponseDTO>> GetEventByIdAsync(int id);
-    Task<ServiceResult<EventResponseDTO>> CreateEventAsync(CreateEventDTO dto, int currentUserId);
-    Task<ServiceResult<EventResponseDTO>> UpdateEventAsync(int id, UpdateEventDTO dto, int currentUserId);
+    Task<ServiceResult> CreateEventAsync(CreateEventDTO dto, int currentUserId);
+    Task<ServiceResult> UpdateEventAsync(int id, UpdateEventDTO dto, int currentUserId);
     Task<ServiceResult> DeleteEventAsync(int id, int currentUserId);
 }

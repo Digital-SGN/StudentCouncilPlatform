@@ -12,14 +12,7 @@ public class UserService : IUserService
 {
     private readonly LoggerService _logger;
     private readonly UserManager<User> _userManager;
-    private readonly string[] _validRoles = { "Admin", "Leader", "Member" };
 
-    public enum ProfileAccessResult
-    {
-        Success,
-        NotFound,
-        Forbidden
-    }
     public UserService(UserManager<User> userManager, LoggerService logger)
     {
         _logger = logger;
@@ -35,7 +28,7 @@ public class UserService : IUserService
             LastName = user.LastName,
             Patronymic = user.Patronymic,
             Group = user.Group,
-            Email = user.Email,
+            Email = user.Email ?? string.Empty,
             PhoneNumber = user.PhoneNumber,
             Telegram = user.Telegram,
             ClothingSize = user.ClothingSize,
@@ -75,13 +68,27 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<ServiceResult<UserDTO>> GetUserByIdAsync(int id)
+    public async Task<ServiceResult<UserDTO>> GetUserByIdAsync(int id, ClaimsPrincipal currentUser)
     {
         try
         {
             User? user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null)
                 return ServiceResult<UserDTO>.Fail("Пользователь не найден", 404);
+
+            if (currentUser != null)
+            {
+                string? userIdStr = _userManager.GetUserId(currentUser);
+                if (string.IsNullOrEmpty(userIdStr))
+                    return ServiceResult<UserDTO>.Fail("Не удалось определить пользователя", 401);
+
+                int currentUserId = int.Parse(userIdStr);
+                bool isAdminOrLeader = currentUser.IsInRole("Admin") || currentUser.IsInRole("Leader");
+                bool isOwnProfile = currentUserId == user.Id;
+
+                if (!isOwnProfile && !isAdminOrLeader)
+                    return ServiceResult<UserDTO>.Fail("У вас нет прав на просмотр этого профиля", 403);
+            }
 
             IList<string> roles = await _userManager.GetRolesAsync(user);
             return ServiceResult<UserDTO>.Ok(MapToDto(user, roles.FirstOrDefault() ?? "Member"));
@@ -90,31 +97,6 @@ public class UserService : IUserService
         {
             _logger.Error($"Ошибка получения пользователя {id}: {ex.Message}");
             return ServiceResult<UserDTO>.Fail("Ошибка получения пользователя", 500);
-        }
-    }
-
-    public async Task<ServiceResult<UserDTO>> GetUserProfileAsync(int id, ClaimsPrincipal currentUser)
-    {
-        try
-        {
-            User? user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
-                return ServiceResult<UserDTO>.Fail("Пользователь не найден", 404);
-
-            int currentUserId = int.Parse(_userManager.GetUserId(currentUser));
-            bool isAdminOrLeader = currentUser.IsInRole("Admin") || currentUser.IsInRole("Leader");
-            bool isOwnProfile = currentUserId == user.Id;
-
-            if (!isOwnProfile && !isAdminOrLeader)
-                return ServiceResult<UserDTO>.Fail("У вас нет прав на просмотр этого профиля", 403);
-
-            IList<string> roles = await _userManager.GetRolesAsync(user);
-            return ServiceResult<UserDTO>.Ok(MapToDto(user, roles.FirstOrDefault() ?? "Member"));
-        }
-        catch (Exception ex)
-        {
-            _logger.Error($"Ошибка получения профиля {id}: {ex.Message}");
-            return ServiceResult<UserDTO>.Fail("Ошибка получения профиля", 500);
         }
     }
 
@@ -132,7 +114,7 @@ public class UserService : IUserService
                 Email = dto.Email,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
-                Patronymic = dto.Patronymic,
+                Patronymic = dto.Patronymic ?? string.Empty,
                 Group = dto.Group,
                 PhoneNumber = dto.PhoneNumber,
                 Telegram = dto.Telegram,
@@ -181,7 +163,11 @@ public class UserService : IUserService
                 return ServiceResult.Fail("Пользователь не найден", 404);
             }
 
-            int currentUserId = int.Parse(_userManager.GetUserId(currentUser));
+            string? userIdStr = _userManager.GetUserId(currentUser);
+            if (string.IsNullOrEmpty(userIdStr))
+                return ServiceResult.Fail("Не удалось определить пользователя", 401);
+
+            int currentUserId = int.Parse(userIdStr);
             bool isAdminOrLeader = currentUser.IsInRole("Admin") || currentUser.IsInRole("Leader");
             bool isOwnProfile = currentUserId == user.Id;
 
@@ -193,7 +179,7 @@ public class UserService : IUserService
 
             user.FirstName = dto.FirstName;
             user.LastName = dto.LastName;
-            user.Patronymic = dto.Patronymic;
+            user.Patronymic = dto.Patronymic ?? string.Empty;
             user.Group = dto.Group;
             user.PhoneNumber = dto.PhoneNumber;
             user.Telegram = dto.Telegram;
@@ -210,7 +196,7 @@ public class UserService : IUserService
 
             if (isAdminOrLeader)
             {
-                if (!_validRoles.Contains(dto.Role))
+                if (dto.Role != "Admin" && dto.Role != "Leader" && dto.Role != "Member")
                 {
                     _logger.Warning($"Попытка назначить несуществующую роль {dto.Role}");
                     return ServiceResult.Fail("Недопустимая роль", 400);
@@ -315,7 +301,11 @@ public class UserService : IUserService
             if (user == null)
                 return ServiceResult.Fail("Пользователь не найден", 404);
 
-            int currentUserId = int.Parse(_userManager.GetUserId(currentUser));
+            string? userIdStr = _userManager.GetUserId(currentUser);
+            if (string.IsNullOrEmpty(userIdStr))
+                return ServiceResult.Fail("Не удалось определить пользователя", 401);
+
+            int currentUserId = int.Parse(userIdStr);
             if (currentUserId != userId && !currentUser.IsInRole("Admin"))
                 return ServiceResult.Fail("У вас нет прав на изменение аватара этого пользователя", 403);
 
@@ -328,7 +318,7 @@ public class UserService : IUserService
             string fileName = $"{user.Id}_{DateTime.Now.Ticks}{Path.GetExtension(avatar.FileName)}";
             string filePath = Path.Combine(uploadsFolder, fileName);
 
-            using (FileStream stream = new FileStream(filePath, FileMode.Create))
+            using (FileStream stream = new (filePath, FileMode.Create))
             {
                 await avatar.CopyToAsync(stream);
             }
@@ -353,7 +343,11 @@ public class UserService : IUserService
             if (user == null)
                 return ServiceResult.Fail("Пользователь не найден", 404);
 
-            int currentUserId = int.Parse(_userManager.GetUserId(currentUser));
+            string? userIdStr = _userManager.GetUserId(currentUser);
+            if (string.IsNullOrEmpty(userIdStr))
+                return ServiceResult.Fail("Не удалось определить пользователя", 401);
+
+            int currentUserId = int.Parse(userIdStr);
             if (currentUserId != userId && !currentUser.IsInRole("Admin") && !currentUser.IsInRole("Leader"))
                 return ServiceResult.Fail("У вас нет прав на удаление аватара этого пользователя", 403);
 
