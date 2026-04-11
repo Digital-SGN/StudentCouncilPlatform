@@ -35,6 +35,13 @@
     if (path.startsWith('/users/edit/') && window.initUserEdit) window.initUserEdit();
     if (path === '/users/create' && window.initUserCreate) window.initUserCreate();
     if (path.startsWith('/profile/') && window.initProfile) window.initProfile();
+    if (path === '/events' && window.initEvents) window.initEvents();
+    if (path.startsWith('/events/') && !path.startsWith('/events/create') && !path.startsWith('/events/edit/') && window.initEventDetail) {
+        window.initEventDetail();
+    }
+    if ((path === '/events/create' || path.startsWith('/events/edit/')) && window.initEventForm) {
+        window.initEventForm();  
+    }
     if (path === '/help' && window.initHelp) window.initHelp();
     if (path === '/home' && window.initHome) window.initHome();
 }
@@ -49,6 +56,12 @@ async function getContent(path, user) {
         window.profileUserId = path.split('/')[2];
         return await window.renderProfile();
     }
+    if (path.startsWith('/events/edit/'))
+        return await window.renderEventForm();
+
+    if (path.startsWith('/events/') && !path.startsWith('/events/create') && !path.startsWith('/events/edit/')) {
+        return await window.renderEventDetail();
+    }
 
 
     switch (path) {
@@ -56,7 +69,7 @@ async function getContent(path, user) {
             return window.renderLogin();
 
         case '/users':
-            if (user?.role === 'Admin') {
+            if (user?.role === 'Admin' || user?.role === 'Leader') {
                 return await window.renderUsers();
             }
             return '<h1>403 Доступ запрещён</h1>';
@@ -67,12 +80,22 @@ async function getContent(path, user) {
             }
             return '<h1>403 Доступ запрещён</h1>';
 
+        case '/events':
+            if (user?.role === 'Admin' || user?.role === 'Leader') {
+                return window.renderEvents();
+            }
+
+        case '/events/create':
+            if (user?.role == 'Admin') {
+                return await window.renderEventForm();
+            }
+            return '<h1>403 Доступ запрещён</h1>';
+
         case '/help':
-            return window.renderHelp();
+            return await window.renderHelp();
 
         case '/home':
-        case '/':
-            return window.renderHome();
+            return await window.renderHome();
 
         default:
             return '<h1>404</h1>';
