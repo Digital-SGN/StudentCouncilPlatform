@@ -50,6 +50,7 @@ builder.Services.AddControllers()
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<IBadgeService, BadgeService>();
 builder.Services.AddSingleton<LoggerService>();
 
 WebApplication app = builder.Build();
@@ -62,8 +63,8 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();               
-app.MapFallbackToFile("html/home.html");
+app.MapControllers();
+app.MapFallbackToFile("html/index.html");
 
 using (var scope = app.Services.CreateScope())
 {
