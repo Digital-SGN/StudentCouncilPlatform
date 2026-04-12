@@ -16,7 +16,7 @@ public class LoggerService
         _logFilePath = Path.Combine(logDirectory, $"log_{DateTime.Now:yyyy-MM-dd}.txt");
     }
 
-    public void Log(string message, string level = "INFO")
+    public void Log(string message, string level)
     {
         lock (_lock)
         {
