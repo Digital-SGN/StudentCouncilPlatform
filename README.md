@@ -9,6 +9,11 @@ Backend-приложение на ASP.NET Core 8 для управления с�
 - PostgreSQL
 - ASP.NET Core Identity (Cookie)
 - Роли: Admin, Leader, Member
+- React 19
+- Vite
+- Chart.js
+- Font Awesome
+- Bootstrap 5
 
 ## Архитектура
 
@@ -20,6 +25,7 @@ StudentCouncil/
 └── Web/ # Контроллеры, Program.cs
 └── Frontend/ # React-приложение
 ```
+
 ### Основные сервисы
 
 - `UserService` – управление пользователями (CRUD, аватары, роли, блокировка)
