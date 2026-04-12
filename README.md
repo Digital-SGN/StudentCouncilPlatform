@@ -36,8 +36,9 @@ StudentCouncil/
 ServiceResult.Ok(data)
 ServiceResult.NotFound("message")
 ServiceResult.Forbidden("message")
-```
+
 BaseController.HandleServiceResult() автоматически преобразует в HTTP-ответ с правильным статус-кодом.
+```
 
 ## Функциональные возможности
 ### Пользователи
