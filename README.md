@@ -15,9 +15,9 @@ Backend-приложение на ASP.NET Core 8 для управления с�
 Проект разделён на 4 слоя:
 ```
 StudentCouncil/
-├── Data/ # Контекст БД, модели Entity, настройки
+├── Data/ # Контекст БД, модели , настройки
 ├── Logic/ # DTO, интерфейсы, сервисы, ServiceResult, маппинг
-└── Web/ # Контроллеры, Program.cs, middleware
+└── Web/ # Контроллеры, Program.cs
 └── Frontend/ # React-приложение
 ```
 ### Основные сервисы
