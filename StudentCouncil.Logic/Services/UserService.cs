@@ -12,38 +12,16 @@ public class UserService : IUserService
 {
     private readonly LoggerService _logger;
     private readonly UserManager<User> _userManager;
+    private readonly IFileStorageService _fileStorage;
 
-    public UserService(UserManager<User> userManager, LoggerService logger)
+    public const string avatarsFolder = "avatars";
+    public static readonly string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+
+    public UserService(UserManager<User> userManager, LoggerService logger, IFileStorageService fileStorage)
     {
-        _logger = logger;
         _userManager = userManager;
-    }
-
-    private UserDTO MapToDto(User user, string role)
-    {
-        return new UserDTO
-        {
-            Id = user.Id,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Patronymic = user.Patronymic,
-            Group = user.Group,
-            Email = user.Email ?? string.Empty,
-            PhoneNumber = user.PhoneNumber,
-            Telegram = user.Telegram,
-            ClothingSize = user.ClothingSize,
-            BirthDate = user.BirthDate,
-            JoinedAt = user.JoinedAt,
-            IsActive = user.IsActive,
-            AvatarPath = user.AvatarPath,
-            Balance = user.Balance,
-            ExperiencePoints = user.ExperiencePoints,
-            Level = user.Level,
-            EventsAttended = user.EventsAttended,
-            EventsOrganized = user.EventsOrganized,
-            TasksCompleted = user.TasksCompleted,
-            Role = role
-        };
+        _logger = logger;
+        _fileStorage = fileStorage;
     }
 
     public async Task<ServiceResult<List<UserDTO>>> GetAllUsersAsync()
@@ -56,7 +34,7 @@ public class UserService : IUserService
             foreach (User? user in users)
             {
                 IList<string> roles = await _userManager.GetRolesAsync(user);
-                result.Add(MapToDto(user, roles.FirstOrDefault() ?? "Member"));
+                result.Add(Mapper.ToUserDTO(user, roles.FirstOrDefault() ?? "Member"));
             }
 
             return ServiceResult<List<UserDTO>>.Ok(result);
@@ -64,7 +42,7 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             _logger.Error($"Ошибка получения списка пользователей: {ex.Message}");
-            return ServiceResult<List<UserDTO>>.Fail("Ошибка получения списка пользователей", 500);
+            return ServiceResult<List<UserDTO>>.InternalError("Ошибка получения списка пользователей");
         }
     }
 
@@ -74,29 +52,29 @@ public class UserService : IUserService
         {
             User? user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null)
-                return ServiceResult<UserDTO>.Fail("Пользователь не найден", 404);
+                return ServiceResult<UserDTO>.NotFound("Пользователь не найден");
 
             if (currentUser != null)
             {
                 string? userIdStr = _userManager.GetUserId(currentUser);
                 if (string.IsNullOrEmpty(userIdStr))
-                    return ServiceResult<UserDTO>.Fail("Не удалось определить пользователя", 401);
+                    return ServiceResult<UserDTO>.Unauthorized("Не удалось определить пользователя");
 
                 int currentUserId = int.Parse(userIdStr);
                 bool isAdminOrLeader = currentUser.IsInRole("Admin") || currentUser.IsInRole("Leader");
                 bool isOwnProfile = currentUserId == user.Id;
 
                 if (!isOwnProfile && !isAdminOrLeader)
-                    return ServiceResult<UserDTO>.Fail("У вас нет прав на просмотр этого профиля", 403);
+                    return ServiceResult<UserDTO>.Forbidden("У вас нет прав на просмотр этого профиля");
             }
 
             IList<string> roles = await _userManager.GetRolesAsync(user);
-            return ServiceResult<UserDTO>.Ok(MapToDto(user, roles.FirstOrDefault() ?? "Member"));
+            return ServiceResult<UserDTO>.Ok(Mapper.ToUserDTO(user, roles.FirstOrDefault() ?? "Member"));
         }
         catch (Exception ex)
         {
             _logger.Error($"Ошибка получения пользователя {id}: {ex.Message}");
-            return ServiceResult<UserDTO>.Fail("Ошибка получения пользователя", 500);
+            return ServiceResult<UserDTO>.InternalError("Ошибка получения пользователя");
         }
     }
 
@@ -106,28 +84,9 @@ public class UserService : IUserService
         {
             User? existingUser = await _userManager.FindByEmailAsync(dto.Email);
             if (existingUser != null)
-                return ServiceResult.Fail("Пользователь с таким email уже существует", 400);
+                return ServiceResult.Conflict("Пользователь с таким email уже существует");
 
-            User user = new User
-            {
-                UserName = dto.Email,
-                Email = dto.Email,
-                FirstName = dto.FirstName,
-                LastName = dto.LastName,
-                Patronymic = dto.Patronymic ?? string.Empty,
-                Group = dto.Group,
-                PhoneNumber = dto.PhoneNumber,
-                Telegram = dto.Telegram,
-                ClothingSize = dto.ClothingSize,
-                JoinedAt = DateTime.UtcNow,
-                IsActive = true,
-                Balance = 0,
-                ExperiencePoints = 0,
-                Level = 1,
-                EventsAttended = 0,
-                EventsOrganized = 0,
-                TasksCompleted = 0
-            };
+            User user = Mapper.ToUserEntity(dto);
 
             if (dto.BirthDate.HasValue)
                 user.BirthDate = DateTime.SpecifyKind(dto.BirthDate.Value, DateTimeKind.Utc);
@@ -136,19 +95,19 @@ public class UserService : IUserService
 
             if (!result.Succeeded)
             {
-                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                string errors = string.Join(", ", result.Errors.Select(e => e.Description));
                 _logger.Warning($"Ошибка создания {dto.Email}: {errors}");
-                return ServiceResult.Fail($"Ошибка создания: {errors}", 400);
+                return ServiceResult.BadRequest($"Ошибка создания: {errors}");
             }
 
             await _userManager.AddToRoleAsync(user, dto.Role ?? "Member");
             _logger.Info($"Создан пользователь {dto.Email}");
-            return ServiceResult.Ok("Пользователь успешно создан");
+            return ServiceResult.Created("Пользователь успешно создан");
         }
         catch (Exception ex)
         {
             _logger.Error($"Исключение при создании {dto.Email}: {ex.Message}");
-            return ServiceResult.Fail("Ошибка создания пользователя", 500);
+            return ServiceResult.InternalError("Ошибка создания пользователя");
         }
     }
 
@@ -160,12 +119,12 @@ public class UserService : IUserService
             if (user == null)
             {
                 _logger.Warning($"Попытка обновить несуществующего пользователя {id}");
-                return ServiceResult.Fail("Пользователь не найден", 404);
+                return ServiceResult.NotFound("Пользователь не найден");
             }
 
             string? userIdStr = _userManager.GetUserId(currentUser);
             if (string.IsNullOrEmpty(userIdStr))
-                return ServiceResult.Fail("Не удалось определить пользователя", 401);
+                return ServiceResult.Unauthorized("Не удалось определить пользователя");
 
             int currentUserId = int.Parse(userIdStr);
             bool isAdminOrLeader = currentUser.IsInRole("Admin") || currentUser.IsInRole("Leader");
@@ -174,32 +133,17 @@ public class UserService : IUserService
             if (!isOwnProfile && !isAdminOrLeader)
             {
                 _logger.Warning($"Пользователь {currentUserId} попытался редактировать чужой профиль {id}");
-                return ServiceResult.Fail("У вас нет прав на редактирование этого пользователя", 403);
+                return ServiceResult.Forbidden("У вас нет прав на редактирование этого пользователя");
             }
 
-            user.FirstName = dto.FirstName;
-            user.LastName = dto.LastName;
-            user.Patronymic = dto.Patronymic ?? string.Empty;
-            user.Group = dto.Group;
-            user.PhoneNumber = dto.PhoneNumber;
-            user.Telegram = dto.Telegram;
-            user.ClothingSize = dto.ClothingSize;
-
-            if (dto.BirthDate.HasValue)
-            {
-                user.BirthDate = DateTime.SpecifyKind(dto.BirthDate.Value, DateTimeKind.Utc);
-            }
-            else
-            {
-                user.BirthDate = null;
-            }
+            Mapper.UpdateUserEntity(user, dto, isAdminOrLeader);
 
             if (isAdminOrLeader)
             {
                 if (dto.Role != "Admin" && dto.Role != "Leader" && dto.Role != "Member")
                 {
                     _logger.Warning($"Попытка назначить несуществующую роль {dto.Role}");
-                    return ServiceResult.Fail("Недопустимая роль", 400);
+                    return ServiceResult.BadRequest("Недопустимая роль");
                 }
 
                 if (dto.IsActive == false && await _userManager.IsInRoleAsync(user, "Admin"))
@@ -210,7 +154,7 @@ public class UserService : IUserService
                     if (activeAdmins <= 1)
                     {
                         _logger.Warning($"Попытка заблокировать последнего активного администратора {user.Email}");
-                        return ServiceResult.Fail("Нельзя заблокировать последнего активного администратора", 400);
+                        return ServiceResult.Conflict("Нельзя заблокировать последнего активного администратора");
                     }
                 }
 
@@ -225,7 +169,7 @@ public class UserService : IUserService
                     if (activeAdmins <= 1)
                     {
                         _logger.Warning($"Попытка снять роль Admin у последнего администратора {user.Email}");
-                        return ServiceResult.Fail("Нельзя снять роль администратора у последнего активного админа", 400);
+                        return ServiceResult.BadRequest("Нельзя снять роль администратора у последнего активного админа");
                     }
                 }
 
@@ -233,11 +177,10 @@ public class UserService : IUserService
                 if (isOwnProfile && (dto.IsActive != user.IsActive || dto.Role != currentRole))
                 {
                     _logger.Warning($"Пользователь {currentUserId} попытался изменить свой статус или роль");
-                    return ServiceResult.Fail("Вы не можете изменить свой статус или роль", 403);
+                    return ServiceResult.Forbidden("Вы не можете изменить свой статус или роль");
                 }
 
                 bool wasActive = user.IsActive;
-                user.IsActive = dto.IsActive;
 
                 if (wasActive && !user.IsActive)
                 {
@@ -245,16 +188,12 @@ public class UserService : IUserService
                     _logger.Info($"Пользователь {user.Email} заблокирован, все сессии аннулированы");
                 }
 
-                await _userManager.UpdateAsync(user);
-
                 IList<string> currentRoles = await _userManager.GetRolesAsync(user);
                 await _userManager.RemoveFromRolesAsync(user, currentRoles);
                 await _userManager.AddToRoleAsync(user, dto.Role);
             }
-            else
-            {
-                await _userManager.UpdateAsync(user);
-            }
+
+            await _userManager.UpdateAsync(user);
 
             _logger.Info($"Пользователь {currentUserId} изменил данные профиля");
             return ServiceResult.Ok("Данные успешно обновлены");
@@ -262,7 +201,7 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             _logger.Error($"Ошибка обновления пользователя {id}: {ex.Message}");
-            return ServiceResult.Fail("Ошибка обновления пользователя", 500);
+            return ServiceResult.InternalError("Ошибка обновления пользователя");
         }
     }
 
@@ -270,16 +209,24 @@ public class UserService : IUserService
     {
         try
         {
+            string? userIdStr = _userManager.GetUserId(currentUser);
+            if (string.IsNullOrEmpty(userIdStr))
+                return ServiceResult.Unauthorized("Не удалось определить пользователя");
+
+            int currentUserId = int.Parse(userIdStr);
+            if (currentUserId == id)
+                return ServiceResult.Forbidden("Вы не можете удалить самого себя");
+
             User? user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null)
-                return ServiceResult.Fail("Пользователь не найден", 404);
+                return ServiceResult.NotFound("Пользователь не найден");
 
             bool isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
             if (isAdmin)
             {
                 IList<User> admins = await _userManager.GetUsersInRoleAsync("Admin");
                 if (admins.Count <= 1)
-                    return ServiceResult.Fail("Нельзя удалить последнего администратора", 400);
+                    return ServiceResult.Conflict("Нельзя удалить последнего администратора");
             }
 
             await _userManager.DeleteAsync(user);
@@ -289,7 +236,7 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             _logger.Error($"Ошибка удаления пользователя {id}: {ex.Message}");
-            return ServiceResult.Fail("Ошибка удаления пользователя", 500);
+            return ServiceResult.InternalError("Ошибка удаления пользователя");
         }
     }
 
@@ -299,39 +246,40 @@ public class UserService : IUserService
         {
             User? user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
-                return ServiceResult.Fail("Пользователь не найден", 404);
+                return ServiceResult.NotFound("Пользователь не найден");
 
             string? userIdStr = _userManager.GetUserId(currentUser);
             if (string.IsNullOrEmpty(userIdStr))
-                return ServiceResult.Fail("Не удалось определить пользователя", 401);
+                return ServiceResult.Unauthorized("Не удалось определить пользователя");
 
             int currentUserId = int.Parse(userIdStr);
             if (currentUserId != userId && !currentUser.IsInRole("Admin"))
-                return ServiceResult.Fail("У вас нет прав на изменение аватара этого пользователя", 403);
+                return ServiceResult.Forbidden("У вас нет прав на изменение аватара этого пользователя");
 
             if (avatar == null || avatar.Length == 0)
-                return ServiceResult.Fail("Файл не выбран", 400);
+                return ServiceResult.BadRequest("Файл не выбран");
 
-            string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "avatars");
-            Directory.CreateDirectory(uploadsFolder);
+            _fileStorage.DeleteFile(user.AvatarPath);
 
-            string fileName = $"{user.Id}_{DateTime.Now.Ticks}{Path.GetExtension(avatar.FileName)}";
-            string filePath = Path.Combine(uploadsFolder, fileName);
-
-            using (FileStream stream = new (filePath, FileMode.Create))
+            try
             {
-                await avatar.CopyToAsync(stream);
+                string prefix = $"{userId}_";
+                user.AvatarPath = await _fileStorage.SaveFileAsync(avatar, avatarsFolder, imageExtensions, prefix);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return ServiceResult.BadRequest(ex.Message);
             }
 
-            user.AvatarPath = $"/avatars/{fileName}";
             await _userManager.UpdateAsync(user);
             _logger.Info($"Пользователь {userId} обновил аватар");
+
             return ServiceResult.Ok("Аватар успешно загружен");
         }
         catch (Exception ex)
         {
             _logger.Error($"Ошибка загрузки аватара для пользователя {userId}: {ex.Message}");
-            return ServiceResult.Fail("Ошибка загрузки аватара", 500);
+            return ServiceResult.InternalError("Ошибка загрузки аватара");
         }
     }
 
@@ -341,32 +289,27 @@ public class UserService : IUserService
         {
             User? user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
-                return ServiceResult.Fail("Пользователь не найден", 404);
+                return ServiceResult.NotFound("Пользователь не найден");
 
             string? userIdStr = _userManager.GetUserId(currentUser);
             if (string.IsNullOrEmpty(userIdStr))
-                return ServiceResult.Fail("Не удалось определить пользователя", 401);
+                return ServiceResult.Unauthorized("Не удалось определить пользователя");
 
             int currentUserId = int.Parse(userIdStr);
             if (currentUserId != userId && !currentUser.IsInRole("Admin") && !currentUser.IsInRole("Leader"))
-                return ServiceResult.Fail("У вас нет прав на удаление аватара этого пользователя", 403);
+                return ServiceResult.Forbidden("У вас нет прав на удаление аватара этого пользователя");
 
-            if (string.IsNullOrEmpty(user.AvatarPath))
-                return ServiceResult.Ok("Аватар уже был удалён");
-
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", user.AvatarPath.TrimStart('/'));
-            if (File.Exists(filePath))
-                File.Delete(filePath);
-
+            _fileStorage.DeleteFile(user.AvatarPath);
             user.AvatarPath = null;
             await _userManager.UpdateAsync(user);
+
             _logger.Info($"Пользователь {userId} удалил аватар");
-            return ServiceResult.Ok("Аватар  успешно удален");
+            return ServiceResult.Ok("Аватар успешно удален");
         }
         catch (Exception ex)
         {
             _logger.Error($"Ошибка удаления аватара пользователя {userId}: {ex.Message}");
-            return ServiceResult.Fail("Ошибка удаления аватара", 500);
+            return ServiceResult.InternalError("Ошибка удаления аватара");
         }
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StudentCouncil.Data;
@@ -9,10 +10,6 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/login";  
-    options.LogoutPath = "/logout";
-    options.AccessDeniedPath = "/error/403";
-    
     options.Events.OnRedirectToLogin = context =>
     {
         context.Response.StatusCode = 401;
@@ -40,6 +37,12 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
     options.Password.RequireLowercase = false;
 }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.ValueLengthLimit = 10_485_760; 
+    options.MultipartBodyLengthLimit = 10_485_760; 
+});
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -51,20 +54,24 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IBadgeService, BadgeService>();
-builder.Services.AddSingleton<LoggerService>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<LoggerService>();
 
 WebApplication app = builder.Build();
 
-app.UseStatusCodePagesWithReExecute("/Error/{0}");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
+app.UseCors(builder => builder
+    .WithOrigins("http://localhost:5173")   
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .AllowCredentials());
+
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
-app.MapFallbackToFile("html/index.html");
 
 using (var scope = app.Services.CreateScope())
 {

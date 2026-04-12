@@ -11,32 +11,25 @@ public class BadgeService : IBadgeService
 {
     private readonly AppDbContext _context;
     private readonly LoggerService _logger;
+    private readonly IFileStorageService _fileStorage;
 
-    public BadgeService(AppDbContext context, LoggerService logger)
+    public const string badgesFolder = "badges";
+    public static readonly string[] pdfExtensions = { ".pdf" };
+
+    public BadgeService(AppDbContext context, LoggerService logger, IFileStorageService fileStorage)
     {
         _context = context;
         _logger = logger;
+        _fileStorage = fileStorage;
     }
 
-    private BadgeResponseDTO MapToDTO(Badge badge)
-    {
-        return new BadgeResponseDTO
-        {
-            Id = badge.Id,
-            UserId = badge.UserId,
-            UserName = badge.User != null ? $"{badge.User.FirstName} {badge.User.LastName}" : "—",
-            EventId = badge.EventId,
-            EventTitle = badge.Event?.Title ?? "—",
-            Role = badge.Role,
-            FilePath = badge.FilePath,
-            CreatedAt = badge.CreatedAt
-        };
-    }
-
-    public async Task<ServiceResult<BadgeListResponseDTO>> GetBadgesByUserAsync(int userId)
+    public async Task<ServiceResult<BadgeListResponseDTO>> GetBadgesByUserAsync(int userId, int currentUserId, bool isAdminOrLeader)
     {
         try
         {
+            if (userId != currentUserId && !isAdminOrLeader)
+                return ServiceResult<BadgeListResponseDTO>.Forbidden("У вас нет прав на просмотр бейджей этого пользователя");
+
             List<Badge> badges = await _context.Badges
                 .Include(b => b.User)
                 .Include(b => b.Event)
@@ -47,20 +40,23 @@ public class BadgeService : IBadgeService
             return ServiceResult<BadgeListResponseDTO>.Ok(new BadgeListResponseDTO
             {
                 Count = badges.Count,
-                Badges = badges.Select(MapToDTO).ToList()
+                Badges = [.. badges.Select(Mapper.ToBadgeDTO)]
             });
         }
         catch (Exception ex)
         {
             _logger.Error($"Ошибка получения бейджей пользователя {userId}: {ex.Message}");
-            return ServiceResult<BadgeListResponseDTO>.Fail("Ошибка получения бейджей", 500);
+            return ServiceResult<BadgeListResponseDTO>.InternalError("Ошибка получения бейджей");
         }
     }
 
-    public async Task<ServiceResult<BadgeListResponseDTO>> GetBadgesByEventAsync(int eventId)
+    public async Task<ServiceResult<BadgeListResponseDTO>> GetBadgesByEventAsync(int eventId, int currentUserId, bool isAdminOrLeader)
     {
         try
         {
+            if (!isAdminOrLeader)
+                return ServiceResult<BadgeListResponseDTO>.Forbidden("У вас нет прав на просмотр бейджей мероприятия");
+
             List<Badge> badges = await _context.Badges
                 .Include(b => b.User)
                 .Include(b => b.Event)
@@ -71,31 +67,33 @@ public class BadgeService : IBadgeService
             return ServiceResult<BadgeListResponseDTO>.Ok(new BadgeListResponseDTO
             {
                 Count = badges.Count,
-                Badges = badges.Select(MapToDTO).ToList()
+                Badges = [.. badges.Select(Mapper.ToBadgeDTO)]
             });
         }
         catch (Exception ex)
         {
             _logger.Error($"Ошибка получения бейджей мероприятия {eventId}: {ex.Message}");
-            return ServiceResult<BadgeListResponseDTO>.Fail("Ошибка получения бейджей", 500);
+            return ServiceResult<BadgeListResponseDTO>.InternalError("Ошибка получения бейджей");
         }
     }
 
-    public async Task<ServiceResult<BadgeResponseDTO>> GetBadgeByIdAsync(int id)
+    public async Task<ServiceResult<BadgeResponseDTO>> GetBadgeByIdAsync(int id, int currentUserId, bool isAdminOrLeader)
     {
         try
         {
             Badge? badge = await _context.Badges.Include(b => b.User).Include(b => b.Event).FirstOrDefaultAsync(b => b.Id == id);
-
             if (badge == null)
-                return ServiceResult<BadgeResponseDTO>.Fail("Бейдж не найден", 404);
+                return ServiceResult<BadgeResponseDTO>.NotFound("Бейдж не найден");
 
-            return ServiceResult<BadgeResponseDTO>.Ok(MapToDTO(badge));
+            if (badge.UserId != currentUserId && !isAdminOrLeader)
+                return ServiceResult<BadgeResponseDTO>.Forbidden("У вас нет прав на просмотр этого бейджа");
+
+            return ServiceResult<BadgeResponseDTO>.Ok(Mapper.ToBadgeDTO(badge));
         }
         catch (Exception ex)
         {
             _logger.Error($"Ошибка получения бейджа {id}: {ex.Message}");
-            return ServiceResult<BadgeResponseDTO>.Fail("Ошибка получения бейджа", 500);
+            return ServiceResult<BadgeResponseDTO>.InternalError("Ошибка получения бейджа");
         }
     }
 
@@ -105,53 +103,39 @@ public class BadgeService : IBadgeService
         {
             User? user = await _context.Users.FindAsync(dto.UserId);
             if (user == null)
-                return ServiceResult.Fail("Пользователь не найден", 404);
+                return ServiceResult.NotFound("Пользователь не найден");
 
             Event? eventEntity = await _context.Events.FindAsync(dto.EventId);
             if (eventEntity == null)
-                return ServiceResult.Fail("Мероприятие не найдено", 404);
+                return ServiceResult.NotFound("Мероприятие не найдено");
 
             string filePath = string.Empty;
 
             if (file != null && file.Length > 0)
             {
-                string extension = Path.GetExtension(file.FileName).ToLower();
-                if (extension != ".pdf")
-                    return ServiceResult.Fail("Допустимы только PDF файлы", 400);
-
-                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "badges");
-                Directory.CreateDirectory(uploadsFolder);
-
-                string fileName = $"{dto.UserId}_{dto.EventId}_{DateTime.Now.Ticks}{extension}";
-                string fullPath = Path.Combine(uploadsFolder, fileName);
-
-                using (FileStream stream = new (fullPath, FileMode.Create))
+                try
                 {
-                    await file.CopyToAsync(stream);
+                    string prefix = $"{dto.UserId}_{dto.EventId}_";
+                    filePath = await _fileStorage.SaveFileAsync(file, "badges", new[] { ".pdf" }, prefix);
                 }
-
-                filePath = $"/badges/{fileName}";
+                catch (InvalidOperationException ex)
+                {
+                    return ServiceResult.BadRequest(ex.Message);
+                }
             }
 
-            Badge badge = new Badge
-            {
-                UserId = dto.UserId,
-                EventId = dto.EventId,
-                Role = dto.Role,
-                FilePath = filePath,
-                CreatedAt = DateTime.UtcNow
-            };
+            Badge badge = Mapper.ToBadgeEntity(dto, filePath);
 
             _context.Badges.Add(badge);
             await _context.SaveChangesAsync();
 
-            _logger.Info($"Бейдж создан: пользователь {dto.UserId}, мероприятие {dto.EventId}, роль {dto.Role}");
-            return ServiceResult.Ok("Бейдж успешно создан");
+            _logger.Info($"Бейдж создан: пользователь {dto.UserId}, мероприятие {dto.EventId}");
+            return ServiceResult.Created("Бейдж успешно создан");
         }
         catch (Exception ex)
         {
             _logger.Error($"Ошибка создания бейджа: {ex.Message}");
-            return ServiceResult.Fail("Ошибка создания бейджа", 500);
+            return ServiceResult.InternalError("Ошибка создания бейджа");
         }
     }
 
@@ -161,9 +145,9 @@ public class BadgeService : IBadgeService
         {
             Badge? badge = await _context.Badges.FindAsync(id);
             if (badge == null)
-                return ServiceResult.Fail("Бейдж не найден", 404);
+                return ServiceResult.NotFound("Бейдж не найден");
 
-            badge.Role = dto.Role;
+            Mapper.UpdateBadgeEntity(badge, dto);
             await _context.SaveChangesAsync();
 
             _logger.Info($"Бейдж {id} обновлён пользователем {currentUserId}");
@@ -172,7 +156,7 @@ public class BadgeService : IBadgeService
         catch (Exception ex)
         {
             _logger.Error($"Ошибка обновления бейджа {id}: {ex.Message}");
-            return ServiceResult.Fail("Ошибка обновления бейджа", 500);
+            return ServiceResult.InternalError("Ошибка обновления бейджа");
         }
     }
 
@@ -182,11 +166,9 @@ public class BadgeService : IBadgeService
         {
             Badge? badge = await _context.Badges.FindAsync(id);
             if (badge == null)
-                return ServiceResult.Fail("Бейдж не найден", 404);
+                return ServiceResult.NotFound("Бейдж не найден");
 
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", badge.FilePath.TrimStart('/'));
-            if (File.Exists(filePath))
-                File.Delete(filePath);
+            _fileStorage.DeleteFile(badge.FilePath);
 
             _context.Badges.Remove(badge);
             await _context.SaveChangesAsync();
@@ -197,7 +179,7 @@ public class BadgeService : IBadgeService
         catch (Exception ex)
         {
             _logger.Error($"Ошибка удаления бейджа {id}: {ex.Message}");
-            return ServiceResult.Fail("Ошибка удаления бейджа", 500);
+            return ServiceResult.InternalError("Ошибка удаления бейджа");
         }
     }
 
@@ -207,59 +189,59 @@ public class BadgeService : IBadgeService
         {
             Badge? badge = await _context.Badges.FindAsync(id);
             if (badge == null)
-                return ServiceResult.Fail("Бейдж не найден", 404);
+                return ServiceResult.NotFound("Бейдж не найден");
 
-            if (!string.IsNullOrEmpty(badge.FilePath))
+            _fileStorage.DeleteFile(badge.FilePath);
+
+            try
             {
-                string oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", badge.FilePath.TrimStart('/'));
-                if (File.Exists(oldPath))
-                    File.Delete(oldPath);
+                string prefix = $"{badge.UserId}_{badge.EventId}_";
+                badge.FilePath = await _fileStorage.SaveFileAsync(file, badgesFolder, pdfExtensions, prefix);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return ServiceResult.BadRequest(ex.Message);
             }
 
-            string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "badges");
-            Directory.CreateDirectory(uploadsFolder);
-
-            string fileName = $"{badge.UserId}_{badge.EventId}_{DateTime.Now.Ticks}.pdf";
-            string fullPath = Path.Combine(uploadsFolder, fileName);
-
-            using (FileStream stream = new (fullPath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            badge.FilePath = $"/badges/{fileName}";
             await _context.SaveChangesAsync();
-
             return ServiceResult.Ok("Файл успешно загружен");
         }
         catch (Exception ex)
         {
             _logger.Error($"Ошибка загрузки файла для бейджа {id}: {ex.Message}");
-            return ServiceResult.Fail("Ошибка загрузки файла", 500);
+            return ServiceResult.InternalError("Ошибка загрузки файла");
         }
     }
 
-    public async Task<ServiceResult<(byte[] FileContent, string ContentType, string FileName)>> DownloadBadgeAsync(int id)
+    public async Task<ServiceResult<(byte[] FileContent, string ContentType, string FileName)>> DownloadBadgeAsync(
+       int id,
+       int currentUserId,
+       bool isAdminOrLeader)
     {
         try
         {
             Badge? badge = await _context.Badges.FindAsync(id);
             if (badge == null)
-                return ServiceResult<(byte[], string, string)>.Fail("Бейдж не найден", 404);
+                return ServiceResult<(byte[], string, string)>.NotFound("Бейдж не найден");
 
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", badge.FilePath.TrimStart('/'));
-            if (!File.Exists(filePath))
-                return ServiceResult<(byte[], string, string)>.Fail("Файл не найден", 404);
+            if (badge.UserId != currentUserId && !isAdminOrLeader)
+            {
+                _logger.Warning($"Пользователь {currentUserId} попытался скачать чужой бейдж {id}");
+                return ServiceResult<(byte[], string, string)>.Forbidden("У вас нет прав на скачивание этого бейджа");
+            }
 
-            byte[] fileBytes = await File.ReadAllBytesAsync(filePath);
-            string fileName = Path.GetFileName(filePath);
+            if (!_fileStorage.FileExists(badge.FilePath))
+                return ServiceResult<(byte[], string, string)>.NotFound("Файл не найден");
 
-            return ServiceResult<(byte[], string, string)>.Ok((fileBytes, "application/pdf", fileName));
+            byte[] fileBytes = await _fileStorage.ReadFileBytesAsync(badge.FilePath);
+            var (contentType, fileName) = _fileStorage.GetFileInfo(badge.FilePath);
+
+            return ServiceResult<(byte[], string, string)>.Ok((fileBytes, contentType, fileName));
         }
         catch (Exception ex)
         {
             _logger.Error($"Ошибка скачивания бейджа {id}: {ex.Message}");
-            return ServiceResult<(byte[], string, string)>.Fail("Ошибка скачивания бейджа", 500);
+            return ServiceResult<(byte[], string, string)>.InternalError("Ошибка скачивания бейджа");
         }
     }
 }

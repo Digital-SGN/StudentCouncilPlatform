@@ -19,13 +19,22 @@ public abstract class BaseController : ControllerBase
     protected IActionResult HandleServiceResult(ServiceResult result)
     {
         if (result.Success)
-            return Ok(new { message = result.Message });
-
-        return result.ErrorCode switch
         {
-            404 => NotFound(new { error = result.Message }),
-            403 => Forbid(),
+            return result.StatusCode switch
+            {
+                201 => Created(string.Empty, new { message = result.Message }),
+                204 => NoContent(),
+                _ => Ok(new { message = result.Message })
+            };
+        }
+
+        return result.StatusCode switch
+        {
             400 => BadRequest(new { error = result.Message }),
+            401 => Unauthorized(new { error = result.Message }),
+            403 => StatusCode(403, new { error = result.Message }),
+            404 => NotFound(new { error = result.Message }),
+            409 => Conflict(new { error = result.Message }),
             500 => StatusCode(500, new { error = result.Message }),
             _ => BadRequest(new { error = result.Message })
         };
@@ -36,27 +45,30 @@ public abstract class BaseController : ControllerBase
         if (result.Success)
         {
             if (result.Data != null)
-                return Ok(result.Data);
-
-            if (!string.IsNullOrEmpty(result.Message))
-                return Ok(new { message = result.Message });
-
-            return Ok();
+            {
+                return result.StatusCode switch
+                {
+                    201 => Created(string.Empty, result.Data),
+                    _ => Ok(result.Data)
+                };
+            }
+            return result.StatusCode switch
+            {
+                204 => NoContent(),
+                _ => Ok(new { message = result.Message })
+            };
         }
 
-        return result.ErrorCode switch
+        return result.StatusCode switch
         {
-            404 => NotFound(new { error = result.Message }),
-            403 => Forbid(),
             400 => BadRequest(new { error = result.Message }),
+            401 => Unauthorized(new { error = result.Message }),
+            403 => StatusCode(403, new { error = result.Message }),
+            404 => NotFound(new { error = result.Message }),
+            409 => Conflict(new { error = result.Message }),
             500 => StatusCode(500, new { error = result.Message }),
             _ => BadRequest(new { error = result.Message })
         };
-    }
-
-    protected List<string> GetModelStateErrors()
-    {
-        return ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
     }
 
     [Authorize]

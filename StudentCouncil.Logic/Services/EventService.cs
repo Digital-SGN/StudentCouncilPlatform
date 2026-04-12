@@ -16,21 +16,6 @@ namespace StudentCouncil.Logic.Services
             _context = context;
             _logger = logger;
         }
-        private EventResponseDTO MapToDTO(Event ev)
-        {
-            return new EventResponseDTO
-            {
-                Id = ev.Id,
-                Title = ev.Title,                     
-                Description = ev.Description,         
-                EventDate = ev.EventDate,
-                Location = ev.Location,
-                RegistrationLink = ev.RegistrationLink, 
-                Status = ev.Status,
-                ResponsibleUserId = ev.ResponsibleUserId, 
-                CreatedAt = ev.CreatedAt
-            };
-        }
 
         public async Task<ServiceResult<EventListResponseDTO>> GetAllEventsAsync()
         {
@@ -39,7 +24,7 @@ namespace StudentCouncil.Logic.Services
                 IQueryable<Event> query = _context.Events.Include(e => e.ResponsibleUser).AsQueryable();
                 int count = await query.CountAsync();
                 List<Event> events = await query.ToListAsync();
-                List<EventResponseDTO> eventDtos = events.Select(MapToDTO).ToList();
+                List<EventResponseDTO> eventDtos = [.. events.Select(Mapper.ToEventDTO)];
 
                 return ServiceResult<EventListResponseDTO>.Ok(new EventListResponseDTO
                 {
@@ -50,7 +35,7 @@ namespace StudentCouncil.Logic.Services
             catch (Exception ex)
             {
                 _logger.Error($"Ошибка получения списка мероприятий: {ex.Message}");
-                return ServiceResult<EventListResponseDTO>.Fail("Ошибка получения списка мероприятий", 500);
+                return ServiceResult<EventListResponseDTO>.InternalError("Ошибка получения списка мероприятий");
             }
         }
 
@@ -60,14 +45,14 @@ namespace StudentCouncil.Logic.Services
             {
                 Event? ev = await _context.Events.Include(e => e.ResponsibleUser).FirstOrDefaultAsync(e => e.Id == id);
                 if (ev == null)
-                    return ServiceResult<EventResponseDTO>.Fail("Мероприятие не найдено", 404);
+                    return ServiceResult<EventResponseDTO>.NotFound("Мероприятие не найдено");
 
-                return ServiceResult<EventResponseDTO>.Ok(MapToDTO(ev));
+                return ServiceResult<EventResponseDTO>.Ok(Mapper.ToEventDTO(ev));
             }
             catch (Exception ex)
             {
                 _logger.Error($"Ошибка получения мероприятия {id}: {ex.Message}");
-                return ServiceResult<EventResponseDTO>.Fail("Ошибка получения мероприятия", 500);
+                return ServiceResult<EventResponseDTO>.InternalError("Ошибка получения мероприятия");
             }
         }
 
@@ -79,32 +64,21 @@ namespace StudentCouncil.Logic.Services
                 if (responsibleUser == null)
                 {
                     _logger.Warning($"Попытка создать мероприятие с несуществующим ответственным {dto.ResponsibleUserId}");
-                    return ServiceResult<EventResponseDTO>.Fail("Ответственный пользователь не найден", 400);
+                    return ServiceResult.NotFound("Ответственный пользователь не найден");
                 }
 
-                var ev = new Event
-                {
-                    Title = dto.Title,
-                    Description = dto.Description,
-                    EventDate = dto.EventDate.ToUniversalTime(),
-                    Location = dto.Location,
-                    RegistrationLink = dto.RegistrationLink,
-                    ResponsibleUserId = dto.ResponsibleUserId,
-                    CreatedAt = DateTime.UtcNow,
-                    IsDeleted = false,
-                    Status = EventStatus.Upcoming
-                };
+                Event ev = Mapper.ToEventEntity(dto);
 
                 _context.Events.Add(ev);
                 await _context.SaveChangesAsync();
                 _logger.Info($"Мероприятие '{ev.Title}' создано пользователем {currentUserId}");
 
-                return ServiceResult.Ok("Мероприятие успешно создано");
+                return ServiceResult.Created("Мероприятие успешно создано");
             }
             catch (Exception ex)
             {
                 _logger.Error($"Ошибка создания мероприятия: {ex.Message}");
-                return ServiceResult<EventResponseDTO>.Fail("Ошибка создания мероприятия", 500);
+                return ServiceResult.InternalError("Ошибка создания мероприятия");
             }
         }
 
@@ -114,7 +88,7 @@ namespace StudentCouncil.Logic.Services
             {
                 Event? ev = await _context.Events.FindAsync(id);
                 if (ev == null)
-                    return ServiceResult<EventResponseDTO>.Fail("Мероприятие не найдено", 404);
+                    return ServiceResult.NotFound("Мероприятие не найдено");
 
                 if (ev.ResponsibleUserId != dto.ResponsibleUserId)
                 {
@@ -122,17 +96,11 @@ namespace StudentCouncil.Logic.Services
                     if (responsibleUser == null)
                     {
                         _logger.Warning($"Попытка обновить мероприятие с несуществующим ответственным {dto.ResponsibleUserId}");
-                        return ServiceResult.Fail("Ответственный пользователь не найден", 400);
+                        return ServiceResult.NotFound("Ответственный пользователь не найден");
                     }
                 }
 
-                ev.Title = dto.Title;
-                ev.Description = dto.Description;
-                ev.EventDate = dto.EventDate.ToUniversalTime();
-                ev.Location = dto.Location;
-                ev.RegistrationLink = dto.RegistrationLink;
-                ev.Status = dto.Status;
-                ev.ResponsibleUserId = dto.ResponsibleUserId;
+                Mapper.UpdateEventEntity(ev, dto);
 
                 await _context.SaveChangesAsync();
                 _logger.Info($"Мероприятие '{ev.Title}' обновлено пользователем {currentUserId}");
@@ -142,7 +110,7 @@ namespace StudentCouncil.Logic.Services
             catch (Exception ex)
             {
                 _logger.Error($"Ошибка обновления мероприятия {id}: {ex.Message}");
-                return ServiceResult<EventResponseDTO>.Fail("Ошибка обновления мероприятия", 500);
+                return ServiceResult.InternalError("Ошибка обновления мероприятия");
             }
         }
 
@@ -154,7 +122,7 @@ namespace StudentCouncil.Logic.Services
                 if (ev == null)
                 {
                     _logger.Warning($"Попытка удалить несуществующее мероприятие {id}");
-                    return ServiceResult.Fail("Мероприятие не найдено", 404);
+                    return ServiceResult.NotFound("Мероприятие не найдено");
                 }
 
                 _context.Events.Remove(ev);
@@ -165,7 +133,7 @@ namespace StudentCouncil.Logic.Services
             catch (Exception ex)
             {
                 _logger.Error($"Ошибка удаления мероприятия {id}: {ex.Message}");
-                return ServiceResult.Fail("Ошибка удаления мероприятия", 500);
+                return ServiceResult.InternalError("Ошибка удаления мероприятия");
             }
         }
     }
