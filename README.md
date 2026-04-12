@@ -97,7 +97,7 @@ BaseController.HandleServiceResult() автоматически преобраз
 | PUT | `/api/users/{id}` | Обновить данные пользователя | Свои или Admin |
 | DELETE | `/api/users/{id}` | Удалить пользователя | Admin (кроме себя) |
 | POST | `/api/users/{id}/avatar` | Загрузить аватар | Свои или Admin |
-| DELETE | `/api/users/{id}/avatar` | Удалить аватар | Свои, Admin, Leader |
+| DELETE | `/api/users/{id}/avatar` | Удалить аватар | Свои или Admin  |
 
 ### Events
 
@@ -118,7 +118,7 @@ BaseController.HandleServiceResult() автоматически преобраз
 | GET | `/api/badges/{id}` | Детали бейджа | Свои или Admin/Leader |
 | GET | `/api/badges/{id}/download` | Скачать PDF-файл бейджа | Свои или Admin/Leader |
 | POST | `/api/badges` | Создать бейдж (с файлом) | Admin |
-| PUT | `/api/badges/{id}` | Обновить роль в бейдже | Admin |
+| PUT | `/api/badges/{id}` | Обновить бейдж | Admin |
 | DELETE | `/api/badges/{id}` | Удалить бейдж | Admin |
 | POST | `/api/badges/{id}/upload` | Загрузить файл для бейджа | Admin |
 
