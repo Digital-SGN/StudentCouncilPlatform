@@ -46,7 +46,7 @@ public class AccountController : BaseController
         }
 
         _logger.Warning($"Неудачная попытка входа: {request.Email}");
-        return Unauthorized(new { error = "Неверный email или пароль" });
+        return BadRequest(new { error = "Неверный email или пароль" });
     }
 
     [HttpPost("logout")]

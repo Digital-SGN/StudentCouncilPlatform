@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentCouncil.Logic.Interfaces;
-using System.Security.Claims;
 using StudentCouncil.Logic.Services;
 using StudentCouncil.Logic.DTOs;
 
@@ -23,7 +22,6 @@ public class UserController : BaseController
     public async Task<IActionResult> GetAllAsync()
     {
         ServiceResult<List<UserDTO>> result = await _userService.GetAllUsersAsync();
-
         if (!result.Success)
             return HandleServiceResult(result);
 
@@ -31,11 +29,10 @@ public class UserController : BaseController
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin,Leader")]
+    [Authorize]
     public async Task<IActionResult> GetByIdAsync(int id)
     {
         ServiceResult<UserDTO> result = await _userService.GetUserByIdAsync(id, User);
-
         return HandleServiceResult(result);
     }
 
@@ -43,24 +40,16 @@ public class UserController : BaseController
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateAsync([FromBody] CreateUserDTO dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(new { errors = GetModelStateErrors() });
-
         ServiceResult result = await _userService.CreateUserAsync(dto, dto.Password);
-
-        if (!result.Success)
-            return HandleServiceResult(result);
-
-        _logger.Info($"Создан пользователь {dto.Email} админом {User.Identity?.Name ?? "неизвестный"}");
-        return Ok(new { message = result.Message });
+        return HandleServiceResult(result);
     }
 
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IActionResult> UpdateAsync(int id, [FromBody] UpdateUserDTO dto)
     {
-        var result = await _userService.UpdateUserAsync(id, dto, User);
+        ServiceResult result = await _userService.UpdateUserAsync(id, dto, User);
         return HandleServiceResult(result);
     }
 
@@ -69,21 +58,14 @@ public class UserController : BaseController
     public async Task<IActionResult> DeleteAsync(int id)
     {
         ServiceResult result = await _userService.DeleteUserAsync(id, User);
-
-        if (!result.Success)
-            return HandleServiceResult(result);
-
-        _logger.Info($"Пользователь {id} удалён админом {User.Identity?.Name ?? "неизвестный"}");
-        return Ok(new { message = result.Message });
+        return HandleServiceResult(result);
     }
 
     [HttpPost("{id}/avatar")]
     [Authorize]
+    [RequestSizeLimit(10_485_760)]
     public async Task<IActionResult> UploadAvatarAsync(int id, IFormFile avatar)
     {
-        if (avatar == null || avatar.Length == 0)
-            return BadRequest(new { error = "Файл не выбран" });
-
         ServiceResult result = await _userService.UpdateAvatarAsync(id, avatar, User);
         return HandleServiceResult(result);
     }
