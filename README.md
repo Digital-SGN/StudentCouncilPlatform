@@ -77,5 +77,50 @@ BaseController.HandleServiceResult() автоматически преобраз
 - Скачивание файла через контроллер (проверка прав)
 - Удаление бейджа (Admin)
 
+## API Endpoints
+
+### Account
+
+| Метод | URL | Описание | Доступ |
+|-------|-----|----------|--------|
+| POST | `/api/account/login` | Вход (email, пароль) | Публичный |
+| POST | `/api/account/logout` | Выход | Авторизованный |
+| GET | `/api/account/current` | Текущий пользователь | Авторизованный |
+
+### Users
+
+| Метод | URL | Описание | Доступ |
+|-------|-----|----------|--------|
+| GET | `/api/users` | Список пользователей (с пагинацией) | Admin, Leader |
+| GET | `/api/users/{id}` | Профиль пользователя | Свои или Admin |
+| POST | `/api/users` | Создать пользователя | Admin |
+| PUT | `/api/users/{id}` | Обновить данные пользователя | Свои или Admin |
+| DELETE | `/api/users/{id}` | Удалить пользователя | Admin (кроме себя) |
+| POST | `/api/users/{id}/avatar` | Загрузить аватар | Свои или Admin |
+| DELETE | `/api/users/{id}/avatar` | Удалить аватар | Свои, Admin, Leader |
+
+### Events
+
+| Метод | URL | Описание | Доступ |
+|-------|-----|----------|--------|
+| GET | `/api/events` | Список мероприятий | Admin, Leader |
+| GET | `/api/events/{id}` | Детали мероприятия | Admin, Leader |
+| POST | `/api/events` | Создать мероприятие | Admin |
+| PUT | `/api/events/{id}` | Обновить мероприятие | Admin |
+| DELETE | `/api/events/{id}` | Удалить мероприятие | Admin |
+
+### Badges
+
+| Метод | URL | Описание | Доступ |
+|-------|-----|----------|--------|
+| GET | `/api/badges/user/{userId}` | Бейджи пользователя | Свои или Admin/Leader |
+| GET | `/api/badges/event/{eventId}` | Бейджи мероприятия | Admin, Leader |
+| GET | `/api/badges/{id}` | Детали бейджа | Свои или Admin/Leader |
+| GET | `/api/badges/{id}/download` | Скачать PDF-файл бейджа | Свои или Admin/Leader |
+| POST | `/api/badges` | Создать бейдж (с файлом) | Admin |
+| PUT | `/api/badges/{id}` | Обновить роль в бейдже | Admin |
+| DELETE | `/api/badges/{id}` | Удалить бейдж | Admin |
+| POST | `/api/badges/{id}/upload` | Загрузить файл для бейджа | Admin |
+
 
 
