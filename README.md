@@ -1,19 +1,8 @@
-# Платформа студенческого совета (Student Council Platform)
+# Платформа студенческого совета 
 
-Backend-приложение на ASP.NET Core 8 для управления студенческим советом: пользователи, мероприятия, бейджи участников, файловое хранилище с проверкой прав доступа.
-
-## Технологии
-
-- ASP.NET Core 8
-- Entity Framework Core 8
-- PostgreSQL
-- ASP.NET Core Identity (Cookie)
-- Роли: Admin, Leader, Member
-- React 19
-- Vite
-- Chart.js
-- Font Awesome
-- Bootstrap 5
+**Полноценное веб-приложение** для студенческого совета:  
+- Бэкенд: ASP.NET Core 8 + PostgreSQL + Identity  
+- Фронтенд: React 19 + Vite + Bootstrap  
 
 ## Архитектура
 
