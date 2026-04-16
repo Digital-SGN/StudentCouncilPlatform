@@ -7,7 +7,7 @@ import {
     faLeaf, faChartSimple, faGem, faCrown, faDiamond, faInfinity,
     faEnvelope, faUsers, faStar, faPhone, faComment, 
     faShirt, faBirthdayCake, faCalendarAlt,
-    faClipboardList, faCheckCircle, faUserPlus, 
+    faCamera, faTrashAlt,  
     faMoneyBillWave, faEdit, faChartLine
 } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -25,6 +25,7 @@ import {
 } from 'chart.js';
 import { Radar, Bar, Line } from 'react-chartjs-2';
 import Bubbles from '../components/Bubbles';
+import ConfirmModal from '../components/ConfirmDialog';
 import '../css/profile.css';
 
 ChartJS.register(
@@ -84,7 +85,6 @@ export default function ProfilePage() {
                 setBadges(badgesResult.data.badges || []);
             }
             
-            // Загружаем все мероприятия для графиков
             const eventsResult = await API.getEvents();
             if (eventsResult.ok) {
                 setAllEvents(eventsResult.data.events || []);
@@ -108,21 +108,31 @@ export default function ProfilePage() {
         }
     };
 
-    const deleteAvatar = async () => {
-        if (!confirm('Удалить фото?')) return;
-        const result = await API.deleteAvatar(userId);
-        if (result.ok) {
-            loadProfile(); 
-        } else {
-            alert(result.error || 'Ошибка удаления');
-        }
+    const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', onConfirm: null });
+
+    const deleteAvatar = () => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Удаление аватара',
+            message: 'Вы действительно хотите удалить фотографию профиля?',
+            confirmText: 'Удалить',
+            onConfirm: async () => {
+                const result = await API.deleteAvatar(userId);
+                if (result.ok) {
+                    loadProfile();
+                } else {
+                    alert(result.error || 'Ошибка удаления');
+                }
+                setConfirmModal({ isOpen: false });
+            }
+        });
     };
 
     const downloadBadge = async (badge) => {
         const fileName = `${badge.eventTitle}_${badge.userName}_${badge.role}`
             .replace(/[^\wа-яё]/gi, '_')
             .toLowerCase();
-        const result = await API.downloadBadgeAndSave(badge.id, fileName);
+        const result = await API.downloadBadge(badge.id, fileName);
         if (!result) alert('Ошибка скачивания бейджа');
     };
 
@@ -230,8 +240,8 @@ export default function ProfilePage() {
         document.body.insertAdjacentHTML('beforeend', modalHtml);
         
         const form = document.getElementById('editProfileForm');
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
             
             const formData = new FormData(form);
             const data = {
@@ -291,7 +301,6 @@ export default function ProfilePage() {
     const levelName = getLevelName(user.level);
     const levelIcon = getLevelIcon(user.level);
 
-    // Данные для графиков
     const userEvents = allEvents.filter(e => badges.some(b => b.eventId === e.id));
     
     const radarData = {
@@ -338,7 +347,6 @@ export default function ProfilePage() {
         }
     };
 
-    // Данные для временной шкалы
     const getTimelineData = () => {
         if (!user.joinedAt) return null;
         
@@ -393,7 +401,6 @@ export default function ProfilePage() {
         }
     };
 
-    // Данные для столбчатой диаграммы ролей
     const getRoleData = () => {
         const roleCount = {};
         badges.forEach(b => {
@@ -430,62 +437,67 @@ export default function ProfilePage() {
             <div className="profile-wrapper">
                 <div className="profile-card">
                     <div className="profile-container">
-                        <div className="profile-header">
-                            <div className="avatar-wrapper">
-                                <div className="avatar-shine">
-                                    {user.avatarPath ? (
-                                        <img 
-                                            src={user.avatarPath} 
-                                            className={`avatar-img ${levelBorderClass}`} 
-                                            alt="Аватар" 
-                                        />
-                                    ) : (
-                                        <div className={`avatar-placeholder ${levelBorderClass}`}>
-                                            {user.firstName?.[0]}{user.lastName?.[0]}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                            <h2 className="profile-fullname">{user.lastName} {user.firstName} {user.patronymic || ''}</h2>
-                        </div>
-
-                        <div className="profile-stats-row">
-                            <div className={`level-card ${levelBorderClass}`}>
-                                <div className="level-icon">{levelIcon}</div>
-                                <div className="level-details">
-                                    <div className="level-badge">
-                                        <span className="level-number">Уровень {user.level}</span>
-                                        <span className="level-name">{levelName}</span>
+                     <div className="profile-header">
+                        <div className={`avatar-wrapper ${levelBorderClass}`}>
+                            <div className="avatar-shine">
+                                {user.avatarPath ? (
+                                    <img src={user.avatarPath} className="avatar-img" alt="Аватар" />
+                                ) : (
+                                    <div className="avatar-placeholder">
+                                        {user.firstName?.[0]}{user.lastName?.[0]}
                                     </div>
-                                    <div className="xp-bar"><div className="xp-fill" style={{ width: `${xpPercent}%` }}></div></div>
-                                    <div className="xp-text">{user.experiencePoints} / {nextLevelXP} XP</div>
-                                </div>
-                            </div>
-                            <div className="balance-card">
-                                <FontAwesomeIcon icon={faMoneyBillWave} className="balance-icon" />
-                                <span className="balance-amount">{user.balance}</span>
-                                <span className="balance-label">баллов</span>
+                                )}
                             </div>
                         </div>
-
-                        <div className="avatar-actions">
-                            <button className="upload-btn" onClick={() => document.getElementById('avatarUpload').click()}>
-                                Загрузить фото
+                        <h2 className="profile-fullname">{user.lastName} {user.firstName} {user.patronymic || ''}</h2>
+                        
+                        <div className="avatar-actions-compact">
+                            <button 
+                                className="avatar-small-btn upload" 
+                                onClick={() => document.getElementById('avatarUpload').click()}
+                            >
+                                <FontAwesomeIcon icon={faCamera} />
+                                <span>Загрузить</span>
                             </button>
                             {user.avatarPath && (
-                                <button className="delete-avatar-btn" onClick={deleteAvatar}>
-                                    Удалить фото
+                                <button 
+                                    className="avatar-small-btn delete" 
+                                    onClick={deleteAvatar}
+                                >
+                                    <FontAwesomeIcon icon={faTrashAlt} />
+                                    <span>Удалить</span>
                                 </button>
                             )}
-                            <form id="avatarUploadForm" style={{ display: 'none' }}>
-                                <input 
-                                    type="file" 
-                                    id="avatarUpload" 
-                                    name="avatar" 
-                                    accept="image/*" 
-                                    onChange={(e) => uploadAvatar(e.target.files[0])} 
-                                />
-                            </form>
+                        </div>
+                        
+                        <form id="avatarUploadForm" style={{ display: 'none' }}>
+                            <input 
+                                type="file" 
+                                id="avatarUpload" 
+                                name="avatar" 
+                                accept="image/*" 
+                                onChange={(e) => uploadAvatar(e.target.files[0])} 
+                            />
+                        </form>
+                    </div>
+
+                        <div className="profile-stats-row">
+                         <div className="level-card">
+                            <div className="level-icon">{levelIcon}</div>
+                            <div className="level-details">
+                                <div className="level-badge">
+                                    <span className="level-number">Уровень {user.level}</span>
+                                    <span className="level-name">{levelName}</span>
+                                </div>
+                                <div className="xp-bar"><div className="xp-fill" style={{ width: `${xpPercent}%` }}></div></div>
+                                <div className="xp-text">{user.experiencePoints} / {nextLevelXP} XP</div>
+                                {/* Баллы внутри */}
+                                <div className="balance-inline">
+                                    <FontAwesomeIcon icon={faMoneyBillWave} />
+                                    <span>{user.balance} баллов</span>
+                                </div>
+                            </div>
+                        </div>
                         </div>
 
                         <div className="info-grid">
@@ -546,7 +558,7 @@ export default function ProfilePage() {
                                 </div>
                             </div>
                         </div>
-
+                        {/*
                         <div className="stats-section">
                             <h3>Статистика активности</h3>
                             <div className="stats-numbers">
@@ -561,8 +573,8 @@ export default function ProfilePage() {
                                 </div>
                             </div>
                         </div>
+                        */}
 
-                        {/* Графики */}
                         <div className="charts-section">
                             <h3><FontAwesomeIcon icon={faChartLine} /> Аналитика</h3>
                             
@@ -599,17 +611,23 @@ export default function ProfilePage() {
                                 <div className="badges-title">Мои бейджи</div>
                                 <div className="badges-list">
                                     {badges.map(badge => (
-                                        <a 
-                                            key={badge.id}
-                                            href="#" 
-                                            className="badge-link" 
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                downloadBadge(badge);
-                                            }}
-                                        >
-                                            {badge.eventTitle.toLowerCase()}_{badge.role.toLowerCase()}.pdf
-                                        </a>
+                                        badge.filePath ? ( 
+                                            <a 
+                                                key={badge.id}
+                                                href="#" 
+                                                className="badge-link" 
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    downloadBadge(badge);
+                                                }}
+                                            >
+                                                {badge.eventTitle.toLowerCase()}_{badge.role.toLowerCase()}.pdf
+                                            </a>
+                                        ) : (
+                                            <span key={badge.id} className="badge-link pending">
+                                                {badge.eventTitle.toLowerCase()}_{badge.role.toLowerCase()}.pdf (ожидает загрузки)
+                                            </span>
+                                        )
                                     ))}
                                 </div>
                             </div>
@@ -623,6 +641,15 @@ export default function ProfilePage() {
                     </div>
                 </div>
             </div>
+
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                onClose={() => setConfirmModal({ isOpen: false })}
+                onConfirm={confirmModal.onConfirm}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                confirmText={confirmModal.confirmText}
+            />
         </div>
     );
 }

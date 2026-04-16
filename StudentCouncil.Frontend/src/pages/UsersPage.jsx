@@ -7,35 +7,57 @@ import {
     faTable, faIdCard, faGraduationCap, faEnvelope, 
     faChartLine, faCircle, faEdit, faTrashAlt,
     faEye, faPlus, faCheckCircle
-} from '@fortawesome/free-solid-svg-icons'
+} from '@fortawesome/free-solid-svg-icons';
 import Bubbles from '../components/Bubbles';
+import UserFormModal from '../components/UserFormModal';
+import ConfirmModal from '../components/ConfirmDialog';
 import '../css/users.css';
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, (m) => {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
 
 export default function UsersPage() {
     const { user } = useAuth();
     const isAdmin = user?.role === 'Admin';
     const isLeader = user?.role === 'Leader';
-
-    if (!isAdmin && !isLeader) {
-        return <div className="alert alert-danger">Доступ запрещён</div>;
-    }
     
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [viewMode, setViewMode] = useState('table');
+    
+    const [modalState, setModalState] = useState({
+        isOpen: false,
+        userId: null
+    });
 
     useEffect(() => {
         loadUsers();
     }, []);
 
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, userId: null });
 
-    useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth < 768);
-        window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    const handleDeleteClick = (userId) => {
+        setConfirmDelete({ isOpen: true, userId });
+    };
+
+    const confirmDeleteUser = async () => {
+        const { userId } = confirmDelete;
+        const result = await API.deleteUser(userId);
+        if (result.ok) {
+            setUsers(users.filter(u => u.id !== userId));
+        } else {
+            alert(result.data?.error || 'Ошибка удаления');
+        }
+        setConfirmDelete({ isOpen: false, userId: null });
+    };
 
     const loadUsers = async () => {
         try {
@@ -63,325 +85,49 @@ export default function UsersPage() {
         }
     };
 
+    const openCreateModal = () => {
+        setModalState({ isOpen: true, userId: null });
+    };
+
+    const openEditModal = (userId) => {
+        setModalState({ isOpen: true, userId });
+    };
+
+    const closeModal = () => {
+        setModalState({ isOpen: false, userId: null });
+    };
+
+    if (!isAdmin && !isLeader) {
+        return <div className="alert alert-danger">Доступ запрещён</div>;
+    }
+
     if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
     if (error) return <div className="alert alert-danger">{error}</div>;
 
-    const showCreateUserModal = () => {
-    const modalHtml = `
-        <div id="createUserModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Создание пользователя</h3>
-                    <span class="modal-close" onclick="document.getElementById('createUserModal')?.remove()">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <form id="createUserForm">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Имя *</label>
-                                <input type="text" name="firstName" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Фамилия *</label>
-                                <input type="text" name="lastName" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Отчество</label>
-                            <input type="text" name="patronymic">
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Email *</label>
-                                <input type="email" name="email" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Пароль *</label>
-                                <input type="password" name="password" required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Группа</label>
-                                <input type="text" name="group">
-                            </div>
-                            <div class="form-group">
-                                <label>Телефон</label>
-                                <input type="tel" name="phoneNumber">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Telegram</label>
-                                <input type="text" name="telegram">
-                            </div>
-                        <div className="form-group">
-                            <label>Размер одежды</label>
-                            <select name="clothingSize">
-                                <option value="">Не указан</option>
-                                <option value="XS">XS</option>
-                                <option value="S">S</option>
-                                <option value="M">M</option>
-                                <option value="L">L</option>
-                                <option value="XL">XL</option>
-                                <option value="XXL">XXL</option>
-                            </select>
-                        </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Дата рождения</label>
-                            <input type="date" name="birthDate">
-                        </div>
-                        ${isAdmin ? `
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Роль</label>
-                                    <select name="role">
-                                        <option value="Member">Участник</option>
-                                        <option value="Leader">Руководство</option>
-                                        <option value="Admin">Админ</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Статус</label>
-                                    <select name="isActive">
-                                        <option value="true">Активен</option>
-                                        <option value="false">Заблокирован</option>
-                                    </select>
-                                </div>
-                            </div>
-                        ` : ''}
-                        <div id="modalErrorMessage" class="error-message" style="display: none;"></div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn-save">Создать</button>
-                            <button type="button" onclick="document.getElementById('createUserModal')?.remove()" class="btn-cancel">Отмена</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
-    const form = document.getElementById('createUserForm');
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(form);
-        const data = {
-            firstName: formData.get('firstName'),
-            lastName: formData.get('lastName'),
-            patronymic: formData.get('patronymic'),
-            email: formData.get('email'),
-            password: formData.get('password'),
-            group: formData.get('group'),
-            phoneNumber: formData.get('phoneNumber'),
-            telegram: formData.get('telegram'),
-            clothingSize: formData.get('clothingSize'),
-            birthDate: formData.get('birthDate') || null,
-        };
-        
-        if (isAdmin) {
-            data.role = formData.get('role');
-            data.isActive = formData.get('isActive') === 'true';
-        } else {
-            data.role = 'Member';
-            data.isActive = true;
-        }
-        
-        const errorDiv = document.getElementById('modalErrorMessage');
-        errorDiv.style.display = 'none';
-        
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = 'Создание...';
-        submitBtn.disabled = true;
-        
-        const result = await API.createUser(data);
-        
-        if (result.ok) {
-            document.getElementById('createUserModal')?.remove();
-            loadUsers();
-        } else {
-            errorDiv.textContent = result.data?.error || 'Ошибка создания';
-            errorDiv.style.display = 'block';
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }
-    });
-};
-
-const showEditUserModal = async (userId) => {
-    const result = await API.getUser(userId);
-    if (!result.ok) {
-        alert('Ошибка загрузки пользователя');
-        return;
-    }
-    const userData = result.data;
-    
-    const modalHtml = `
-        <div id="editUserModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Редактирование пользователя</h3>
-                    <span class="modal-close" onclick="document.getElementById('editUserModal')?.remove()">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <form id="editUserForm">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Имя *</label>
-                                <input type="text" name="firstName" value="${escapeHtml(userData.firstName)}" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Фамилия *</label>
-                                <input type="text" name="lastName" value="${escapeHtml(userData.lastName)}" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Отчество</label>
-                            <input type="text" name="patronymic" value="${escapeHtml(userData.patronymic || '')}">
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Email *</label>
-                                <input type="email" name="email" value="${escapeHtml(userData.email)}" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Группа</label>
-                                <input type="text" name="group" value="${escapeHtml(userData.group || '')}">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Телефон</label>
-                                <input type="tel" name="phoneNumber" value="${escapeHtml(userData.phoneNumber || '')}">
-                            </div>
-                            <div class="form-group">
-                                <label>Telegram</label>
-                                <input type="text" name="telegram" value="${escapeHtml(userData.telegram || '')}">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                           <div className="form-row">
-                                <div className="form-group">
-                                    <label>Размер одежды</label>
-                                    <select name="clothingSize">
-                                        <option value="">Не указан</option>
-                                        <option value="XS" ${userData.clothingSize === 'XS' ? 'selected' : ''}>XS</option>
-                                        <option value="S" ${userData.clothingSize === 'S' ? 'selected' : ''}>S</option>
-                                        <option value="M" ${userData.clothingSize === 'M' ? 'selected' : ''}>M</option>
-                                        <option value="L" ${userData.clothingSize === 'L' ? 'selected' : ''}>L</option>
-                                        <option value="XL" ${userData.clothingSize === 'XL' ? 'selected' : ''}>XL</option>
-                                        <option value="XXL" ${userData.clothingSize === 'XXL' ? 'selected' : ''}>XXL</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Дата рождения</label>
-                                <input type="date" name="birthDate" value="${userData.birthDate ? userData.birthDate.split('T')[0] : ''}">
-                            </div>
-                        </div>
-                        ${isAdmin ? `
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Роль</label>
-                                    <select name="role">
-                                        <option value="Member" ${userData.role === 'Member' ? 'selected' : ''}>Участник</option>
-                                        <option value="Leader" ${userData.role === 'Leader' ? 'selected' : ''}>Руководство</option>
-                                        <option value="Admin" ${userData.role === 'Admin' ? 'selected' : ''}>Админ</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Статус</label>
-                                    <select name="isActive">
-                                        <option value="true" ${userData.isActive ? 'selected' : ''}>Активен</option>
-                                        <option value="false" ${!userData.isActive ? 'selected' : ''}>Заблокирован</option>
-                                    </select>
-                                </div>
-                            </div>
-                        ` : ''}
-                        <div id="modalErrorMessage" class="error-message" style="display: none;"></div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn-save">Сохранить</button>
-                            <button type="button" onclick="document.getElementById('editUserModal')?.remove()" class="btn-cancel">Отмена</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
-    const form = document.getElementById('editUserForm');
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(form);
-        const data = {
-            firstName: formData.get('firstName'),
-            lastName: formData.get('lastName'),
-            patronymic: formData.get('patronymic'),
-            email: formData.get('email'),
-            group: formData.get('group'),
-            phoneNumber: formData.get('phoneNumber'),
-            telegram: formData.get('telegram'),
-            clothingSize: formData.get('clothingSize'),
-            birthDate: formData.get('birthDate') || null,
-        };
-        
-        if (isAdmin) {
-            data.role = formData.get('role');
-            data.isActive = formData.get('isActive') === 'true';
-        }
-        
-        const errorDiv = document.getElementById('modalErrorMessage');
-        errorDiv.style.display = 'none';
-        
-        const submitBtn = form.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = 'Сохранение...';
-        submitBtn.disabled = true;
-        
-        const result = await API.updateUser(userId, data);
-        
-        if (result.ok) {
-            document.getElementById('editUserModal')?.remove();
-            loadUsers();
-        } else {
-            errorDiv.textContent = result.data?.error || 'Ошибка сохранения';
-            errorDiv.style.display = 'block';
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }
-    });
-};
-
     return (
-    <div className="users-page">
-        <Bubbles />
-        <div className="users-wrapper">
-            <div className="users-header">
-                <h1>Список участников</h1>
-                <div className="header-actions">
-                    <div className="view-toggle">
-                        <button className={`view-btn ${viewMode === 'table' ? 'active' : ''}`} onClick={() => setViewMode('table')} title="Таблица">
-                            <FontAwesomeIcon icon={faTable} />
-                        </button>
-                       <button className={`view-btn ${viewMode === 'cards' ? 'active' : ''}`} onClick={() => setViewMode('cards')} title="Карточки">
-                            <FontAwesomeIcon icon={faIdCard} />
-                        </button>
+        <div className="users-page">
+            <Bubbles />
+            <div className="users-wrapper">
+                <div className="users-header">
+                    <h1>Список участников</h1>
+                    <div className="header-actions">
+                        <div className="view-toggle">
+                            <button className={`view-btn ${viewMode === 'table' ? 'active' : ''}`} onClick={() => setViewMode('table')}>
+                                <FontAwesomeIcon icon={faTable} />
+                            </button>
+                            <button className={`view-btn ${viewMode === 'cards' ? 'active' : ''}`} onClick={() => setViewMode('cards')}>
+                                <FontAwesomeIcon icon={faIdCard} />
+                            </button>
+                        </div>
+                        {isAdmin && (
+                            <button onClick={openCreateModal} className="create-btn">
+                                <FontAwesomeIcon icon={faPlus} /> Создать участника
+                            </button>
+                        )}
                     </div>
-                    {isAdmin && (
-                        <button onClick={showCreateUserModal} className="create-btn">
-                            <FontAwesomeIcon icon={faPlus} /> Создать участника
-                        </button>
-                    )}
                 </div>
-            </div>
-            <div className="users-card">
+                
+               <div className="users-card">
                 <div className="users-card-body">
                     {viewMode === 'cards' ? (
                         <div className="users-cards">
@@ -408,19 +154,20 @@ const showEditUserModal = async (userId) => {
                                         </Link>
                                         {isAdmin && (
                                             <>
-                                                <button onClick={() => showEditUserModal(user.id)} className="action-btn edit">
+                                                <button onClick={() => openEditModal(user.id)} className="action-btn edit">
                                                     <FontAwesomeIcon icon={faEdit} /> Ред.
                                                 </button>
-                                                <button onClick={() => deleteUser(user.id)} className="action-btn delete">
-                                                    <FontAwesomeIcon icon={faTrashAlt} /> Удалить
-                                                </button>
+                                               <button onClick={() => handleDeleteClick(user.id)} className="action-btn delete">
+                                                <FontAwesomeIcon icon={faTrashAlt} /> Удалить
+                                            </button>
                                             </>
                                         )}
                                     </div>
                                 </div>
                             ))}
                         </div>
-                    ) : (
+                    ) 
+                    : (
                         <div className="table-responsive">
                             <table className="users-table">
                                 <thead>
@@ -459,12 +206,12 @@ const showEditUserModal = async (userId) => {
                                                 </Link>
                                                 {isAdmin && (
                                                     <>
-                                                        <button onClick={() => showEditUserModal(user.id)} className="action-btn edit">
+                                                        <button onClick={() => openEditModal(user.id)} className="action-btn edit">
                                                             <FontAwesomeIcon icon={faEdit} /> Ред.
                                                         </button>
-                                                        <button onClick={() => deleteUser(user.id)} className="action-btn delete">
-                                                            <FontAwesomeIcon icon={faTrashAlt} /> Удалить
-                                                        </button>
+                                                       <button onClick={() => handleDeleteClick(user.id)} className="action-btn delete">
+                                                        <FontAwesomeIcon icon={faTrashAlt} /> Удалить
+                                                    </button>
                                                     </>
                                                 )}
                                             </td>
@@ -476,17 +223,24 @@ const showEditUserModal = async (userId) => {
                     )}
                 </div>
             </div>
-        </div>
-    </div>
-    );
-}
+            </div>
 
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-    });
+            <ConfirmModal
+                isOpen={confirmDelete.isOpen}
+                onClose={() => setConfirmDelete({ isOpen: false, userId: null })}
+                onConfirm={confirmDeleteUser}
+                title="Удаление пользователя"
+                message="Вы действительно хотите удалить этого пользователя? Это действие необратимо."
+                confirmText="Удалить"
+            />
+
+            <UserFormModal
+                isOpen={modalState.isOpen}
+                onClose={closeModal}
+                userId={modalState.userId}
+                isAdmin={isAdmin}
+                onSuccess={loadUsers}
+            />
+        </div>
+    );
 }
