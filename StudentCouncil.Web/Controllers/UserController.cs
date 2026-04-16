@@ -12,7 +12,7 @@ public class UserController : BaseController
 {
     private readonly IUserService _userService;
 
-    public UserController(IUserService userService, LoggerService logger) : base(logger)
+    public UserController(IUserService userService, ILoggerService logger) : base(logger)
     {
         _userService = userService;
     }
@@ -21,11 +21,8 @@ public class UserController : BaseController
     [Authorize(Roles = "Admin,Leader")]
     public async Task<IActionResult> GetAllAsync()
     {
-        ServiceResult<List<UserDTO>> result = await _userService.GetAllUsersAsync();
-        if (!result.Success)
-            return HandleServiceResult(result);
-
-        return Ok(new { count = result.Data?.Count ?? 0, users = result.Data });
+        ServiceResult<UserListResponseDTO> result = await _userService.GetAllUsersAsync();
+        return HandleServiceResult(result);
     }
 
     [HttpGet("{id}")]

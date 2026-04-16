@@ -12,7 +12,7 @@ public class EventController : BaseController
 {
     private readonly IEventService _eventService;
 
-    public EventController(IEventService eventService, LoggerService logger) : base(logger)
+    public EventController(IEventService eventService, ILoggerService logger) : base(logger)
     {
         _eventService = eventService;
     }
@@ -36,9 +36,7 @@ public class EventController : BaseController
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateAsync([FromBody] CreateEventDTO dto)
     {
-        int currentUserId = GetCurrentUserId();
-
-        ServiceResult result = await _eventService.CreateEventAsync(dto, currentUserId);
+        var result = await _eventService.CreateEventAsync(dto, User);
         return HandleServiceResult(result);
     }
 
@@ -46,9 +44,7 @@ public class EventController : BaseController
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateAsync(int id, [FromBody] UpdateEventDTO dto)
     {
-        int currentUserId = GetCurrentUserId();
-
-        ServiceResult result = await _eventService.UpdateEventAsync(id, dto, currentUserId);
+        ServiceResult result = await _eventService.UpdateEventAsync(id, dto, User);
         return HandleServiceResult(result);
     }
 
@@ -56,9 +52,7 @@ public class EventController : BaseController
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteAsync(int id)
     {
-        int currentUserId = GetCurrentUserId();
-
-        ServiceResult result = await _eventService.DeleteEventAsync(id, currentUserId);
+        ServiceResult result = await _eventService.DeleteEventAsync(id, User);
         return HandleServiceResult(result);
     }
 }

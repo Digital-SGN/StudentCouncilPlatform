@@ -10,21 +10,21 @@ namespace StudentCouncil.Logic.Services;
 
 public class UserService : IUserService
 {
-    private readonly LoggerService _logger;
     private readonly UserManager<User> _userManager;
     private readonly IFileStorageService _fileStorage;
+    private readonly ILoggerService _logger;
 
     public const string avatarsFolder = "avatars";
     public static readonly string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
 
-    public UserService(UserManager<User> userManager, LoggerService logger, IFileStorageService fileStorage)
+    public UserService(UserManager<User> userManager, IFileStorageService fileStorage, ILoggerService logger)
     {
         _userManager = userManager;
-        _logger = logger;
         _fileStorage = fileStorage;
+        _logger = logger;
     }
 
-    public async Task<ServiceResult<List<UserDTO>>> GetAllUsersAsync()
+    public async Task<ServiceResult<UserListResponseDTO>> GetAllUsersAsync()
     {
         try
         {
@@ -37,12 +37,17 @@ public class UserService : IUserService
                 result.Add(Mapper.ToUserDTO(user, roles.FirstOrDefault() ?? "Member"));
             }
 
-            return ServiceResult<List<UserDTO>>.Ok(result);
+            return ServiceResult<UserListResponseDTO>.Ok(new UserListResponseDTO
+            {
+                Count = result.Count,
+                Users = result
+
+            });
         }
         catch (Exception ex)
         {
             _logger.Error($"Ошибка получения списка пользователей: {ex.Message}");
-            return ServiceResult<List<UserDTO>>.InternalError("Ошибка получения списка пользователей");
+            return ServiceResult<UserListResponseDTO>.InternalError("Ошибка получения списка пользователей");
         }
     }
 
@@ -53,7 +58,6 @@ public class UserService : IUserService
             User? user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null)
                 return ServiceResult<UserDTO>.NotFound("Пользователь не найден");
-
             if (currentUser != null)
             {
                 string? userIdStr = _userManager.GetUserId(currentUser);
@@ -87,9 +91,6 @@ public class UserService : IUserService
                 return ServiceResult.Conflict("Пользователь с таким email уже существует");
 
             User user = Mapper.ToUserEntity(dto);
-
-            if (dto.BirthDate.HasValue)
-                user.BirthDate = DateTime.SpecifyKind(dto.BirthDate.Value, DateTimeKind.Utc);
 
             IdentityResult result = await _userManager.CreateAsync(user, password);
 
@@ -159,9 +160,8 @@ public class UserService : IUserService
                 }
 
                 bool isCurrentlyAdmin = await _userManager.IsInRoleAsync(user, "Admin");
-                bool willBeAdmin = dto.Role == "Admin";
 
-                if (isCurrentlyAdmin && !willBeAdmin)
+                if (isCurrentlyAdmin && !(dto.Role == "Admin"))
                 {
                     IList<User> admins = await _userManager.GetUsersInRoleAsync("Admin");
                     int activeAdmins = admins.Count(a => a.IsActive);
@@ -229,6 +229,7 @@ public class UserService : IUserService
                     return ServiceResult.Conflict("Нельзя удалить последнего администратора");
             }
 
+            _fileStorage.DeleteFile(user.AvatarPath);
             await _userManager.DeleteAsync(user);
             _logger.Info($"Пользователь {user.Email} удалён");
             return ServiceResult.Ok("Пользователь успешно удален");

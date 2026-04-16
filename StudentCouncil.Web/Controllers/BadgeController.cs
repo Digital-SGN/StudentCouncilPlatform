@@ -13,7 +13,7 @@ public class BadgeController : BaseController
 {
     private readonly IBadgeService _badgeService;
 
-    public BadgeController(IBadgeService badgeService, LoggerService logger) : base(logger)
+    public BadgeController(IBadgeService badgeService, ILoggerService logger) : base(logger)
     {
         _badgeService = badgeService;
     }
@@ -21,9 +21,7 @@ public class BadgeController : BaseController
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetByUser(int userId)
     {
-        int currentUserId = GetCurrentUserId();
-        bool isAdminOrLeader = User.IsInRole("Admin") || User.IsInRole("Leader");
-        ServiceResult<BadgeListResponseDTO> result = await _badgeService.GetBadgesByUserAsync(userId, currentUserId, isAdminOrLeader);
+        ServiceResult<BadgeListResponseDTO> result = await _badgeService.GetBadgesByUserAsync(userId, User);
         return HandleServiceResult(result);
     }
 
@@ -32,32 +30,23 @@ public class BadgeController : BaseController
     [Authorize(Roles = "Admin,Leader")]
     public async Task<IActionResult> GetByEvent(int eventId)
     {
-        int currentUserId = GetCurrentUserId();
-        bool isAdminOrLeader = User.IsInRole("Admin") || User.IsInRole("Leader");
-        ServiceResult<BadgeListResponseDTO> result = await _badgeService.GetBadgesByEventAsync(eventId, currentUserId, isAdminOrLeader);
+        ServiceResult<BadgeListResponseDTO> result = await _badgeService.GetBadgesByEventAsync(eventId, User);
         return HandleServiceResult(result);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        int currentUserId = GetCurrentUserId();
-        bool isAdminOrLeader = User.IsInRole("Admin") || User.IsInRole("Leader");
-        ServiceResult<BadgeResponseDTO> result = await _badgeService.GetBadgeByIdAsync(id, currentUserId, isAdminOrLeader);
+        ServiceResult<BadgeResponseDTO> result = await _badgeService.GetBadgeByIdAsync(id, User);
         return HandleServiceResult(result);
     }
 
     [HttpGet("{id}/download")]
     public async Task<IActionResult> Download(int id)
     {
-        int currentUserId = GetCurrentUserId();
-        bool isAdminOrLeader = User.IsInRole("Admin") || User.IsInRole("Leader");
-
-        var result = await _badgeService.DownloadBadgeAsync(id, currentUserId, isAdminOrLeader);
-
+        ServiceResult<(byte[] FileContent, string ContentType, string FileName)> result = await _badgeService.DownloadBadgeAsync(id, User);
         if (!result.Success)
             return HandleServiceResult(result);
-
         return File(result.Data.FileContent, result.Data.ContentType, result.Data.FileName);
     }
 
@@ -65,9 +54,7 @@ public class BadgeController : BaseController
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromForm] CreateBadgeDTO dto, IFormFile? file)
     {
-        int currentUserId = GetCurrentUserId();
-
-        ServiceResult result = await _badgeService.CreateBadgeAsync(dto, file, currentUserId);
+        ServiceResult result = await _badgeService.CreateBadgeAsync(dto, file, User);
         return HandleServiceResult(result);
     }
 
@@ -75,9 +62,7 @@ public class BadgeController : BaseController
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateBadgeDTO dto)
     {
-        int currentUserId = GetCurrentUserId();
-
-        ServiceResult result = await _badgeService.UpdateBadgeAsync(id, dto, currentUserId);
+        ServiceResult result = await _badgeService.UpdateBadgeAsync(id, dto, User);
         return HandleServiceResult(result);
     }
 
@@ -85,9 +70,7 @@ public class BadgeController : BaseController
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        int currentUserId = GetCurrentUserId();
-
-        ServiceResult result = await _badgeService.DeleteBadgeAsync(id, currentUserId);
+        ServiceResult result = await _badgeService.DeleteBadgeAsync(id, User);
         return HandleServiceResult(result);
     }
 
@@ -96,7 +79,7 @@ public class BadgeController : BaseController
     [RequestSizeLimit(10_485_760)]
     public async Task<IActionResult> UploadFile(int id, IFormFile file)
     {
-        ServiceResult result = await _badgeService.UploadBadgeFileAsync(id, file);
+        ServiceResult result = await _badgeService.UploadBadgeFileAsync(id, file, User);
         return HandleServiceResult(result);
     }
 }

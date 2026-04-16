@@ -3,25 +3,32 @@ using StudentCouncil.Data;
 using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.DTOs;
 using StudentCouncil.Logic.Interfaces;
+using System.Security.Claims;
 
 namespace StudentCouncil.Logic.Services
 {
     public class EventService : IEventService
     {
         private readonly AppDbContext _context;
-        private readonly LoggerService _logger;
+        private readonly ILoggerService _logger;
 
-        public EventService(AppDbContext context, LoggerService logger)
+        public EventService(AppDbContext context, ILoggerService logger)
         {
             _context = context;
             _logger = logger;
+        }
+
+        private static int GetCurrentUserId(ClaimsPrincipal user)
+        {
+            var userIdStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0";
+            return int.Parse(userIdStr);
         }
 
         public async Task<ServiceResult<EventListResponseDTO>> GetAllEventsAsync()
         {
             try
             {
-                IQueryable<Event> query = _context.Events.Include(e => e.ResponsibleUser).AsQueryable();
+                IQueryable<Event> query = _context.Events.AsQueryable();
                 int count = await query.CountAsync();
                 List<Event> events = await query.ToListAsync();
                 List<EventResponseDTO> eventDtos = [.. events.Select(Mapper.ToEventDTO)];
@@ -43,7 +50,7 @@ namespace StudentCouncil.Logic.Services
         {
             try
             {
-                Event? ev = await _context.Events.Include(e => e.ResponsibleUser).FirstOrDefaultAsync(e => e.Id == id);
+                Event? ev = await _context.Events.FirstOrDefaultAsync(e => e.Id == id);
                 if (ev == null)
                     return ServiceResult<EventResponseDTO>.NotFound("Мероприятие не найдено");
 
@@ -56,10 +63,12 @@ namespace StudentCouncil.Logic.Services
             }
         }
 
-        public async Task<ServiceResult> CreateEventAsync(CreateEventDTO dto, int currentUserId)
+        public async Task<ServiceResult> CreateEventAsync(CreateEventDTO dto, ClaimsPrincipal currentUser)
         {
             try
             {
+                int currentUserId = GetCurrentUserId(currentUser);
+
                 User? responsibleUser = await _context.Users.FindAsync(dto.ResponsibleUserId);
                 if (responsibleUser == null)
                 {
@@ -82,10 +91,12 @@ namespace StudentCouncil.Logic.Services
             }
         }
 
-        public async Task<ServiceResult> UpdateEventAsync(int id, UpdateEventDTO dto, int currentUserId)
+        public async Task<ServiceResult> UpdateEventAsync(int id, UpdateEventDTO dto, ClaimsPrincipal currentUser)
         {
             try
             {
+                int currentUserId = GetCurrentUserId(currentUser);
+
                 Event? ev = await _context.Events.FindAsync(id);
                 if (ev == null)
                     return ServiceResult.NotFound("Мероприятие не найдено");
@@ -114,10 +125,12 @@ namespace StudentCouncil.Logic.Services
             }
         }
 
-        public async Task<ServiceResult> DeleteEventAsync(int id, int currentUserId)
+        public async Task<ServiceResult> DeleteEventAsync(int id, ClaimsPrincipal currentUser)
         {
             try
             {
+                int currentUserId = GetCurrentUserId(currentUser);
+
                 Event? ev = await _context.Events.FindAsync(id);
                 if (ev == null)
                 {

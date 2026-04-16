@@ -1,32 +1,45 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using StudentCouncil.Data;
 using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.DTOs;
 using StudentCouncil.Logic.Interfaces;
-using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace StudentCouncil.Logic.Services;
 
 public class BadgeService : IBadgeService
 {
     private readonly AppDbContext _context;
-    private readonly LoggerService _logger;
     private readonly IFileStorageService _fileStorage;
+    private readonly ILoggerService _logger;
 
     public const string badgesFolder = "badges";
     public static readonly string[] pdfExtensions = { ".pdf" };
 
-    public BadgeService(AppDbContext context, LoggerService logger, IFileStorageService fileStorage)
+    public BadgeService(AppDbContext context, IFileStorageService fileStorage, ILoggerService logger)
     {
         _context = context;
-        _logger = logger;
         _fileStorage = fileStorage;
+        _logger = logger;
     }
 
-    public async Task<ServiceResult<BadgeListResponseDTO>> GetBadgesByUserAsync(int userId, int currentUserId, bool isAdminOrLeader)
+    private (int userId, bool isAdmin, bool isLeader, bool isAdminOrLeader) GetUserInfo(ClaimsPrincipal user)
+    {
+        var userIdStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0";
+        int userId = int.Parse(userIdStr);
+        bool isAdmin = user.IsInRole("Admin");
+        bool isLeader = user.IsInRole("Leader");
+        return (userId, isAdmin, isLeader, isAdmin || isLeader);
+    }
+
+    public async Task<ServiceResult<BadgeListResponseDTO>> GetBadgesByUserAsync(int userId, ClaimsPrincipal currentUser)
     {
         try
         {
+            var (currentUserId, _, _, isAdminOrLeader) = GetUserInfo(currentUser);
+
             if (userId != currentUserId && !isAdminOrLeader)
                 return ServiceResult<BadgeListResponseDTO>.Forbidden("У вас нет прав на просмотр бейджей этого пользователя");
 
@@ -50,12 +63,18 @@ public class BadgeService : IBadgeService
         }
     }
 
-    public async Task<ServiceResult<BadgeListResponseDTO>> GetBadgesByEventAsync(int eventId, int currentUserId, bool isAdminOrLeader)
+    public async Task<ServiceResult<BadgeListResponseDTO>> GetBadgesByEventAsync(int eventId, ClaimsPrincipal currentUser)
     {
         try
         {
+            var (_, _, _, isAdminOrLeader) = GetUserInfo(currentUser);
+
             if (!isAdminOrLeader)
                 return ServiceResult<BadgeListResponseDTO>.Forbidden("У вас нет прав на просмотр бейджей мероприятия");
+
+            Event? eventEntity = await _context.Events.FindAsync(eventId);
+            if (eventEntity == null)
+                return ServiceResult<BadgeListResponseDTO>.NotFound("Мероприятие не найдено");
 
             List<Badge> badges = await _context.Badges
                 .Include(b => b.User)
@@ -77,11 +96,14 @@ public class BadgeService : IBadgeService
         }
     }
 
-    public async Task<ServiceResult<BadgeResponseDTO>> GetBadgeByIdAsync(int id, int currentUserId, bool isAdminOrLeader)
+    public async Task<ServiceResult<BadgeResponseDTO>> GetBadgeByIdAsync(int id, ClaimsPrincipal currentUser)
     {
         try
         {
+            var (currentUserId, _, _, isAdminOrLeader) = GetUserInfo(currentUser);
+
             Badge? badge = await _context.Badges.Include(b => b.User).Include(b => b.Event).FirstOrDefaultAsync(b => b.Id == id);
+
             if (badge == null)
                 return ServiceResult<BadgeResponseDTO>.NotFound("Бейдж не найден");
 
@@ -97,10 +119,12 @@ public class BadgeService : IBadgeService
         }
     }
 
-    public async Task<ServiceResult> CreateBadgeAsync(CreateBadgeDTO dto, IFormFile? file, int currentUserId)
+    public async Task<ServiceResult> CreateBadgeAsync(CreateBadgeDTO dto, IFormFile? file, ClaimsPrincipal currentUser)
     {
         try
         {
+            var (currentUserId, _, _, _) = GetUserInfo(currentUser);
+
             User? user = await _context.Users.FindAsync(dto.UserId);
             if (user == null)
                 return ServiceResult.NotFound("Пользователь не найден");
@@ -116,7 +140,7 @@ public class BadgeService : IBadgeService
                 try
                 {
                     string prefix = $"{dto.UserId}_{dto.EventId}_";
-                    filePath = await _fileStorage.SaveFileAsync(file, "badges", new[] { ".pdf" }, prefix);
+                    filePath = await _fileStorage.SaveFileAsync(file, badgesFolder, pdfExtensions, prefix);
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -129,7 +153,7 @@ public class BadgeService : IBadgeService
             _context.Badges.Add(badge);
             await _context.SaveChangesAsync();
 
-            _logger.Info($"Бейдж создан: пользователь {dto.UserId}, мероприятие {dto.EventId}");
+            _logger.Info($"Бейдж создан пользователем {currentUserId}: UserId={dto.UserId}, EventId={dto.EventId}");
             return ServiceResult.Created("Бейдж успешно создан");
         }
         catch (Exception ex)
@@ -139,10 +163,15 @@ public class BadgeService : IBadgeService
         }
     }
 
-    public async Task<ServiceResult> UpdateBadgeAsync(int id, UpdateBadgeDTO dto, int currentUserId)
+    public async Task<ServiceResult> UpdateBadgeAsync(int id, UpdateBadgeDTO dto, ClaimsPrincipal currentUser)
     {
         try
         {
+            var (currentUserId, isAdmin, _, _) = GetUserInfo(currentUser);
+
+            if (!isAdmin)
+                return ServiceResult.Forbidden("Только администратор может загружать файлы бейджей");
+
             Badge? badge = await _context.Badges.FindAsync(id);
             if (badge == null)
                 return ServiceResult.NotFound("Бейдж не найден");
@@ -160,10 +189,13 @@ public class BadgeService : IBadgeService
         }
     }
 
-    public async Task<ServiceResult> DeleteBadgeAsync(int id, int currentUserId)
+
+    public async Task<ServiceResult> DeleteBadgeAsync(int id, ClaimsPrincipal currentUser)
     {
         try
         {
+            var (currentUserId, _, _, _) = GetUserInfo(currentUser);
+
             Badge? badge = await _context.Badges.FindAsync(id);
             if (badge == null)
                 return ServiceResult.NotFound("Бейдж не найден");
@@ -183,7 +215,8 @@ public class BadgeService : IBadgeService
         }
     }
 
-    public async Task<ServiceResult> UploadBadgeFileAsync(int id, IFormFile file)
+
+    public async Task<ServiceResult> UploadBadgeFileAsync(int id, IFormFile file, ClaimsPrincipal currentUser)
     {
         try
         {
@@ -204,7 +237,8 @@ public class BadgeService : IBadgeService
             }
 
             await _context.SaveChangesAsync();
-            return ServiceResult.Ok("Файл успешно загружен");
+            var (currentUserId, _, _, _) = GetUserInfo(currentUser);
+            return ServiceResult.Ok($"Файл успешно загружен пользователем {currentUserId}");
         }
         catch (Exception ex)
         {
@@ -213,13 +247,12 @@ public class BadgeService : IBadgeService
         }
     }
 
-    public async Task<ServiceResult<(byte[] FileContent, string ContentType, string FileName)>> DownloadBadgeAsync(
-       int id,
-       int currentUserId,
-       bool isAdminOrLeader)
+    public async Task<ServiceResult<(byte[] FileContent, string ContentType, string FileName)>> DownloadBadgeAsync(int id, ClaimsPrincipal currentUser)
     {
         try
         {
+            var (currentUserId, _, _, isAdminOrLeader) = GetUserInfo(currentUser);
+
             Badge? badge = await _context.Badges.FindAsync(id);
             if (badge == null)
                 return ServiceResult<(byte[], string, string)>.NotFound("Бейдж не найден");
