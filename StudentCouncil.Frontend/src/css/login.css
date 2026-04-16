@@ -41,6 +41,7 @@
     }
 
 .login-logo {
+    padding: 15px;
     text-align: center;
     margin-left: auto;
     margin-right: auto;
@@ -194,4 +195,14 @@ button:disabled {
 
 .login-page {
     background: transparent;
+}
+
+@media (max-width: 480px) {
+    .help-row {
+        justify-content: space-around; 
+    }
+    
+    .music-control {
+        margin-right: 0; 
+    }
 }

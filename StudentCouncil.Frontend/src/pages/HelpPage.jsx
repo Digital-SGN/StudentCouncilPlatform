@@ -1,3 +1,5 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLock, faFileAlt, faPhoneAlt } from '@fortawesome/free-solid-svg-icons';
 import Bubbles from '../components/Bubbles';
 
 export default function HelpPage() {
@@ -11,14 +13,18 @@ export default function HelpPage() {
                 </div>
                 <div className="help-content">
                     <div className="help-block">
-                        <div className="help-icon">🔐</div>
+                        <div className="help-icon">
+                             <FontAwesomeIcon icon={faLock} />
+                        </div>
                         <div className="help-text">
                             <h3>Доступ к платформе</h3>
                             <p>Платформа предназначена <strong>только для участников студенческого совета СГН</strong>. Данные для входа выдаются при вступлении в совет.</p>
                         </div>
                     </div>
                     <div className="help-block">
-                        <div className="help-icon">📜</div>
+                        <div className="help-icon">
+                            <FontAwesomeIcon icon={faFileAlt} />
+                        </div>
                         <div className="help-text">
                             <h3>Политика использования</h3>
                             <ul>
@@ -30,7 +36,9 @@ export default function HelpPage() {
                         </div>
                     </div>
                     <div className="help-block">
-                        <div className="help-icon">📞</div>
+                        <div className="help-icon">
+                            <FontAwesomeIcon icon={faPhoneAlt} />
+                        </div>
                         <div className="help-text">
                             <h3>Контакты</h3>
                             <p>По всем вопросам обращайтесь к администратору:</p>

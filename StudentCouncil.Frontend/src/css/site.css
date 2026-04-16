@@ -59,7 +59,8 @@ main {
 
 .nav-link {
     color: var(--dark) !important;
-    font-weight: 500;
+    font-weight: bold;
+    font-size: 18px;
     transition: color 0.3s ease;
     text-decoration: none;
     padding: 8px 16px;
@@ -126,21 +127,32 @@ main {
         text-align: center;
     }
 
-    .nav-link {
+     .nav-link {
         display: block;
         padding: 10px 15px;
         border-radius: 10px;
         background: #f8f9fa;
+        text-align: center;
+        width: 100%;
     }
 
     .nav-link:hover {
         background: #e9ecef;
     }
 
-    .music-control {
-        margin: 10px auto 0;
-        display: flex;
-        justify-content: center;
+    button.nav-link {
+        width: 100%;
+        text-align: center;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: 500;
+        background: #f8f9fa;
+        border: none;
+        cursor: pointer;
+    }
+
+    button.nav-link:hover {
+        background: #e9ecef;
     }
 }
 
@@ -258,4 +270,62 @@ footer p {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+button.nav-link {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: bold;
+    color: var(--dark);
+    cursor: pointer;
+    padding: 8px 16px;
+    transition: color 0.3s ease;
+}
+
+button.nav-link:hover {
+    color: var(--primary) !important;
+    background: transparent; 
+}
+
+.nav-text {
+    color:#0CBFA1;   
+    font-size: 20px;           
+    font-weight: bold;
+    padding: 8px 16px;
+    display: inline-block;
+    user-select: none;            
+    pointer-events: none;         
+    border-right: 1px solid #e2e8f0; 
+    margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+    .nav-text {
+        border-right: none;
+        margin-right: 0;
+        text-align: center;
+        width: 100%;
+        background: transparent;
+        pointer-events: none;
+    }
+}
+
+body, div, p, h1, h2, h3, h4, h5, h6, span, a, button, label, li, td, th {
+    cursor: default;
+}
+
+a, button, .btn, [role="button"], .clickable {
+    cursor: pointer;
+}
+
+input, textarea, select, [contenteditable="true"] {
+    cursor: text;
+}
+
+.disabled, [disabled], .pending, .badge-link.pending {
+    cursor: default !important;
+    pointer-events: none;
 }

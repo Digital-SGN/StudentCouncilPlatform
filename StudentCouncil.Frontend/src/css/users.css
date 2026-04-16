@@ -65,29 +65,6 @@
     padding: 0;
 }
 
-.role-badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-    .role-badge.admin {
-        background: linear-gradient(135deg, #dc3545, #c82333);
-        color: white;
-    }
-
-    .role-badge.leader {
-        background: linear-gradient(135deg, #ffc107, #e0a800);
-        color: #212529;
-    }
-
-    .role-badge.member {
-        background: linear-gradient(135deg, #6c757d, #5a6268);
-        color: white;
-    }
-
 .status-badge {
     display: inline-block;
     padding: 4px 10px;
@@ -237,7 +214,7 @@
     display: inline-block;
     padding: 4px 12px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 15px;
     font-weight: bold;
     text-align: center;
     white-space: nowrap;
@@ -363,7 +340,6 @@
     text-align: center;
 }
 
-/* Кнопки переключения вида */
 .header-actions {
     display: flex;
     align-items: center;
@@ -572,7 +548,7 @@
     .role-badge,
     .status-badge {
         padding: 2px 8px;
-        font-size: 10px;
+        font-size: 15px;
     }
     .users-table th:nth-child(5),
     .users-table td:nth-child(5) {

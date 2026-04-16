@@ -363,10 +363,10 @@
             font-family: inherit;
         }
 
-        .event-form-body .form-group textarea {
-            resize: vertical;
+        .modal-body .form-group textarea {
+            width: 100%;
+            resize: vertical;  /* или both */
         }
-
             .event-form-body .form-group input:focus,
             .event-form-body .form-group select:focus,
             .event-form-body .form-group textarea:focus {
@@ -977,3 +977,5 @@
         padding: 2px 4px;
     }
 }
+
+
