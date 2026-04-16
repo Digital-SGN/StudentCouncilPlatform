@@ -27,7 +27,6 @@ function AppContent() {
     const handleLogout = async () => {
         await API.logout();
         setUser(null);
-        window.currentUser = null;
         navigate('/login');
     };
 

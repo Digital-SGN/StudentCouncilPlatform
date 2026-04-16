@@ -15,7 +15,6 @@ export function AuthProvider({ children }) {
         try {
             const currentUser = await API.getCurrentUser();
             setUser(currentUser);
-            window.currentUser = currentUser;
         } catch (err) {
             console.error('Auth check failed', err);
         } finally {

@@ -36,11 +36,7 @@
         return { ok: response.ok, status: response.status, data };
     },
 
-    async getCurrentUser() {
-        const res = await this.request('/account/current');
-        return res.ok ? res.data : null;  
-    },
-
+    /* Работа с сессией*/
     async login(email, password) {
         return this.request('/account/login', {
             method: 'POST',
@@ -52,6 +48,12 @@
         return this.request('/account/logout', { method: 'POST' });
     },
 
+    async getCurrentUser() {
+        const res = await this.request('/account/current');
+        return res.ok ? res.data : null;  
+    },
+
+    /* Юзеры */
     async getUsers() {
         return this.request('/users');
     },
@@ -60,8 +62,11 @@
         return this.request(`/users/${id}`);
     },
 
-    async deleteUser(id) {
-        return this.request(`/users/${id}`, { method: 'DELETE' });
+    async createUser(data) {
+        return this.request('/users', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
     },
 
     async updateUser(id, data) {
@@ -71,11 +76,8 @@
         });
     },
 
-    async createUser(data) {
-        return this.request('/users', {
-            method: 'POST',
-            body: JSON.stringify(data)
-        });
+    async deleteUser(id) {
+        return this.request(`/users/${id}`, { method: 'DELETE' });
     },
 
     async uploadAvatar(userId, formData) {
@@ -98,7 +100,9 @@
         const error = await response.json();
         return { ok: false, error: error.error || 'Ошибка удаления' };
     },
+    /**/
 
+     /* Мероприятия */
     async getEvents() {
         return this.request('/events');
     },
@@ -126,7 +130,9 @@
             method: 'DELETE'
         });
     },
+    /**/
 
+    /* Бейджы */
     async getBadgesByUser(userId) {
         return this.request(`/badges/user/${userId}`);
     },
@@ -139,14 +145,7 @@
         return this.request(`/badges/${id}`);
     },
 
-    async downloadBadge(id) {
-        const response = await fetch(`/api/badges/${id}/download`, {
-            credentials: 'include'
-        });
-        return response;
-    },
-
-    async downloadBadgeAndSave(badgeId, fileName) {
+    async downloadBadge(badgeId, fileName) {
         const response = await fetch(`/api/badges/${badgeId}/download`, {
             credentials: 'include'
         });
@@ -204,4 +203,5 @@
         const error = await response.json();
         return { ok: false, error: error.error || 'Ошибка загрузки' };
     },
+     /**/
 };
