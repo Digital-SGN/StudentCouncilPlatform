@@ -7,15 +7,14 @@ namespace StudentCouncil.Logic.Services;
 public class FileStorageService : IFileStorageService
 {
     private readonly IWebHostEnvironment _environment;
-    private readonly LoggerService _logger;
+    private readonly ILoggerService _logger;
 
     private static readonly byte[] PdfSignature = { 0x25, 0x50, 0x44, 0x46 };
-
     private static readonly byte[] JpegSignature = { 0xFF, 0xD8, 0xFF };
     private static readonly byte[] PngSignature = { 0x89, 0x50, 0x4E, 0x47 };
     private static readonly byte[] GifSignature = { 0x47, 0x49, 0x46, 0x38 };
 
-    public FileStorageService(IWebHostEnvironment environment, LoggerService logger)
+    public FileStorageService(IWebHostEnvironment environment, ILoggerService logger)
     {
         _environment = environment;
         _logger = logger;

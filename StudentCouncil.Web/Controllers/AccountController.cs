@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.DTOs;
-using StudentCouncil.Logic.Services;
+using StudentCouncil.Logic.Interfaces;
 
 namespace StudentCouncil.Web.Controllers;
 
@@ -13,7 +13,7 @@ public class AccountController : BaseController
 {
     private readonly SignInManager<User> _signInManager;
 
-    public AccountController(SignInManager<User> signInManager, LoggerService logger) : base(logger)
+    public AccountController(SignInManager<User> signInManager, ILoggerService logger) : base(logger)
     {
         _signInManager = signInManager;
     }
@@ -26,7 +26,7 @@ public class AccountController : BaseController
         if (user != null && !user.IsActive)
         {
             _logger.Warning($"Попытка входа в заблокированный аккаунт: {request.Email}");
-            return BadRequest(new { error = "Аккаунт заблокирован" });
+            return Unauthorized(new { error = "Аккаунт заблокирован" });
         }
 
         Microsoft.AspNetCore.Identity.SignInResult result = await _signInManager.PasswordSignInAsync(request.Email, request.Password, false, false);

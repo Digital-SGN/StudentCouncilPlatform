@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using StudentCouncil.Logic.Services;
-using System.Security.Claims;
+using StudentCouncil.Logic.Interfaces;
 
 namespace StudentCouncil.Web.Controllers;
 
@@ -9,9 +8,9 @@ namespace StudentCouncil.Web.Controllers;
 [Produces("application/json")]
 public abstract class BaseController : ControllerBase
 {
-    protected readonly LoggerService _logger;
+    protected readonly ILoggerService _logger;
 
-    public BaseController(LoggerService logger)
+    public BaseController(ILoggerService logger)
     {
         _logger = logger;
     }
@@ -23,7 +22,6 @@ public abstract class BaseController : ControllerBase
             return result.StatusCode switch
             {
                 201 => Created(string.Empty, new { message = result.Message }),
-                204 => NoContent(),
                 _ => Ok(new { message = result.Message })
             };
         }
@@ -54,7 +52,6 @@ public abstract class BaseController : ControllerBase
             }
             return result.StatusCode switch
             {
-                204 => NoContent(),
                 _ => Ok(new { message = result.Message })
             };
         }
@@ -69,12 +66,5 @@ public abstract class BaseController : ControllerBase
             500 => StatusCode(500, new { error = result.Message }),
             _ => BadRequest(new { error = result.Message })
         };
-    }
-
-    [Authorize]
-    protected int GetCurrentUserId()
-    {
-        string? userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return int.TryParse(userId, out var id) ? id : 0;
     }
 }
