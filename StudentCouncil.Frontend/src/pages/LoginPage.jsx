@@ -13,21 +13,13 @@ export default function LoginPage({ setUser }) {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (window.globalAudio && window.globalAudio.paused === false) {
-
-        }
-    }, []);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async (event) => {
+        event.preventDefault();
         setError('');
         setLoading(true);
 
         try {
-            console.log('Sending login request...', { email, password });
             const result = await API.login(email, password);
-            console.log('Login result:', result);
             
              if (result.ok) {
                 const user = await API.getCurrentUser();
@@ -51,27 +43,16 @@ export default function LoginPage({ setUser }) {
                 <div className="login-logo">
                     <img src={logo} alt="Лого" style={{ width: '120px', height: '82px' }} />
                 </div>
-                <h1>Студенческий совет СГН</h1>
+                <h1>Добро пожаловать!</h1>
                 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label>Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            autoFocus
-                        />
+                        <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoFocus />
                     </div>
                     <div className="form-group">
                         <label>Пароль</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
+                        <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} required />
                     </div>
                     
                     {error && (
@@ -80,8 +61,15 @@ export default function LoginPage({ setUser }) {
                         </div>
                     )}
                     
-                    <button type="submit" disabled={loading}>
-                        {loading ? 'Вход...' : 'Войти'}
+                   <button type="submit" disabled={loading}>
+                    {loading ? (
+                    <>
+                        <span className="spinner-border-sm" role="status" aria-hidden="true"></span> Вход...
+                    </>
+                    ) 
+                    : (
+                        'Войти'
+                    )}
                     </button>
                 </form>
                 

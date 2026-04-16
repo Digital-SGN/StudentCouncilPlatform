@@ -39,5 +39,4 @@ function updateMusicButton() {
     }
 }
 
-// Глобальная функция для вызова из onclick
 window.toggleGlobalMusic = toggleGlobalMusic;

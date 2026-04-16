@@ -15,15 +15,17 @@ export default function Header({ user, onLogout }) {
                     </button>
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav ms-auto">
-                            <li className="nav-item"><Link className="nav-link" to="/">Главная</Link></li>
                             {user && (
                                 <>
+                                    <li className="nav-item">
+                                        <span className="nav-text">Привет, {user.email}!</span>
+                                    </li>
+                                    <li className="nav-item"><Link className="nav-link" to="/">Главная</Link></li>
                                     <li className="nav-item"><Link className="nav-link" to="/users">Участники</Link></li>
                                     <li className="nav-item"><Link className="nav-link" to="/events">Мероприятия</Link></li>
-                                    <li className="nav-item"><Link className="nav-link" to={`/users/${user.id}`}>Мой профиль</Link></li>
-                                    <li className="nav-item"><span className="nav-link">Привет, {user.email}!</span></li>
+                                    <Link className="nav-link" to={`/users/${user.id}`}>Мой профиль</Link>
                                     <li className="nav-item">
-                                        <button className="nav-link" onClick={onLogout} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                                        <button className="nav-link" onClick={onLogout}>
                                             Выйти
                                         </button>
                                     </li>

@@ -32,6 +32,48 @@ public static class Mapper
         };
     }
 
+    public static User ToUserEntity(CreateUserDTO dto)
+    {
+        return new User
+        {
+            UserName = dto.Email,
+            Email = dto.Email,
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            Patronymic = dto.Patronymic ?? string.Empty,
+            Group = dto.Group,
+            PhoneNumber = dto.PhoneNumber,
+            Telegram = dto.Telegram,
+            ClothingSize = dto.ClothingSize,
+            BirthDate = dto.BirthDate.HasValue ? DateTime.SpecifyKind(dto.BirthDate.Value, DateTimeKind.Utc) : null,
+            JoinedAt = DateTime.UtcNow,
+            IsActive = true,
+            Balance = 0,
+            ExperiencePoints = 0,
+            Level = 1,
+            EventsAttended = 0,
+            EventsOrganized = 0,
+            TasksCompleted = 0
+        };
+    }
+
+    public static void UpdateUserEntity(User user, UpdateUserDTO dto, bool isAdminOrLeader)
+    {
+        user.FirstName = dto.FirstName;
+        user.LastName = dto.LastName;
+        user.Patronymic = dto.Patronymic ?? string.Empty;
+        user.Group = dto.Group;
+        user.PhoneNumber = dto.PhoneNumber;
+        user.Telegram = dto.Telegram;
+        user.ClothingSize = dto.ClothingSize;
+        user.BirthDate = dto.BirthDate.HasValue ? DateTime.SpecifyKind(dto.BirthDate.Value, DateTimeKind.Utc) : null;
+
+        if (isAdminOrLeader)
+        {
+            user.IsActive = dto.IsActive;
+        }
+    }
+
     public static EventResponseDTO ToEventDTO(Event ev)
     {
         return new EventResponseDTO
@@ -106,47 +148,5 @@ public static class Mapper
     public static void UpdateBadgeEntity(Badge badge, UpdateBadgeDTO dto)
     {
         badge.Role = dto.Role;
-    }
-
-    public static User ToUserEntity(CreateUserDTO dto)
-    {
-        return new User
-        {
-            UserName = dto.Email,
-            Email = dto.Email,
-            FirstName = dto.FirstName,
-            LastName = dto.LastName,
-            Patronymic = dto.Patronymic ?? string.Empty,
-            Group = dto.Group,
-            PhoneNumber = dto.PhoneNumber,
-            Telegram = dto.Telegram,
-            ClothingSize = dto.ClothingSize,
-            BirthDate = dto.BirthDate.HasValue ? DateTime.SpecifyKind(dto.BirthDate.Value, DateTimeKind.Utc) : null,
-            JoinedAt = DateTime.UtcNow,
-            IsActive = true,
-            Balance = 0,
-            ExperiencePoints = 0,
-            Level = 1,
-            EventsAttended = 0,
-            EventsOrganized = 0,
-            TasksCompleted = 0
-        };
-    }
-
-    public static void UpdateUserEntity(User user, UpdateUserDTO dto, bool isAdminOrLeader)
-    {
-        user.FirstName = dto.FirstName;
-        user.LastName = dto.LastName;
-        user.Patronymic = dto.Patronymic ?? string.Empty;
-        user.Group = dto.Group;
-        user.PhoneNumber = dto.PhoneNumber;
-        user.Telegram = dto.Telegram;
-        user.ClothingSize = dto.ClothingSize;
-        user.BirthDate = dto.BirthDate.HasValue ? DateTime.SpecifyKind(dto.BirthDate.Value, DateTimeKind.Utc) : null;
-
-        if (isAdminOrLeader)
-        {
-            user.IsActive = dto.IsActive;
-        }
     }
 }

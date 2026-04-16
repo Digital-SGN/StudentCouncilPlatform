@@ -8,11 +8,11 @@ public static class SeedData
 {
     public static async Task Initialize(IServiceProvider serviceProvider)
     {
-        var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
-        var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+        UserManager<User> userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+        RoleManager<IdentityRole<int>> roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
 
         string[] roles = { "Admin", "Leader", "Member" };
-        foreach (var role in roles)
+        foreach (string role in roles)
         {
             if (!await roleManager.RoleExistsAsync(role))
             {
@@ -20,10 +20,10 @@ public static class SeedData
             }
         }
 
-        var adminEmail = "admin@studsovet.ru";
+        string adminEmail = "admin@studsovet.ru";
         if (await userManager.FindByEmailAsync(adminEmail) == null)
         {
-            var admin = new User
+            User admin = new User
             {
                 UserName = adminEmail,
                 Email = adminEmail,
@@ -33,7 +33,7 @@ public static class SeedData
                 IsActive = true
             };
 
-            var result = await userManager.CreateAsync(admin, "Demonrux201$");
+            IdentityResult result = await userManager.CreateAsync(admin, "Demonrux201$");
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(admin, "Admin");
