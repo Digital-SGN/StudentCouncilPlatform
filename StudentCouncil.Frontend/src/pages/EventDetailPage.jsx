@@ -9,6 +9,8 @@ import {
     faDownload, faUpload, faFileAlt, faUsers
 } from '@fortawesome/free-solid-svg-icons';
 import Bubbles from '../components/Bubbles';
+import EventFormModal from '../components/EventFormModal';
+import ConfirmModal from '../components/ConfirmDialog';
 import '../css/events.css';
 
 function escapeHtml(str) {
@@ -36,19 +38,6 @@ export default function EventDetailPage() {
     const [error, setError] = useState(null);
     
     const [showEditModal, setShowEditModal] = useState(false);
-    const [editFormData, setEditFormData] = useState({
-        title: '',
-        description: '',
-        eventDate: '',
-        location: '',
-        registrationLink: '',
-        responsibleUserId: '',
-        status: 'Upcoming'
-    });
-    const [users, setUsers] = useState([]);
-    const [editLoading, setEditLoading] = useState(false);
-    const [editError, setEditError] = useState('');
-    
     const [showRoleModal, setShowRoleModal] = useState(false);
     const [editingBadgeId, setEditingBadgeId] = useState(null);
     const [editingRole, setEditingRole] = useState('');
@@ -61,6 +50,36 @@ export default function EventDetailPage() {
             setLoading(false);
         }
     }, [id]);
+
+    const [confirmDeleteEvent, setConfirmDeleteEvent] = useState(false);
+    const [confirmDeleteBadge, setConfirmDeleteBadge] = useState({ isOpen: false, badgeId: null });
+
+    const handleDeleteEventClick = () => setConfirmDeleteEvent(true);
+
+    const confirmDeleteEventAction = async () => {
+        const result = await API.deleteEvent(id);
+        if (result.ok) {
+            navigate('/events');
+        } else {
+            alert(result.data?.error || 'Ошибка удаления');
+        }
+        setConfirmDeleteEvent(false);
+    };
+
+    const handleDeleteBadgeClick = (badgeId) => {
+        setConfirmDeleteBadge({ isOpen: true, badgeId });
+    };
+
+    const confirmDeleteBadgeAction = async () => {
+        const { badgeId } = confirmDeleteBadge;
+        const result = await API.deleteBadge(badgeId);
+        if (result.ok) {
+            setBadges(badges.filter(b => b.id !== badgeId));
+        } else {
+            alert(result.data?.error || 'Ошибка удаления');
+        }
+        setConfirmDeleteBadge({ isOpen: false, badgeId: null });
+    };
 
     const loadData = async () => {
         try {
@@ -81,8 +100,8 @@ export default function EventDetailPage() {
             const usersResult = await API.getUsers();
             if (usersResult.ok) {
                 const map = new Map();
-                usersResult.data.users.forEach(user => {
-                    map.set(user.id, `${user.lastName} ${user.firstName} ${user.patronymic || ''}`);
+                usersResult.data.users.forEach(u => {
+                    map.set(u.id, `${u.lastName} ${u.firstName} ${u.patronymic || ''}`.trim());
                 });
                 setUsersMap(map);
             }
@@ -93,28 +112,10 @@ export default function EventDetailPage() {
         }
     };
 
-    const deleteEvent = async () => {
-        if (!confirm('Удалить мероприятие?')) return;
-        const result = await API.deleteEvent(id);
-        if (result.ok) {
-            navigate('/events');
-        } else {
-            alert(result.data?.error || 'Ошибка удаления');
-        }
-    };
-
-    const deleteBadge = async (badgeId) => {
-        if (!confirm('Удалить участника из мероприятия?')) return;
-        const result = await API.deleteBadge(badgeId);
-        if (result.ok) {
-            setBadges(badges.filter(b => b.id !== badgeId));
-        } else {
-            alert(result.data?.error || 'Ошибка удаления');
-        }
-    };
-
     const downloadBadge = async (badgeId, eventTitle, userName, role) => {
-        const fileName = `${eventTitle}_${userName}_${role}`.replace(/[^a-zA-Zа-яА-Я0-9_]/g, '_');
+        const fileName = `${eventTitle}_${userName}_${role}`
+            .replace(/[^\wа-яё]/gi, '_')
+            .toLowerCase();
         const result = await API.downloadBadgeAndSave(badgeId, fileName);
         if (!result) alert('Ошибка скачивания бейджа');
     };
@@ -168,11 +169,11 @@ export default function EventDetailPage() {
                         <div class="form-group">
                             <label>Роль *</label>
                             <select id="memberRole">
+                                <option value="Главный организатор">Главный организатор</option>
                                 <option value="Организатор">Организатор</option>
                                 <option value="Медиа">Медиа</option>
                                 <option value="Техпод">Техпод</option>
                                 <option value="Волонтёр">Волонтёр</option>
-                                <option value="Участник">Участник</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -222,60 +223,6 @@ export default function EventDetailPage() {
         };
     };
 
-    const openEditModal = () => {
-        setEditFormData({
-            title: event.title || '',
-            description: event.description || '',
-            eventDate: event.eventDate ? event.eventDate.slice(0, 16) : '',
-            location: event.location || '',
-            registrationLink: event.registrationLink || '',
-            responsibleUserId: event.responsibleUserId || '',
-            status: event.status || 'Upcoming'
-        });
-        setShowEditModal(true);
-        loadUsersForEdit();
-    };
-
-    const loadUsersForEdit = async () => {
-        const result = await API.getUsers();
-        if (result.ok) {
-            setUsers(result.data.users || []);
-        }
-    };
-
-    const handleEditChange = (e) => {
-        setEditFormData({
-            ...editFormData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    const handleEditSubmit = async (e) => {
-        e.preventDefault();
-        setEditError('');
-        setEditLoading(true);
-
-        const data = {
-            title: editFormData.title,
-            description: editFormData.description,
-            eventDate: new Date(editFormData.eventDate).toISOString(),
-            location: editFormData.location,
-            registrationLink: editFormData.registrationLink,
-            responsibleUserId: parseInt(editFormData.responsibleUserId),
-            status: editFormData.status
-        };
-
-        const result = await API.updateEvent(id, data);
-
-        if (result.ok) {
-            setShowEditModal(false);
-            loadData();
-        } else {
-            setEditError(result.data?.error || 'Ошибка сохранения');
-        }
-        setEditLoading(false);
-    };
-
     if (!canView) {
         return <div className="alert alert-danger">Доступ запрещён</div>;
     }
@@ -291,6 +238,14 @@ export default function EventDetailPage() {
     });
     const statusText = getStatusText(event.status);
     const statusClass = getStatusClass(event.status);
+
+    const roleStyles = {
+        'Главный организатор': { background: '#0CBFA1', color: 'white' },           
+        'Организатор': { background: '#148C9C', color: 'white' },                  
+        'Медиа': { background: '#FF6B6B', color: 'white' },                        
+        'Техпод': { background: '#4ECDC4', color: 'white' },                      
+        'Волонтёр': { background: '#FFE66D', color: '#2d3748' },                  
+    };
 
     return (
         <div className="event-detail-page">
@@ -368,7 +323,11 @@ export default function EventDetailPage() {
                                                             {badge.userName}
                                                         </Link>
                                                     </td>
-                                                    <td><span className="team-role-badge">{badge.role}</span></td>
+                                                    <td>
+                                                        <span className="team-role-badge" style={roleStyles[badge.role] || { background: '#e2e8f0', color: '#2d3748' }}>
+                                                            {badge.role}
+                                                        </span>
+                                                    </td>
                                                     <td>
                                                         <div className="team-badge-cell">
                                                             {badge.filePath && (
@@ -389,7 +348,7 @@ export default function EventDetailPage() {
                                                             <button onClick={() => openEditRoleModal(badge.id, badge.role)} className="team-action-btn edit" title="Изменить роль">
                                                                 <FontAwesomeIcon icon={faEdit} />Изменить
                                                             </button>
-                                                            <button onClick={() => deleteBadge(badge.id)} className="team-action-btn delete" title="Удалить">
+                                                            <button onClick={() => handleDeleteBadgeClick(badge.id)} className="team-action-btn delete">
                                                                 <FontAwesomeIcon icon={faTrashAlt} /> Удалить
                                                             </button>
                                                         </td>
@@ -409,11 +368,11 @@ export default function EventDetailPage() {
 
                         {isAdmin && (
                             <div className="event-actions">
-                                <button onClick={openEditModal} className="event-edit-btn">
-                                     <FontAwesomeIcon icon={faEdit} />Редактировать
+                                <button onClick={() => setShowEditModal(true)} className="event-edit-btn">
+                                    <FontAwesomeIcon icon={faEdit} />Редактировать
                                 </button>
-                                <button onClick={deleteEvent} className="event-delete-btn">
-                                    <FontAwesomeIcon icon={faTrashAlt} />Удалить
+                                <button onClick={handleDeleteEventClick} className="event-delete-btn">
+                                    <FontAwesomeIcon icon={faTrashAlt} /> Удалить
                                 </button>
                             </div>
                         )}
@@ -421,81 +380,35 @@ export default function EventDetailPage() {
                 </div>
             </div>
 
-            {showEditModal && (
-                <div className="modal" onClick={() => setShowEditModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3>Редактирование мероприятия</h3>
-                            <span className="modal-close" onClick={() => setShowEditModal(false)}>&times;</span>
-                        </div>
-                        <div className="modal-body">
-                            <form onSubmit={handleEditSubmit}>
-                                <div className="form-group">
-                                    <label>Название *</label>
-                                    <input type="text" name="title" value={editFormData.title} onChange={handleEditChange} required />
-                                </div>
+            <ConfirmModal
+                isOpen={confirmDeleteEvent}
+                onClose={() => setConfirmDeleteEvent(false)}
+                onConfirm={confirmDeleteEventAction}
+                title="Удаление мероприятия"
+                message="Вы уверены, что хотите удалить это мероприятие?"
+                confirmText="Удалить"
+            />
 
-                                <div className="form-group">
-                                    <label>Описание</label>
-                                    <textarea name="description" rows="4" value={editFormData.description} onChange={handleEditChange} />
-                                </div>
+            <ConfirmModal
+                isOpen={confirmDeleteBadge.isOpen}
+                onClose={() => setConfirmDeleteBadge({ isOpen: false, badgeId: null })}
+                onConfirm={confirmDeleteBadgeAction}
+                title="Удаление участника"
+                message="Удалить участника из мероприятия?"
+                confirmText="Удалить"
+            />
 
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label>Дата и время *</label>
-                                        <input type="datetime-local" name="eventDate" value={editFormData.eventDate} onChange={handleEditChange} required />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Место *</label>
-                                        <input type="text" name="location" value={editFormData.location} onChange={handleEditChange} required />
-                                    </div>
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Ссылка на регистрацию</label>
-                                    <input type="url" name="registrationLink" placeholder="https://..." value={editFormData.registrationLink} onChange={handleEditChange} />
-                                </div>
-
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label>Ответственный *</label>
-                                        <select name="responsibleUserId" value={editFormData.responsibleUserId} onChange={handleEditChange} required>
-                                            <option value="">Выберите ответственного</option>
-                                            {users.map(user => (
-                                                <option key={user.id} value={user.id}>
-                                                    {user.lastName} {user.firstName} ({user.role === 'Admin' ? 'Админ' : user.role === 'Leader' ? 'Руководство' : 'Участник'})
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label>Статус</label>
-                                        <select name="status" value={editFormData.status} onChange={handleEditChange}>
-                                            <option value="Upcoming">Предстоит</option>
-                                            <option value="Completed">Завершено</option>
-                                            <option value="Cancelled">Отменено</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                {editError && <div className="error-message">{editError}</div>}
-
-                                <div className="form-actions">
-                                    <button type="submit" className="btn-save" disabled={editLoading}>
-                                        {editLoading ? 'Сохранение...' : 'Сохранить'}
-                                    </button>
-                                    <button type="button" onClick={() => setShowEditModal(false)} className="btn-cancel">Отмена</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <EventFormModal
+                isOpen={showEditModal}
+                onClose={() => setShowEditModal(false)}
+                eventId={id}
+                isAdmin={isAdmin}
+                onSuccess={loadData}
+            />
 
             {showRoleModal && (
                 <div className="modal" onClick={() => setShowRoleModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal-content" onClick={(event) => event.stopPropagation()}>
                         <div className="modal-header">
                             <h3>Изменение роли</h3>
                             <span className="modal-close" onClick={() => setShowRoleModal(false)}>&times;</span>
@@ -503,12 +416,12 @@ export default function EventDetailPage() {
                         <div className="modal-body">
                             <div className="form-group">
                                 <label>Новая роль</label>
-                                <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)}>
+                                <select value={selectedRole} onChange={(event) => setSelectedRole(event.target.value)}>
+                                    <option value="Главный организатор">Главный организатор</option>
                                     <option value="Организатор">Организатор</option>
                                     <option value="Медиа">Медиа</option>
                                     <option value="Техпод">Техпод</option>
                                     <option value="Волонтёр">Волонтёр</option>
-
                                 </select>
                             </div>
                             <div className="form-actions">
@@ -516,13 +429,14 @@ export default function EventDetailPage() {
                                     if (selectedRole !== editingRole) {
                                         const result = await API.updateBadge(editingBadgeId, { role: selectedRole });
                                         if (result.ok) {
-                                            setBadges(badges.map(b => b.id === editingBadgeId ? { ...b, role: selectedRole } : b));
+                                            setBadges(badges.map(badge => badge.id === editingBadgeId ? { ...badge, role: selectedRole } : badge));
                                         } else {
                                             alert(result.data?.error || 'Ошибка обновления');
                                         }
                                     }
                                     setShowRoleModal(false);
-                                }}>Сохранить</button>
+                                }}>Сохранить
+                                </button>
                                 <button className="btn-cancel" onClick={() => setShowRoleModal(false)}>Отмена</button>
                             </div>
                         </div>

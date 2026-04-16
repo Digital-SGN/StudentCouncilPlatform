@@ -1,16 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { API } from '../api';
-import { useAuth } from '../context/AuthContext';
-import '../css/events.css';
 
-export default function EventFormPage() {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const { user } = useAuth();
-    const isAdmin = user?.role === 'Admin';
-    const isEditMode = !!id;
-    
+export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSuccess }) {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -23,14 +14,20 @@ export default function EventFormPage() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [initialLoading, setInitialLoading] = useState(false);
+
+    const isEditMode = !!eventId;
 
     useEffect(() => {
-        if (!isAdmin) return;
-        loadUsers();
-        if (isEditMode) {
-            loadEvent();
+        if (isOpen) {
+            loadUsers();
+            if (isEditMode) {
+                loadEvent();
+            } else {
+                resetForm();
+            }
         }
-    }, [id]);
+    }, [isOpen, eventId]);
 
     const loadUsers = async () => {
         const result = await API.getUsers();
@@ -40,8 +37,8 @@ export default function EventFormPage() {
     };
 
     const loadEvent = async () => {
-        setLoading(true);
-        const result = await API.getEvent(id);
+        setInitialLoading(true);
+        const result = await API.getEvent(eventId);
         if (result.ok) {
             const event = result.data;
             setFormData({
@@ -56,7 +53,20 @@ export default function EventFormPage() {
         } else {
             setError('Ошибка загрузки мероприятия');
         }
-        setLoading(false);
+        setInitialLoading(false);
+    };
+
+    const resetForm = () => {
+        setFormData({
+            title: '',
+            description: '',
+            eventDate: '',
+            location: '',
+            registrationLink: '',
+            responsibleUserId: '',
+            status: 'Upcoming'
+        });
+        setError('');
     };
 
     const handleChange = (e) => {
@@ -86,36 +96,36 @@ export default function EventFormPage() {
 
         let result;
         if (isEditMode) {
-            result = await API.updateEvent(id, data);
+            result = await API.updateEvent(eventId, data);
         } else {
             result = await API.createEvent(data);
         }
 
         if (result.ok) {
-            navigate('/events');
+            onSuccess();
+            onClose();
         } else {
             setError(result.data?.error || 'Ошибка сохранения');
         }
         setLoading(false);
     };
 
-    if (!isAdmin) {
-        return <div className="alert alert-danger">Доступ запрещён</div>;
-    }
-
-    if (loading && isEditMode) {
-        return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
-    }
+    if (!isOpen) return null;
 
     return (
-        <div className="event-form-page">
-            <div className="event-form-container">
-                <div className="event-form-card">
-                    <div className="event-form-header">
-                        <h2>{isEditMode ? 'Редактирование мероприятия' : 'Создание мероприятия'}</h2>
-                        <p>{isEditMode ? 'Измените информацию о мероприятии' : 'Заполните информацию о новом мероприятии'}</p>
-                    </div>
-                    <div className="event-form-body">
+        <div className="modal" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                    <h3>{isEditMode ? 'Редактирование мероприятия' : 'Создание мероприятия'}</h3>
+                    <span className="modal-close" onClick={onClose}>&times;</span>
+                </div>
+                <div className="modal-body">
+                    {initialLoading ? (
+                        <div className="loading-container">
+                            <div className="spinner"></div>
+                            <p>Загрузка...</p>
+                        </div>
+                    ) : (
                         <form onSubmit={handleSubmit}>
                             <div className="form-group">
                                 <label>Название *</label>
@@ -174,10 +184,10 @@ export default function EventFormPage() {
                                 <button type="submit" className="btn-save" disabled={loading}>
                                     {loading ? 'Сохранение...' : (isEditMode ? 'Сохранить' : 'Создать')}
                                 </button>
-                                <a href="/events" className="btn-cancel">Отмена</a>
+                                <button type="button" onClick={onClose} className="btn-cancel">Отмена</button>
                             </div>
                         </form>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

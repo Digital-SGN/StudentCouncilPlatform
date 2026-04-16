@@ -8,6 +8,8 @@ import {
     faEdit, faTrashAlt, faEye, faPlus, faCalendarDay
 } from '@fortawesome/free-solid-svg-icons';
 import Bubbles from '../components/Bubbles';
+import EventFormModal from '../components/EventFormModal';
+import ConfirmModal from '../components/ConfirmDialog';
 import '../css/events.css';
 
 export default function EventsPage() {
@@ -21,21 +23,10 @@ export default function EventsPage() {
     const [error, setError] = useState(null);
     const [usersMap, setUsersMap] = useState(new Map());
     
-    const [showModal, setShowModal] = useState(false);
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [editEventId, setEditEventId] = useState(null);
-    const [formData, setFormData] = useState({
-        title: '',
-        description: '',
-        eventDate: '',
-        location: '',
-        registrationLink: '',
-        responsibleUserId: '',
-        status: 'Upcoming'
+    const [modalState, setModalState] = useState({
+        isOpen: false,
+        eventId: null
     });
-    const [users, setUsers] = useState([]);
-    const [modalLoading, setModalLoading] = useState(false);
-    const [modalError, setModalError] = useState('');
 
     useEffect(() => {
         if (canView) {
@@ -45,46 +36,51 @@ export default function EventsPage() {
         }
     }, []);
 
-   const loadEvents = async () => {
-    try {
-        setLoading(true);
-        const result = await API.getEvents();
-        if (result.ok) {
-            const eventsList = result.data.events || [];
-            setEvents(eventsList);
-            
-            const responsibleIds = [...new Set(eventsList.map(e => e.responsibleUserId).filter(id => id))];
-            
-            const map = new Map();
-            await Promise.all(
-                responsibleIds.map(async (userId) => {
-                    const userResult = await API.getUser(userId);
-                    if (userResult.ok) {
-                        const user = userResult.data;
-                        map.set(userId, `${user.lastName} ${user.firstName} ${user.patronymic || ''}`.trim());
-                    }
-                })
-            );
-            setUsersMap(map);
-        } else {
-            setError(result.data?.error || 'Ошибка загрузки');
-        }
-    } catch (err) {
-        setError('Ошибка загрузки мероприятий');
-    } finally {
-        setLoading(false);
-    }
-};
+    const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, eventId: null });
 
-    const loadUsers = async () => {
-        const result = await API.getUsers();
+    const handleDeleteClick = (eventId) => {
+        setConfirmDelete({ isOpen: true, eventId });
+    };
+
+    const confirmDeleteEvent = async () => {
+        const { eventId } = confirmDelete;
+        const result = await API.deleteEvent(eventId);
         if (result.ok) {
-            const map = new Map();
-            result.data.users.forEach(user => {
-                map.set(user.id, `${user.lastName} ${user.firstName}`);
-            });
-            setUsersMap(map);
-            setUsers(result.data.users || []);
+            setEvents(events.filter(e => e.id !== eventId));
+        } else {
+            alert(result.data?.error || 'Ошибка удаления');
+        }
+        setConfirmDelete({ isOpen: false, eventId: null });
+    };
+
+    const loadEvents = async () => {
+        try {
+            setLoading(true);
+            const result = await API.getEvents();
+            if (result.ok) {
+                const eventsList = result.data.events || [];
+                setEvents(eventsList);
+                
+                const responsibleIds = [...new Set(eventsList.map(e => e.responsibleUserId).filter(id => id))];
+                
+                const map = new Map();
+                await Promise.all(
+                    responsibleIds.map(async (userId) => {
+                        const userResult = await API.getUser(userId);
+                        if (userResult.ok) {
+                            const user = userResult.data;
+                            map.set(userId, `${user.lastName} ${user.firstName} ${user.patronymic || ''}`.trim());
+                        }
+                    })
+                );
+                setUsersMap(map);
+            } else {
+                setError(result.data?.error || 'Ошибка загрузки');
+            }
+        } catch (err) {
+            setError('Ошибка загрузки мероприятий');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -99,82 +95,15 @@ export default function EventsPage() {
     };
 
     const openCreateModal = () => {
-        setIsEditMode(false);
-        setEditEventId(null);
-        setFormData({
-            title: '',
-            description: '',
-            eventDate: '',
-            location: '',
-            registrationLink: '',
-            responsibleUserId: '',
-            status: 'Upcoming'
-        });
-        setModalError('');
-        setShowModal(true);
+        setModalState({ isOpen: true, eventId: null });
     };
 
-    const openEditModal = async (eventId) => {
-        const result = await API.getEvent(eventId);
-        if (!result.ok) {
-            alert('Ошибка загрузки мероприятия');
-            return;
-        }
-        const event = result.data;
-        setIsEditMode(true);
-        setEditEventId(eventId);
-        setFormData({
-            title: event.title || '',
-            description: event.description || '',
-            eventDate: event.eventDate ? event.eventDate.slice(0, 16) : '',
-            location: event.location || '',
-            registrationLink: event.registrationLink || '',
-            responsibleUserId: event.responsibleUserId || '',
-            status: event.status || 'Upcoming'
-        });
-        setModalError('');
-        setShowModal(true);
+    const openEditModal = (eventId) => {
+        setModalState({ isOpen: true, eventId });
     };
 
-    const handleFormChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setModalError('');
-        setModalLoading(true);
-
-        const data = {
-            title: formData.title,
-            description: formData.description,
-            eventDate: new Date(formData.eventDate).toISOString(),
-            location: formData.location,
-            registrationLink: formData.registrationLink,
-            responsibleUserId: parseInt(formData.responsibleUserId)
-        };
-
-        if (isEditMode && isAdmin) {
-            data.status = formData.status;
-        }
-
-        let result;
-        if (isEditMode) {
-            result = await API.updateEvent(editEventId, data);
-        } else {
-            result = await API.createEvent(data);
-        }
-
-        if (result.ok) {
-            setShowModal(false);
-            loadEvents();
-        } else {
-            setModalError(result.data?.error || 'Ошибка сохранения');
-        }
-        setModalLoading(false);
+    const closeModal = () => {
+        setModalState({ isOpen: false, eventId: null });
     };
 
     if (!canView) {
@@ -191,9 +120,12 @@ export default function EventsPage() {
                 <div className="events-header">
                     <h1>Мероприятия</h1>
                     {isAdmin && (
-                        <button onClick={openCreateModal} className="create-event-btn"><FontAwesomeIcon icon={faPlus} /> Создать мероприятие</button>
+                        <button onClick={openCreateModal} className="create-event-btn">
+                            <FontAwesomeIcon icon={faPlus} /> Создать мероприятие
+                        </button>
                     )}
                 </div>
+                
                 {events.length === 0 ? (
                     <div className="empty-state">
                         <div className="empty-icon"><FontAwesomeIcon icon={faCalendarDay} /></div>
@@ -251,9 +183,9 @@ export default function EventsPage() {
                                             <button onClick={() => openEditModal(event.id)} className="event-btn edit"><
                                                 FontAwesomeIcon icon={faEdit} /> Редактировать
                                             </button>
-                                            <button onClick={() => deleteEvent(event.id)} className="event-btn delete">
-                                                <FontAwesomeIcon icon={faTrashAlt} /> Удалить
-                                            </button>
+                                         <button onClick={() => handleDeleteClick(event.id)} className="event-btn delete">
+                                            <FontAwesomeIcon icon={faTrashAlt} /> Удалить
+                                        </button>
                                         </>
                                     )}
                                 </div>
@@ -263,79 +195,22 @@ export default function EventsPage() {
                 )}
             </div>
 
-            {showModal && (
-                <div className="modal" onClick={() => setShowModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3>{isEditMode ? 'Редактирование мероприятия' : 'Создание мероприятия'}</h3>
-                            <span className="modal-close" onClick={() => setShowModal(false)}>&times;</span>
-                        </div>
-                        <div className="modal-body">
-                            <form onSubmit={handleSubmit}>
-                                <div className="form-group">
-                                    <label>Название *</label>
-                                    <input type="text" name="title" value={formData.title} onChange={handleFormChange} required />
-                                </div>
+            <EventFormModal
+                isOpen={modalState.isOpen}
+                onClose={closeModal}
+                eventId={modalState.eventId}
+                isAdmin={isAdmin}
+                onSuccess={loadEvents}
+            />
 
-                                <div className="form-group">
-                                    <label>Описание</label>
-                                    <textarea name="description" rows="4" value={formData.description} onChange={handleFormChange} />
-                                </div>
-
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label>Дата и время *</label>
-                                        <input type="datetime-local" name="eventDate" value={formData.eventDate} onChange={handleFormChange} required />
-                                    </div>
-                                    <div className="form-group">
-                                        <label>Место *</label>
-                                        <input type="text" name="location" value={formData.location} onChange={handleFormChange} required />
-                                    </div>
-                                </div>
-
-                                <div className="form-group">
-                                    <label>Ссылка на регистрацию</label>
-                                    <input type="url" name="registrationLink" placeholder="https://..." value={formData.registrationLink} onChange={handleFormChange} />
-                                </div>
-
-                                <div className="form-row">
-                                    <div className="form-group">
-                                        <label>Ответственный *</label>
-                                        <select name="responsibleUserId" value={formData.responsibleUserId} onChange={handleFormChange} required>
-                                            <option value="">Выберите ответственного</option>
-                                            {users.map(user => (
-                                                <option key={user.id} value={user.id}>
-                                                    {user.lastName} {user.firstName} ({user.role === 'Admin' ? 'Админ' : user.role === 'Leader' ? 'Руководство' : 'Участник'})
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    {isEditMode && isAdmin && (
-                                        <div className="form-group">
-                                            <label>Статус</label>
-                                            <select name="status" value={formData.status} onChange={handleFormChange}>
-                                                <option value="Upcoming">Предстоит</option>
-                                                <option value="Completed">Завершено</option>
-                                                <option value="Cancelled">Отменено</option>
-                                            </select>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {modalError && <div className="error-message">{modalError}</div>}
-
-                                <div className="form-actions">
-                                    <button type="submit" className="btn-save" disabled={modalLoading}>
-                                        {modalLoading ? 'Сохранение...' : (isEditMode ? 'Сохранить' : 'Создать')}
-                                    </button>
-                                    <button type="button" onClick={() => setShowModal(false)} className="btn-cancel">Отмена</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ConfirmModal
+                isOpen={confirmDelete.isOpen}
+                onClose={() => setConfirmDelete({ isOpen: false, eventId: null })}
+                onConfirm={confirmDeleteEvent}
+                title="Удаление мероприятия"
+                message="Вы действительно хотите удалить это мероприятие?"
+                confirmText="Удалить"
+            />
         </div>
     );
 }
