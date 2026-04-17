@@ -1,36 +1,42 @@
-# Платформа студенческого совета 
+# Платформа студенческого совета СГН
 
-**Полноценное веб-приложение** для студенческого совета:  
-- Бэкенд: ASP.NET Core 8 + PostgreSQL + Identity  
-- Фронтенд: React 19 + Vite + Bootstrap  
+**Полноценное веб-приложение** для управления студенческим советом: учёт участников, организация мероприятий, выдача бейджей, система уровней и баллов.
 
-## Архитектура
+## Технологии
 
-Проект разделён на 4 слоя:
+| Слой | Технологии |
+|------|------------|
+| **Бэкенд** | ASP.NET Core 8, Entity Framework Core, PostgreSQL, Identity |
+| **Фронтенд** | React 19, Vite, React Router, Chart.js, Font Awesome |
+| **Хранение** | PostgreSQL, фwwwroot |
+
+## Структура проекта
 ```
 StudentCouncil/
-├── Data/ # Контекст БД, модели , настройки
-├── Logic/ # DTO, интерфейсы, сервисы, ServiceResult, маппинг
-└── Web/ # Контроллеры, Program.cs
-└── Frontend/ # React-приложение
+├── StudentCouncil.Data/ # Контекст БД, модели, миграции, SeedData
+├── StudentCouncil.Logic/ # DTO, интерфейсы, сервисы, Mapper, ServiceResult
+├── StudentCouncil.Web/ # Контроллеры API, Program.cs, wwwroot
+└── StudentCouncil.Frontend/ # React-приложение
 ```
 
-### Основные сервисы
+## Основные сервисы
 
-- `UserService` – управление пользователями (CRUD, аватары, роли, блокировка)
-- `EventService` – управление мероприятиями
-- `BadgeService` – выдача бейджей участникам, загрузка PDF-файлов
-- `FileStorageService` – сохранение/удаление файлов, проверка сигнатур (PDF, JPEG, PNG, GIF)
-- `LoggerService` – простое файловое логирование
+| Сервис | Назначение |
+|--------|------------|
+| `UserService` | Управление пользователями, ролями, аватарами, блокировка |
+| `EventService` | CRUD мероприятий, назначение ответственных |
+| `BadgeService` | Выдача бейджей участникам, загрузка/скачивание PDF |
+| `FileStorageService` | Сохранение файлов, проверка magic bytes (PDF, JPEG, PNG, GIF), лимит 10 МБ |
+| `FileLoggerService` | Асинхронное неблокирующее логирование через Channel<T> |
 
-### ServiceResult
+## ServiceResult
 
 Унифицированный контейнер ответа сервисов:
 
 ```csharp
-ServiceResult.Ok(data)
-ServiceResult.NotFound("message")
-ServiceResult.Forbidden("message")
+ServiceResult<UserDTO>.Ok(data)
+ServiceResult.NotFound("Пользователь не найден")
+ServiceResult.Forbidden("Доступ запрещён")
 
 BaseController.HandleServiceResult() автоматически преобразует в HTTP-ответ с правильным статус-кодом.
 ```
