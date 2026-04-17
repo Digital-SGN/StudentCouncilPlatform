@@ -28,15 +28,15 @@ public class FileLoggerService : ILoggerService, IAsyncDisposable
         _writerTask = Task.Run(() => ProcessLogQueueAsync(_cts.Token));
     }
 
+    private void Log(string message, string level)
+    {
+        LogEntry entry = new(level, message, DateTime.Now);
+        _channel.Writer.TryWrite(entry);
+    }
+
     public void Info(string message) => Log(message, "INFO");
     public void Warning(string message) => Log(message, "WARN");
     public void Error(string message) => Log(message, "ERROR");
-
-    private void Log(string message, string level)
-    {
-        var entry = new LogEntry(level, message, DateTime.Now);
-        _channel.Writer.TryWrite(entry);
-    }
 
     private async Task ProcessLogQueueAsync(CancellationToken cancellationToken)
     {
@@ -44,7 +44,7 @@ public class FileLoggerService : ILoggerService, IAsyncDisposable
         {
             try
             {
-                await foreach (var entry in _channel.Reader.ReadAllAsync(cancellationToken))
+                await foreach (LogEntry entry in _channel.Reader.ReadAllAsync(cancellationToken))
                 {
                     await WriteToFileAsync(entry);
                 }
