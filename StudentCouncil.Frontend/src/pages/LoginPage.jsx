@@ -74,9 +74,6 @@ export default function LoginPage({ setUser }) {
                 </form>
                 
                 <div className="help-row">
-                    <div className="music-control" onClick={() => window.toggleGlobalMusic?.()}>
-                        🔊
-                    </div>
                     <div className="help-link">
                         <a href="/help">Помощь</a>
                     </div>

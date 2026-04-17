@@ -18,7 +18,6 @@ import './css/profile.css';
 import './css/events.css';
 import './css/bubbles.css';
 import './css/help.css';
-import { initGlobalMusic } from './music';
 
 function AppContent() {
     const { user, setUser, loading } = useAuth();
@@ -54,10 +53,6 @@ function AppContent() {
 }
 
 function App() {
-    useEffect(() => {
-        initGlobalMusic();
-    }, []);
-
     return (
         <BrowserRouter>
             <AuthProvider>
