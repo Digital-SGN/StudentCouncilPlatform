@@ -18,7 +18,7 @@ public class BadgeController : BaseController
         _badgeService = badgeService;
     }
 
-    [HttpGet("user/{userId}")]
+    [HttpGet("~/api/users/{userId}/badges")]
     public async Task<IActionResult> GetByUser(int userId)
     {
         ServiceResult<BadgeListResponseDTO> result = await _badgeService.GetBadgesByUserAsync(userId, User);
@@ -26,7 +26,7 @@ public class BadgeController : BaseController
     }
 
 
-    [HttpGet("event/{eventId}")]
+    [HttpGet("~/api/events/{eventId}/badges")]
     [Authorize(Roles = "Admin,Leader")]
     public async Task<IActionResult> GetByEvent(int eventId)
     {
@@ -39,15 +39,6 @@ public class BadgeController : BaseController
     {
         ServiceResult<BadgeResponseDTO> result = await _badgeService.GetBadgeByIdAsync(id, User);
         return HandleServiceResult(result);
-    }
-
-    [HttpGet("{id}/download")]
-    public async Task<IActionResult> Download(int id)
-    {
-        ServiceResult<(byte[] FileContent, string ContentType, string FileName)> result = await _badgeService.DownloadBadgeAsync(id, User);
-        if (!result.Success)
-            return HandleServiceResult(result);
-        return File(result.Data.FileContent, result.Data.ContentType, result.Data.FileName);
     }
 
     [HttpPost]
@@ -74,10 +65,19 @@ public class BadgeController : BaseController
         return HandleServiceResult(result);
     }
 
-    [HttpPost("{id}/upload")]
+    [HttpGet("{id}/file")]
+    public async Task<IActionResult> DownloadBadgeFile(int id)
+    {
+        ServiceResult<(byte[] FileContent, string ContentType, string FileName)> result = await _badgeService.DownloadBadgeAsync(id, User);
+        if (!result.Success)
+            return HandleServiceResult(result);
+        return File(result.Data.FileContent, result.Data.ContentType, result.Data.FileName);
+    }
+
+    [HttpPut("{id}/file")]
     [Authorize(Roles = "Admin")]
     [RequestSizeLimit(10_485_760)]
-    public async Task<IActionResult> UploadFile(int id, IFormFile file)
+    public async Task<IActionResult> UploadBadgeFile(int id, IFormFile file)
     {
         ServiceResult result = await _badgeService.UploadBadgeFileAsync(id, file, User);
         return HandleServiceResult(result);

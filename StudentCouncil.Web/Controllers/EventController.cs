@@ -21,7 +21,8 @@ public class EventController : BaseController
     [Authorize(Roles = "Admin,Leader")]
     public async Task<IActionResult> GetAllAsync()
     {
-        return HandleServiceResult(await _eventService.GetAllEventsAsync());
+        ServiceResult<EventListResponseDTO> result = await _eventService.GetAllEventsAsync();
+        return HandleServiceResult(result);
     }
 
     [HttpGet("{id}")]
@@ -36,7 +37,7 @@ public class EventController : BaseController
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateAsync([FromBody] CreateEventDTO dto)
     {
-        var result = await _eventService.CreateEventAsync(dto, User);
+        ServiceResult result = await _eventService.CreateEventAsync(dto, User);
         return HandleServiceResult(result);
     }
 
