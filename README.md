@@ -114,14 +114,14 @@ BaseController.HandleServiceResult() автоматически преобраз
 
 | Метод | URL | Описание | Доступ |
 |-------|-----|----------|--------|
-| GET | `/api/badges/user/{userId}` | Бейджи пользователя | Свои или Admin/Leader |
-| GET | `/api/badges/event/{eventId}` | Бейджи мероприятия | Admin, Leader |
+| GET | `/api/users/user/{userId}/badges` | Бейджи пользователя | Свои или Admin/Leader |
+| GET | `/api/events/{eventId}/badges` | Бейджи мероприятия | Admin, Leader |
 | GET | `/api/badges/{id}` | Детали бейджа | Свои или Admin/Leader |
-| GET | `/api/badges/{id}/download` | Скачать PDF-файл бейджа | Свои или Admin/Leader |
+| GET | `/api/badges/{id}/file` | Скачать PDF-файл бейджа | Свои или Admin/Leader |
+| PUT | `/api/badges/{id}/file` | Загрузить PDF-файл для бейджа | Admin |
 | POST | `/api/badges` | Создать бейдж (с файлом) | Admin |
 | PUT | `/api/badges/{id}` | Обновить бейдж | Admin |
 | DELETE | `/api/badges/{id}` | Удалить бейдж | Admin |
-| POST | `/api/badges/{id}/upload` | Загрузить файл для бейджа | Admin |
 
 
 
