@@ -60,56 +60,56 @@ public class FileStorageService : IFileStorageService
         return relativePath;
     }
 
-    public void DeleteFile(string? relativePath)
+    public void DeleteFile(string? path)
     {
-        if (string.IsNullOrWhiteSpace(relativePath))
+        if (string.IsNullOrWhiteSpace(path))
             return;
 
         try
         {
             string webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
-            string fullPath = Path.Combine(webRootPath, relativePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+            string fullPath = Path.Combine(webRootPath, path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
 
             if (File.Exists(fullPath))
             {
                 File.Delete(fullPath);
-                _logger.Info($"Файл удалён: {relativePath}");
+                _logger.Info($"Файл удалён: {path}");
             }
         }
         catch (Exception ex)
         {
-            _logger.Error($"Ошибка удаления файла {relativePath}: {ex.Message}");
+            _logger.Error($"Ошибка удаления файла {path}: {ex.Message}");
         }
     }
 
-    public bool FileExists(string? relativePath)
+    public bool FileExists(string? path)
     {
-        if (string.IsNullOrWhiteSpace(relativePath))
+        if (string.IsNullOrWhiteSpace(path))
             return false;
 
         string webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
-        string fullPath = Path.Combine(webRootPath, relativePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+        string fullPath = Path.Combine(webRootPath, path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
 
         return File.Exists(fullPath);
     }
 
-    public async Task<byte[]> ReadFileBytesAsync(string relativePath)
+    public async Task<byte[]> ReadFileBytesAsync(string path)
     {
-        if (string.IsNullOrWhiteSpace(relativePath))
+        if (string.IsNullOrWhiteSpace(path))
             throw new ArgumentException("Путь к файлу не указан");
 
         string webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
-        string fullPath = Path.Combine(webRootPath, relativePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+        string fullPath = Path.Combine(webRootPath, path.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
 
         if (!File.Exists(fullPath))
-            throw new FileNotFoundException($"Файл не найден: {relativePath}");
+            throw new FileNotFoundException($"Файл не найден: {path}");
 
         return await File.ReadAllBytesAsync(fullPath);
     }
 
-    public (string ContentType, string FileName) GetFileInfo(string relativePath)
+    public (string ContentType, string FileName) GetFileInfo(string path)
     {
-        string fileName = Path.GetFileName(relativePath);
+        string fileName = Path.GetFileName(path);
         string extension = Path.GetExtension(fileName).ToLowerInvariant();
 
         string contentType = extension switch
