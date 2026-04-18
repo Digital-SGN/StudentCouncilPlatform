@@ -134,11 +134,11 @@
 
     /* Бейджы */
     async getBadgesByUser(userId) {
-        return this.request(`/badges/user/${userId}`);
+        return this.request(`/users/${userId}/badges`);
     },
 
     async getBadgesByEvent(eventId) {
-        return this.request(`/badges/event/${eventId}`);
+        return this.request(`/events/${eventId}/badges`);
     },
 
     async getBadge(id) {
@@ -146,7 +146,7 @@
     },
 
     async downloadBadge(badgeId, fileName) {
-        const response = await fetch(`/api/badges/${badgeId}/download`, {
+        const response = await fetch(`/api/badges/${badgeId}/file`, {
             credentials: 'include'
         });
 
@@ -163,6 +163,20 @@
             return true;
         }
         return false;
+    },
+
+        async uploadBadgeFile(badgeId, formData) {
+        const response = await fetch(`/api/badges/${badgeId}/file`, {  
+            method: 'PUT',  
+            body: formData,
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            return { ok: true };
+        }
+        const error = await response.json();
+        return { ok: false, error: error.error || 'Ошибка загрузки' };
     },
 
     async createBadge(formData) {
@@ -189,19 +203,5 @@
     async deleteBadge(id) {
         return this.request(`/badges/${id}`, { method: 'DELETE' });
     },
-
-    async uploadBadgeFile(badgeId, formData) {
-        const response = await fetch(`/api/badges/${badgeId}/upload`, {
-            method: 'POST',
-            body: formData,
-            credentials: 'include'
-        });
-
-        if (response.ok) {
-            return { ok: true };
-        }
-        const error = await response.json();
-        return { ok: false, error: error.error || 'Ошибка загрузки' };
-    },
-     /**/
+    /**/
 };
