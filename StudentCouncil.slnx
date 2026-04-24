@@ -5,5 +5,5 @@
   </Folder>
   <Project Path="StudentCouncil.Data/StudentCouncil.Data.csproj" />
   <Project Path="StudentCouncil.Logic/StudentCouncil.Logic.csproj" />
-  <Project Path="StudentCouncil.Web/StudentCouncil.Web.csproj" Id="37e39664-f760-4819-8298-658f0b2a0295" />
+  <Project Path="StudentCouncil.Web/StudentCouncil.WebApi.csproj" Id="37e39664-f760-4819-8298-658f0b2a0295" />
 </Solution>
