@@ -79,7 +79,7 @@
 StudentCouncil/
 ├── StudentCouncil.Data/ # Контекст БД, модели, миграции, SeedData
 ├── StudentCouncil.Logic/ # DTO, интерфейсы, сервисы, Mapper, ServiceResult
-├── StudentCouncil.Web/ # Контроллеры API, Program.cs, wwwroot
+├── StudentCouncil.WebApi/ # Контроллеры API, Program.cs, wwwroot
 └── StudentCouncil.Frontend/ # React-приложение
 ```
 
