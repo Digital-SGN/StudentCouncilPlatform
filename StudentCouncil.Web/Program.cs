@@ -52,6 +52,9 @@ builder.Services.AddControllers().AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IBadgeService, BadgeService>();
@@ -59,6 +62,12 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddSingleton<ILoggerService, FileLoggerService>();
 
 WebApplication app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -70,10 +79,10 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-using (IServiceScope scope = app.Services.CreateScope())
-{
-    IServiceProvider services = scope.ServiceProvider;
-    await SeedData.Initialize(services);
-}
+//using (IServiceScope scope = app.Services.CreateScope())
+//{
+//    IServiceProvider services = scope.ServiceProvider;
+//    await SeedData.Initialize(services);
+//}
 
 app.Run();
