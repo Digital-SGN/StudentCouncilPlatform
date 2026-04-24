@@ -19,6 +19,7 @@ public class AccountController : BaseController
     }
 
     [HttpPost("login")]
+    [ProducesResponseType(200)]
     public async Task<ActionResult<LoginResponseDTO>> LoginAsync([FromBody] LoginRequestDTO request)
     {
         User? user = await _signInManager.UserManager.FindByEmailAsync(request.Email);

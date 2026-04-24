@@ -74,12 +74,20 @@ public class BadgeController : BaseController
         return File(result.Data.FileContent, result.Data.ContentType, result.Data.FileName);
     }
 
-    [HttpPut("{id}/file")]
+    [HttpPost("{id}/file")]
     [Authorize(Roles = "Admin")]
     [RequestSizeLimit(10_485_760)]
     public async Task<IActionResult> UploadBadgeFile(int id, IFormFile file)
     {
         ServiceResult result = await _badgeService.UploadBadgeFileAsync(id, file, User);
+        return HandleServiceResult(result);
+    }
+
+    [HttpDelete("{id}/file")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteBadgeFile(int id)
+    {
+        ServiceResult result = await _badgeService.DeleteBadgeFileAsync(id, User);
         return HandleServiceResult(result);
     }
 }
