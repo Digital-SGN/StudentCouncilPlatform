@@ -14,5 +14,6 @@ public interface IBadgeService
     Task<ServiceResult> UpdateBadgeAsync(int id, UpdateBadgeDTO dto, ClaimsPrincipal currentUser);
     Task<ServiceResult> DeleteBadgeAsync(int id, ClaimsPrincipal currentUser);
     Task<ServiceResult> UploadBadgeFileAsync(int id, IFormFile file, ClaimsPrincipal currentUser);
+    Task<ServiceResult> DeleteBadgeFileAsync(int id, ClaimsPrincipal currentUser);
     Task<ServiceResult<(byte[] FileContent, string ContentType, string FileName)>> DownloadBadgeAsync(int id, ClaimsPrincipal currentUser);
 }

@@ -247,6 +247,36 @@ public class BadgeService : IBadgeService
         }
     }
 
+    public async Task<ServiceResult> DeleteBadgeFileAsync(int id, ClaimsPrincipal currentUser)
+    {
+        try
+        {
+            var (currentUserId, isAdmin, _, _) = GetUserInfo(currentUser);
+
+            if (!isAdmin)
+                return ServiceResult.Forbidden("Только администратор может удалять файлы бейджей");
+
+            Badge? badge = await _context.Badges.FindAsync(id);
+            if (badge == null)
+                return ServiceResult.NotFound("Бейдж не найден");
+
+            if (string.IsNullOrEmpty(badge.FilePath))
+                return ServiceResult.BadRequest("У бейджа нет файла для удаления");
+
+            _fileStorage.DeleteFile(badge.FilePath);
+            badge.FilePath = null;
+            await _context.SaveChangesAsync();
+
+            _logger.Info($"Файл бейджа {id} удалён пользователем {currentUserId}");
+            return ServiceResult.Ok("Файл бейджа успешно удалён");
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Ошибка удаления файла бейджа {id}: {ex.Message}");
+            return ServiceResult.InternalError("Ошибка удаления файла");
+        }
+    }
+
     public async Task<ServiceResult<(byte[] FileContent, string ContentType, string FileName)>> DownloadBadgeAsync(int id, ClaimsPrincipal currentUser)
     {
         try

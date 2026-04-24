@@ -15,7 +15,7 @@ public class UserService : IUserService
     private readonly ILoggerService _logger;
 
     public const string avatarsFolder = "avatars";
-    public static readonly string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+    public static readonly string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
 
     public UserService(UserManager<User> userManager, IFileStorageService fileStorage, ILoggerService logger)
     {
