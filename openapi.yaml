@@ -81,8 +81,10 @@ components:
           type: string
         birthDate:
           type: string
+          format: date-time
         joinedAt:
           type: string
+          format: date-time
         isActive:
           type: boolean
         avatarPath:
@@ -101,6 +103,7 @@ components:
           type: integer
         role:
           type: string
+          enum: [Admin, Leader, Member]
 
     UserListResponseDTO:
       type: object
@@ -140,10 +143,10 @@ components:
           type: string
         birthDate:
           type: string
+          format: date-time
         role:
           type: string
-        isActive:
-          type: boolean
+          enum: [Admin, Leader, Member]
 
     UpdateUserDTO:
       type: object
@@ -164,8 +167,10 @@ components:
           type: string
         birthDate:
           type: string
+          format: date-time
         role:
           type: string
+          enum: [Admin, Leader, Member]
         isActive:
           type: boolean
 
@@ -180,16 +185,19 @@ components:
           type: string
         eventDate:
           type: string
+          format: date-time
         location:
           type: string
         registrationLink:
           type: string
         status:
           type: string
+          enum: [Upcoming, Ongoing, Completed, Cancelled]
         responsibleUserId:
           type: integer
         createdAt:
           type: string
+          format: date-time
 
     EventListResponseDTO:
       type: object
@@ -215,6 +223,7 @@ components:
           type: string
         eventDate:
           type: string
+          format: date-time
         location:
           type: string
         registrationLink:
@@ -231,6 +240,7 @@ components:
           type: string
         eventDate:
           type: string
+          format: date-time
         location:
           type: string
         registrationLink:
@@ -238,6 +248,58 @@ components:
         responsibleUserId:
           type: integer
         status:
+          type: string
+          enum: [Upcoming, Ongoing, Completed, Cancelled]
+
+    BadgeResponseDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        userName:
+          type: string
+        eventId:
+          type: integer
+        eventTitle:
+          type: string
+        role:
+          type: string
+        filePath:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    BadgeListResponseDTO:
+      type: object
+      properties:
+        count:
+          type: integer
+        badges:
+          type: array
+          items:
+            $ref: '#/components/schemas/BadgeResponseDTO'
+
+    CreateBadgeDTO:
+      type: object
+      required:
+        - userId
+        - eventId
+        - role
+      properties:
+        userId:
+          type: integer
+        eventId:
+          type: integer
+        role:
+          type: string
+
+    UpdateBadgeDTO:
+      type: object
+      properties:
+        role:
           type: string
 
     MessageResponse:
@@ -252,18 +314,11 @@ components:
         error:
           type: string
 
-    ValidationErrorResponse:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: string
-
 security:
   - cookieAuth: []
 
 paths:
+  # ACCOUNT 
   /api/account/login:
     post:
       summary: Вход в систему
@@ -279,23 +334,20 @@ paths:
           description: Успешный вход
           content:
             application/json:
-              example:
-                id: 1
-                firstName: Дмитрий
-                lastName: Ананьев
-                role: Admin
+              schema:
+                $ref: '#/components/schemas/LoginResponseDTO'
         '400':
+          description: Неверные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
           description: Аккаунт заблокирован
           content:
             application/json:
-              example:
-                error: Аккаунт заблокирован
-        '401':
-          description: Неверный email или пароль
-          content:
-            application/json:
-              example:
-                error: Неверный email или пароль
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /api/account/logout:
     post:
@@ -305,14 +357,10 @@ paths:
           description: Выход выполнен
           content:
             application/json:
-              example:
-                message: Выход успешно выполнен
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Не авторизован
-          content:
-            application/json:
-              example:
-                error: Не авторизован
 
   /api/account/current:
     get:
@@ -322,21 +370,12 @@ paths:
           description: Успешно
           content:
             application/json:
-              example:
-                id: 1
-                email: admin@studsovet.ru
-                firstName: Дмитрий
-                lastName: Ананьев
-                role: Admin
-                avatarPath: /avatars/1_123456.jpg
-                isActive: true
+              schema:
+                $ref: '#/components/schemas/CurrentUserDTO'
         '401':
           description: Не авторизован
-          content:
-            application/json:
-              example:
-                error: Не авторизован
 
+  # USERS
   /api/users:
     get:
       summary: Список пользователей
@@ -345,39 +384,12 @@ paths:
           description: Успешно
           content:
             application/json:
-              example:
-                count: 3
-                users:
-                  - id: 1
-                    firstName: Дмитрий
-                    lastName: Ананьев
-                    email: admin@studsovet.ru
-                    role: Admin
-                    level: 16
-                  - id: 2
-                    firstName: Иван
-                    lastName: Иванов
-                    email: test@gmail.con
-                    role: Member
-                    level: 1
+              schema:
+                $ref: '#/components/schemas/UserListResponseDTO'
         '401':
           description: Не авторизован
-          content:
-            application/json:
-              example:
-                error: Не авторизован
         '403':
-          description: Доступ запрещён
-          content:
-            application/json:
-              example:
-                error: Доступ запрещён
-        '500':
-          description: Ошибка сервера
-          content:
-            application/json:
-              example:
-                error: Ошибка получения списка пользователей
+          description: Доступ запрещён (требуется Admin/Leader)
 
     post:
       summary: Создать пользователя
@@ -388,36 +400,20 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateUserDTO'
       responses:
-        '200':
+        '201':
           description: Пользователь создан
           content:
             application/json:
-              example:
-                message: Пользователь успешно создан
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
         '400':
-          description: Ошибка создания
-          content:
-            application/json:
-              example:
-                error: Пользователь с таким email уже существует
+          description: Ошибка валидации
         '401':
           description: Не авторизован
-          content:
-            application/json:
-              example:
-                error: Не авторизован
         '403':
-          description: Доступ запрещён
-          content:
-            application/json:
-              example:
-                error: Доступ запрещён
-        '500':
-          description: Ошибка сервера
-          content:
-            application/json:
-              example:
-                error: Ошибка создания пользователя
+          description: Доступ запрещён (требуется Admin)
+        '409':
+          description: Email уже существует
 
   /api/users/{id}:
     get:
@@ -433,38 +429,14 @@ paths:
           description: Успешно
           content:
             application/json:
-              example:
-                id: 1
-                firstName: Дмитрий
-                lastName: Ананьев
-                email: admin@studsovet.ru
-                role: Admin
-                level: 16
-                balance: 400
+              schema:
+                $ref: '#/components/schemas/UserDTO'
         '401':
           description: Не авторизован
-          content:
-            application/json:
-              example:
-                error: Не авторизован
         '403':
-          description: Доступ запрещён
-          content:
-            application/json:
-              example:
-                error: У вас нет прав на просмотр этого профиля
+          description: Доступ запрещён (чужой профиль)
         '404':
           description: Пользователь не найден
-          content:
-            application/json:
-              example:
-                error: Пользователь не найден
-        '500':
-          description: Ошибка сервера
-          content:
-            application/json:
-              example:
-                error: Ошибка получения пользователя
 
     put:
       summary: Обновить пользователя
@@ -485,38 +457,16 @@ paths:
           description: Обновлено
           content:
             application/json:
-              example:
-                message: Данные успешно обновлены
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
         '400':
-          description: Ошибка
-          content:
-            application/json:
-              example:
-                error: Недопустимая роль
+          description: Недопустимая роль
         '401':
           description: Не авторизован
-          content:
-            application/json:
-              example:
-                error: Не авторизован
         '403':
           description: Доступ запрещён
-          content:
-            application/json:
-              example:
-                error: У вас нет прав на редактирование этого пользователя
         '404':
           description: Пользователь не найден
-          content:
-            application/json:
-              example:
-                error: Пользователь не найден
-        '500':
-          description: Ошибка сервера
-          content:
-            application/json:
-              example:
-                error: Ошибка обновления пользователя
 
     delete:
       summary: Удалить пользователя
@@ -531,38 +481,14 @@ paths:
           description: Удалён
           content:
             application/json:
-              example:
-                message: Пользователь успешно удален
-        '400':
-          description: Ошибка
-          content:
-            application/json:
-              example:
-                error: Нельзя удалить последнего администратора
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Не авторизован
-          content:
-            application/json:
-              example:
-                error: Не авторизован
         '403':
-          description: Доступ запрещён
-          content:
-            application/json:
-              example:
-                error: Доступ запрещён
+          description: Доступ запрещён (удаление себя или последнего админа)
         '404':
           description: Пользователь не найден
-          content:
-            application/json:
-              example:
-                error: Пользователь не найден
-        '500':
-          description: Ошибка сервера
-          content:
-            application/json:
-              example:
-                error: Ошибка удаления пользователя
 
   /api/users/{id}/avatar:
     post:
@@ -588,38 +514,16 @@ paths:
           description: Загружен
           content:
             application/json:
-              example:
-                message: Аватар успешно загружен
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
         '400':
-          description: Файл не выбран
-          content:
-            application/json:
-              example:
-                error: Файл не выбран
+          description: Файл не выбран или недопустимый формат
         '401':
           description: Не авторизован
-          content:
-            application/json:
-              example:
-                error: Не авторизован
         '403':
           description: Доступ запрещён
-          content:
-            application/json:
-              example:
-                error: У вас нет прав на изменение аватара этого пользователя
         '404':
           description: Пользователь не найден
-          content:
-            application/json:
-              example:
-                error: Пользователь не найден
-        '500':
-          description: Ошибка сервера
-          content:
-            application/json:
-              example:
-                error: Ошибка загрузки аватара
 
     delete:
       summary: Удалить аватар
@@ -634,33 +538,16 @@ paths:
           description: Удалён
           content:
             application/json:
-              example:
-                message: Аватар успешно удален
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Не авторизован
-          content:
-            application/json:
-              example:
-                error: Не авторизован
         '403':
           description: Доступ запрещён
-          content:
-            application/json:
-              example:
-                error: У вас нет прав на удаление аватара этого пользователя
         '404':
           description: Пользователь не найден
-          content:
-            application/json:
-              example:
-                error: Пользователь не найден
-        '500':
-          description: Ошибка сервера
-          content:
-            application/json:
-              example:
-                error: Ошибка удаления аватара
 
+  # EVENTS
   /api/events:
     get:
       summary: Список мероприятий
@@ -669,34 +556,12 @@ paths:
           description: Успешно
           content:
             application/json:
-              example:
-                count: 1
-                events:
-                  - id: 1
-                    title: Собрание студсовета
-                    description: Обсуждение планов
-                    eventDate: 2026-05-15T18:00:00Z
-                    location: Аудитория 123
-                    status: Upcoming
-                    responsibleUserId: 1
+              schema:
+                $ref: '#/components/schemas/EventListResponseDTO'
         '401':
           description: Не авторизован
-          content:
-            application/json:
-              example:
-                error: Не авторизован
         '403':
-          description: Доступ запрещён
-          content:
-            application/json:
-              example:
-                error: Доступ запрещён
-        '500':
-          description: Ошибка сервера
-          content:
-            application/json:
-              example:
-                error: Ошибка получения списка мероприятий
+          description: Доступ запрещён (требуется Admin/Leader)
 
     post:
       summary: Создать мероприятие
@@ -711,32 +576,14 @@ paths:
           description: Создано
           content:
             application/json:
-              example:
-                message: Мероприятие успешно создано
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
         '400':
-          description: Ошибка
-          content:
-            application/json:
-              example:
-                error: Ответственный пользователь не найден
+          description: Ответственный не найден
         '401':
           description: Не авторизован
-          content:
-            application/json:
-              example:
-                error: Не авторизован
         '403':
-          description: Доступ запрещён
-          content:
-            application/json:
-              example:
-                error: Доступ запрещён
-        '500':
-          description: Ошибка сервера
-          content:
-            application/json:
-              example:
-                error: Ошибка создания мероприятия
+          description: Доступ запрещён (требуется Admin)
 
   /api/events/{id}:
     get:
@@ -752,38 +599,14 @@ paths:
           description: Успешно
           content:
             application/json:
-              example:
-                id: 1
-                title: Собрание студсовета
-                description: Обсуждение планов
-                eventDate: 2026-05-15T18:00:00Z
-                location: Аудитория 123
-                status: Upcoming
-                responsibleUserId: 1
+              schema:
+                $ref: '#/components/schemas/EventResponseDTO'
         '401':
           description: Не авторизован
-          content:
-            application/json:
-              example:
-                error: Не авторизован
         '403':
-          description: Доступ запрещён
-          content:
-            application/json:
-              example:
-                error: Доступ запрещён
+          description: Доступ запрещён (требуется Admin/Leader)
         '404':
-          description: Не найдено
-          content:
-            application/json:
-              example:
-                error: Мероприятие не найдено
-        '500':
-          description: Ошибка сервера
-          content:
-            application/json:
-              example:
-                error: Ошибка получения мероприятия
+          description: Мероприятие не найдено
 
     put:
       summary: Обновить мероприятие
@@ -804,38 +627,16 @@ paths:
           description: Обновлено
           content:
             application/json:
-              example:
-                message: Мероприятие успешно обновлено
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
         '400':
-          description: Ошибка
-          content:
-            application/json:
-              example:
-                error: Ответственный пользователь не найден
+          description: Ответственный не найден
         '401':
           description: Не авторизован
-          content:
-            application/json:
-              example:
-                error: Не авторизован
         '403':
-          description: Доступ запрещён
-          content:
-            application/json:
-              example:
-                error: Доступ запрещён
+          description: Доступ запрещён (требуется Admin)
         '404':
-          description: Не найдено
-          content:
-            application/json:
-              example:
-                error: Мероприятие не найдено
-        '500':
-          description: Ошибка сервера
-          content:
-            application/json:
-              example:
-                error: Ошибка обновления мероприятия
+          description: Мероприятие не найдено
 
     delete:
       summary: Удалить мероприятие
@@ -850,29 +651,252 @@ paths:
           description: Удалено
           content:
             application/json:
-              example:
-                message: Мероприятие успешно удалено
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
         '401':
           description: Не авторизован
+        '403':
+          description: Доступ запрещён (требуется Admin)
+        '404':
+          description: Мероприятие не найдено
+
+  # BADGES 
+  /api/users/{userId}/badges:
+    get:
+      summary: Получить бейджи пользователя
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешно
           content:
             application/json:
-              example:
-                error: Не авторизован
+              schema:
+                $ref: '#/components/schemas/BadgeListResponseDTO'
+        '401':
+          description: Не авторизован
         '403':
           description: Доступ запрещён
-          content:
-            application/json:
-              example:
-                error: Доступ запрещён
         '404':
-          description: Не найдено
+          description: Пользователь не найден
+
+  /api/events/{eventId}/badges:
+    get:
+      summary: Получить бейджи мероприятия
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешно
           content:
             application/json:
-              example:
-                error: Мероприятие не найдено
-        '500':
-          description: Ошибка сервера
+              schema:
+                $ref: '#/components/schemas/BadgeListResponseDTO'
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещён (требуется Admin/Leader)
+        '404':
+          description: Мероприятие не найдено
+
+  /api/badges/{id}:
+    get:
+      summary: Получить бейдж по ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешно
           content:
             application/json:
-              example:
-                error: Ошибка удаления мероприятия
+              schema:
+                $ref: '#/components/schemas/BadgeResponseDTO'
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещён (чужой бейдж)
+        '404':
+          description: Бейдж не найден
+
+    put:
+      summary: Обновить бейдж
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBadgeDTO'
+      responses:
+        '200':
+          description: Обновлён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещён (требуется Admin)
+        '404':
+          description: Бейдж не найден
+
+    delete:
+      summary: Удалить бейдж
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Удалён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещён (требуется Admin)
+        '404':
+          description: Бейдж не найден
+
+  /api/badges/{id}/file:
+    get:
+      summary: Скачать файл бейджа
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Файл PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещён (чужой бейдж)
+        '404':
+          description: Бейдж или файл не найден
+
+    post:
+      summary: Загрузить файл бейджа
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Загружен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Неверный формат файла
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещён (требуется Admin)
+        '404':
+          description: Бейдж не найден
+
+    delete:
+      summary: Удалить файл бейджа
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Файл удалён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: У бейджа нет файла
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещён (требуется Admin)
+        '404':
+          description: Бейдж не найден
+
+  /api/badges:
+    post:
+      summary: Создать бейдж
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - userId
+                - eventId
+                - role
+              properties:
+                userId:
+                  type: integer
+                eventId:
+                  type: integer
+                role:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Ошибка валидации или файла
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещён (требуется Admin)
+        '404':
+          description: Пользователь или мероприятие не найдены
