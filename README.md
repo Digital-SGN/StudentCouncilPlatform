@@ -135,11 +135,3 @@ StudentCouncil/
 | POST | `/api/badges` | Создать бейдж (с файлом) | Admin |
 | PUT | `/api/badges/{id}` | Обновить бейдж | Admin |
 | DELETE | `/api/badges/{id}` | Удалить бейдж | Admin |
-
-## Технологии
-
-| Слой | Технологии |
-|------|------------|
-| **Бэкенд** | ASP.NET Core 8, Entity Framework Core, PostgreSQL, Identity |
-| **Фронтенд** | React 19, Vite, React Router, Chart.js, Font Awesome |
-| **Хранение** | PostgreSQL, фwwwroot |
