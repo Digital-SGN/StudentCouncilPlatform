@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { API } from '../api';
-import { useAuth } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faCalendar, faMapMarkerAlt, faUser, faLink, 
     faEdit, faTrashAlt, faEye, faPlus, faCalendarDay
 } from '@fortawesome/free-solid-svg-icons';
+import { API } from '../api';
+import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
-import EventFormModal from '../components/EventFormModal';
-import ConfirmModal from '../components/ConfirmDialog';
-import '../css/events.css';
+import EventFormModal from '../components/modals/EventFormModal';
+import ConfirmModal from '../components/modals/ConfirmDialogModal';
+import '../css/EventsPage.css';
 
 export default function EventsPage() {
     const { user } = useAuth();

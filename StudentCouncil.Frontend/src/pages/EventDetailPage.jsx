@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { API } from '../api';
-import { useAuth } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faCalendar, faMapMarkerAlt, faUser, faLink, 
     faEdit, faTrashAlt, faEye, faDownload, faUpload, faFileAlt, faUsers
 } from '@fortawesome/free-solid-svg-icons';
+import { API } from '../api';
+import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
-import EventFormModal from '../components/EventFormModal';
-import ConfirmModal from '../components/ConfirmDialog';
-import '../css/events.css';
+import EventFormModal from '../components/modals/EventFormModal';
+import ConfirmModal from '../components/modals/ConfirmDialogModal';
+import AddMemberModal from '../components/modals/AddMemberModal';
+import '../css/EventDetailPage.css';
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -39,6 +40,8 @@ export default function EventDetailPage() {
     
     const [showEditModal, setShowEditModal] = useState(false);
     const [showRoleModal, setShowRoleModal] = useState(false);
+    const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+    
     const [editingBadge, setEditingBadge] = useState({ id: null, userId: null, role: '' });
     const [selectedRole, setSelectedRole] = useState('');
     const [selectedUserId, setSelectedUserId] = useState('');
@@ -46,7 +49,6 @@ export default function EventDetailPage() {
     const [confirmDeleteEvent, setConfirmDeleteEvent] = useState(false);
     const [confirmDeleteBadge, setConfirmDeleteBadge] = useState({ isOpen: false, badgeId: null });
 
-    // Загружаем пользователей один раз
     useEffect(() => {
         const loadUsers = async () => {
             const result = await API.getUsers();
@@ -104,7 +106,6 @@ export default function EventDetailPage() {
         if (!result) alert('Ошибка скачивания бейджа');
     };
 
-    // (+) Просмотр бейджа в новой вкладке
     const viewBadge = async (badgeId) => {
         const response = await fetch(`/api/badges/${badgeId}/file`, {
             credentials: 'include'
@@ -154,87 +155,11 @@ export default function EventDetailPage() {
         setConfirmDeleteBadge({ isOpen: false, badgeId: null });
     };
 
-    // (+) Обновляем функцию: принимаем userId
     const openEditRoleModal = (badgeId, userId, currentRole) => {
         setEditingBadge({ id: badgeId, userId, role: currentRole });
         setSelectedRole(currentRole);
         setSelectedUserId(userId);
         setShowRoleModal(true);
-    };
-
-    const showAddMemberModal = async () => {
-        const users = usersList;
-        
-        const modalHtml = `
-            <div id="addMemberModal" class="modal">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Добавить участника</h3>
-                        <span class="modal-close" onclick="document.getElementById('addMemberModal')?.remove()">&times;</span>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label>Участник *</label>
-                            <select id="memberUserId">
-                                <option value="">Выберите участника</option>
-                                ${users.map(u => `<option value="${u.id}">${escapeHtml(u.lastName)} ${escapeHtml(u.firstName)}</option>`).join('')}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Роль *</label>
-                            <select id="memberRole">
-                                <option value="Главный организатор">Главный организатор</option>
-                                <option value="Организатор">Организатор</option>
-                                <option value="Медиа">Медиа</option>
-                                <option value="Техпод">Техпод</option>
-                                <option value="Волонтёр">Волонтёр</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Файл бейджа (PDF)</label>
-                            <input type="file" id="badgeFile" accept=".pdf">
-                            <small class="form-hint">Можно загрузить позже</small>
-                        </div>
-                        <div id="modalErrorMessage" class="error-message" style="display: none;"></div>
-                        <div class="form-actions">
-                            <button id="submitAddMemberBtn" class="btn-save">Добавить</button>
-                            <button onclick="document.getElementById('addMemberModal')?.remove()" class="btn-cancel">Отмена</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-        
-        document.getElementById('submitAddMemberBtn').onclick = async () => {
-            const userId = document.getElementById('memberUserId').value;
-            const role = document.getElementById('memberRole').value;
-            const file = document.getElementById('badgeFile').files[0];
-            const errorDiv = document.getElementById('modalErrorMessage');
-            
-            if (!userId) {
-                errorDiv.textContent = 'Выберите участника';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
-            const formData = new FormData();
-            formData.append('UserId', userId);
-            formData.append('EventId', id);
-            formData.append('Role', role);
-            if (file) formData.append('file', file);
-            
-            const result = await API.createBadge(formData);
-            
-            if (result.ok) {
-                document.getElementById('addMemberModal')?.remove();
-                loadData();
-            } else {
-                errorDiv.textContent = result.error || 'Ошибка добавления';
-                errorDiv.style.display = 'block';
-            }
-        };
     };
 
     const handleDeleteEventClick = () => setConfirmDeleteEvent(true);
@@ -389,9 +314,7 @@ export default function EventDetailPage() {
                                 </div>
                             )}
                             {isAdmin && (
-                                <div className="add-member-section">
-                                    <button onClick={showAddMemberModal} className="add-member-btn">+ Добавить участника</button>
-                                </div>
+                                <button onClick={() => setShowAddMemberModal(true)} className="add-member-btn">+ Добавить участника</button>
                             )}
                         </div>
 
@@ -432,6 +355,14 @@ export default function EventDetailPage() {
                 onClose={() => setShowEditModal(false)}
                 eventId={id}
                 isAdmin={isAdmin}
+                onSuccess={loadData}
+            />
+
+            <AddMemberModal
+                isOpen={showAddMemberModal}
+                onClose={() => setShowAddMemberModal(false)}
+                eventId={id}
+                usersList={usersList}
                 onSuccess={loadData}
             />
 
