@@ -20,10 +20,11 @@ export default function Header({ user, onLogout }) {
                                     <li className="nav-item">
                                         <span className="nav-text"> Привет, {user.email}! </span>
                                     </li>
+                                    <li className="nav-item"><Link className="nav-link" to=""> Альбом </Link></li>
                                     <li className="nav-item"><Link className="nav-link" to="/"> Главная </Link></li>
                                     <li className="nav-item"><Link className="nav-link" to="/users"> Участники </Link></li>
                                     <li className="nav-item"><Link className="nav-link" to="/events"> Мероприятия </Link></li>
-                                    <Link className="nav-link" to={`/users/${user.id}`}> Мой профиль </Link>
+                                    <li className="nav-item"><Link className="nav-link" to={`/users/${user.id}`}> Мой профиль </Link></li>
                                     <li className="nav-item">
                                         <button className="nav-link" onClick={onLogout}> Выйти </button>
                                     </li>
@@ -31,6 +32,7 @@ export default function Header({ user, onLogout }) {
                             )}
                             {!user && (
                                 <>
+                                    <li className="nav-item"><Link className="nav-link" to="/"> Главная </Link></li>
                                     <li className="nav-item"><Link className="nav-link" to="/help"> Помощь </Link></li>
                                     <li className="nav-item"><Link className="nav-link" to="/login"> Войти </Link></li>
                                 </>
