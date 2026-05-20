@@ -24,6 +24,12 @@ public class AccountController : BaseController
     {
         User? user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
 
+        if (user == null)
+        {
+            _logger.Warning($"Попытка входа с несуществующим email: {request.Email}");
+            return Unauthorized(new { error = "Неверный email или пароль" });
+        }
+
         if (user != null && !user.IsActive)
         {
             _logger.Warning($"Попытка входа в заблокированный аккаунт: {request.Email}");
