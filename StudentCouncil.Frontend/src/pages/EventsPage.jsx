@@ -114,7 +114,7 @@ export default function EventsPage() {
     if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
-        <div className="events-page">
+        <div className="events-page fade-in">
             <Bubbles />
             <div className="events-wrapper">
                 <div className="events-header">

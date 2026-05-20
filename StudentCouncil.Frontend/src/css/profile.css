@@ -1,8 +1,7 @@
 ﻿.profile-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #0CBFA1 0%, #148C9C 50%, #09707C 100%);
-    position: relative;
     background: transparent;
+    position: relative;
 }
 
 .profile-wrapper {
@@ -19,7 +18,7 @@
     max-width: 1000px;
     width: 100%;
     background: white;
-    border-radius: 2px;
+    border-radius: 20px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
@@ -41,15 +40,6 @@
 .avatar-wrapper .avatar-shine {
     box-shadow: 0 0 0 8px #0CBFA1, 0 0 25px rgba(12, 191, 161, 0.5);
     animation: framePulse 3s ease-in-out infinite;
-}
-
-@keyframes framePulse {
-    0%, 100% {
-        box-shadow: 0 0 0 14px #0CBFA1, 0 0 25px rgba(12, 191, 161, 0.5);
-    }
-    50% {
-        box-shadow: 0 0 0 18px #0CBFA1, 0 0 40px rgba(12, 191, 161, 0.8);
-    }
 }
 
 .avatar-img, .avatar-placeholder {

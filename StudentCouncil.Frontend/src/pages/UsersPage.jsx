@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 import { Link } from 'react-router-dom';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -25,6 +25,7 @@ function escapeHtml(str) {
 
 export default function UsersPage() {
     const { user } = useAuth();
+
     const isAdmin = user?.role === 'Admin';
     const isLeader = user?.role === 'Leader';
     
@@ -105,7 +106,7 @@ export default function UsersPage() {
     if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
-        <div className="users-page">
+        <div className="users-page fade-in">
             <Bubbles />
             <div className="users-wrapper">
                 <div className="users-header">
@@ -230,7 +231,7 @@ export default function UsersPage() {
                 onClose={() => setConfirmDelete({ isOpen: false, userId: null })}
                 onConfirm={confirmDeleteUser}
                 title="Удаление пользователя"
-                message="Вы действительно хотите удалить этого пользователя? Это действие необратимо."
+                message="Вы действительно хотите удалить этого пользователя?"
                 confirmText="Удалить"
             />
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 import { useParams } from 'react-router-dom';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -54,6 +54,7 @@ function escapeHtml(str) {
 export default function ProfilePage() {
     const { id } = useParams();
     const { user: currentUser } = useAuth();
+
     const userId = id || currentUser?.id;
     const isAdmin = currentUser?.role === 'Admin';
     const isLeader = currentUser?.role === 'Leader';
@@ -432,7 +433,7 @@ export default function ProfilePage() {
     };
 
     return (
-        <div className="profile-page">
+        <div className="profile-page fade-in">
             <Bubbles />
             <div className="profile-wrapper">
                 <div className="profile-card">

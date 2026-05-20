@@ -7,6 +7,16 @@
     --gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 50%, var(--secondary) 100%);
 }
 
+html {
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -17,12 +27,14 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
     background: linear-gradient(135deg, #0CBFA1 0%, #148C9C 50%, #09707C 100%);
+    overflow-x: hidden; 
 }
 
 .app-wrapper {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+     overflow-x: hidden;
 }
 
 main {

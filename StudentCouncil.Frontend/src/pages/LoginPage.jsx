@@ -37,7 +37,7 @@ export default function LoginPage({ setUser }) {
     };
 
     return (
-        <div className="login-page">
+        <div className="login-page fade-in">
             <Bubbles />
             <div className="login-container">
                 <div className="login-logo">
