@@ -1,7 +1,5 @@
 import { useState, useEffect} from 'react';
 import { useParams } from 'react-router-dom';
-import { API } from '../api';
-import { useAuth } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faLeaf, faChartSimple, faGem, faCrown, faDiamond, faInfinity,
@@ -14,7 +12,6 @@ import {
     Chart as ChartJS,
     RadialLinearScale,
     PointElement,
-    LineElement,
     Filler,
     Tooltip,
     Legend,
@@ -24,14 +21,15 @@ import {
     Title
 } from 'chart.js';
 import { Radar, Bar, Line } from 'react-chartjs-2';
+import { API } from '../api';
+import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
-import ConfirmModal from '../components/ConfirmDialog';
-import '../css/profile.css';
+import ConfirmModal from '../components/modals/ConfirmDialogModal';
+import '../css/ProfilePage.css';
 
 ChartJS.register(
     RadialLinearScale,
     PointElement,
-    LineElement,
     Filler,
     Tooltip,
     Legend,
@@ -40,6 +38,14 @@ ChartJS.register(
     BarElement,
     Title
 );
+
+const roleColors = {
+    'Главный организатор': '#0CBFA1',
+    'Организатор': '#148C9C',
+    'Медиа': '#FF6B6B',
+    'Техпод': '#4ECDC4',
+    'Волонтёр': '#FFE66D',
+};
 
 function escapeHtml(str) {
     if (!str) return '';
@@ -348,58 +354,32 @@ export default function ProfilePage() {
         }
     };
 
-    const getTimelineData = () => {
-        if (!user.joinedAt) return null;
-        
-        const joinedDate = new Date(user.joinedAt);
-        const now = new Date();
-        const months = [];
-        const activityData = [];
-        
-        let current = new Date(joinedDate);
-        while (current <= now) {
-            const monthYear = current.toLocaleDateString('ru-RU', { month: 'short', year: '2-digit' });
-            months.push(monthYear);
-            
-            const monthEvents = userEvents.filter(e => {
-                const eventDate = new Date(e.eventDate);
-                return eventDate.getMonth() === current.getMonth() && 
-                       eventDate.getFullYear() === current.getFullYear();
-            }).length;
-            
-            activityData.push(monthEvents);
-            current.setMonth(current.getMonth() + 1);
-        }
-        
-        return { months, activityData };
-    };
+    const getTimelineEvents = () => {
+        const events = [];
 
-    const timelineInfo = getTimelineData();
-    const lineData = timelineInfo && timelineInfo.months.length > 0 ? {
-        labels: timelineInfo.months,
-        datasets: [{
-            label: 'Мероприятий',
-            data: timelineInfo.activityData,
-            borderColor: '#FF6B6B',
-            backgroundColor: 'rgba(255, 107, 107, 0.1)',
-            tension: 0.3,
-            fill: true,
-            pointBackgroundColor: '#FF6B6B',
-            pointRadius: 4,
-            pointHoverRadius: 6,
-        }]
-    } : null;
-
-    const lineOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-            title: { display: true, text: 'Активность по месяцам', color: '#2d3748', font: { size: 14 } }
-        },
-        scales: {
-            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        if (user.joinedAt) {
+            events.push({
+                date: new Date(user.joinedAt),
+                title: 'Вступление в студсовет',
+                type: 'join',
+                color: '#f59e0b', // оранжевый
+            });
         }
+
+        badges.forEach(badge => {
+            const event = allEvents.find(e => e.id === badge.eventId);
+            if (event && event.eventDate) {
+                events.push({
+                    date: new Date(event.eventDate),
+                    title: event.title,
+                    role: badge.role,
+                    type: 'event',
+                    color: roleColors[badge.role] || '#94a3b8', 
+                });
+            }
+        });
+        events.sort((a, b) => a.date - b.date);
+        return events;
     };
 
     const getRoleData = () => {
@@ -425,12 +405,14 @@ export default function ProfilePage() {
         maintainAspectRatio: false,
         plugins: {
             legend: { display: false },
-            title: { display: true, text: 'Распределение ролей', color: '#2d3748', font: { size: 14 } }
+            title: { display: true, text: 'Распределение ролей', color: 'black', font: { size: 18 } }
         },
         scales: {
             y: { beginAtZero: true, ticks: { stepSize: 1 } }
         }
     };
+
+    const timelineEvents = getTimelineEvents();
 
     return (
         <div className="profile-page fade-in">
@@ -575,33 +557,52 @@ export default function ProfilePage() {
                             </div>
                         </div>
                         */}
-
                         <div className="charts-section">
                             <h3><FontAwesomeIcon icon={faChartLine} /> Аналитика</h3>
                             
-                            <div className="charts-grid">
-                                <div className="chart-card">
-                                    <h4>Достижения</h4>
+                            {barData && (
+                                <div className="chart-card full-width">
                                     <div style={{ height: '260px' }}>
-                                        <Radar data={radarData} options={radarOptions} />
+                                        <Bar data={barData} options={barOptions} />
                                     </div>
                                 </div>
-                                
-                                {barData && (
-                                    <div className="chart-card">
-                                        <h4>Роли в мероприятиях</h4>
-                                        <div style={{ height: '260px' }}>
-                                            <Bar data={barData} options={barOptions} />
-                                        </div>
-                                    </div>
-                                )}
-                                
-                                {lineData && (
-                                    <div className="chart-card full-width">
-                                        <h4>История активности</h4>
-                                        <div style={{ height: '250px' }}>
-                                            <Line data={lineData} options={lineOptions} />
-                                        </div>
+                            )}
+                            
+                            <div className="chart-card full-width">
+                                <h4>Хронология событий</h4>
+                                {timelineEvents.length === 0 ? (
+                                    <p className="no-timeline">Нет событий для отображения</p>
+                                ) : (
+                                    <div className="timeline-vertical">
+                                        {timelineEvents.map((event, idx) => (
+                                            <div key={idx} className="timeline-item">
+                                                <div className="timeline-date">
+                                                    {event.date.toLocaleDateString('ru-RU', {
+                                                        day: 'numeric',
+                                                        month: 'long',
+                                                        year: 'numeric',
+                                                    })}
+                                                </div>
+                                                <div className="timeline-marker">
+                                                    <div 
+                                                        className="timeline-dot" 
+                                                        style={{ backgroundColor: event.color, boxShadow: `0 0 0 2px ${event.color}` }}
+                                                    ></div>
+                                                    {idx !== timelineEvents.length - 1 && <div className="timeline-line"></div>}
+                                                </div>
+                                                <div className="timeline-content">
+                                                    <div className="timeline-title">{event.title}</div>
+                                                    {event.type === 'event' && (
+                                                        <div className="timeline-role" style={{ color: event.color }}>
+                                                            Роль: {event.role}
+                                                        </div>
+                                                    )}
+                                                    {event.type === 'join' && (
+                                                        <div className="timeline-role join-text">Начало пути</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
                             </div>
