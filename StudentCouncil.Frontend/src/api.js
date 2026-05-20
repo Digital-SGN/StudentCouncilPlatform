@@ -119,6 +119,7 @@
     },
 
     async updateEvent(id, data) {
+        console.log('Updating event:', id, data); // <- добавьте
         return this.request(`/events/${id}`, {
             method: 'PUT',
             body: JSON.stringify(data)
@@ -167,7 +168,7 @@
 
         async uploadBadgeFile(badgeId, formData) {
         const response = await fetch(`/api/badges/${badgeId}/file`, {  
-            method: 'PUT',  
+            method: 'POST',  
             body: formData,
             credentials: 'include'
         });
