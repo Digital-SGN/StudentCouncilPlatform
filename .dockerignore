@@ -1,0 +1,8 @@
+StudentCouncil.Frontend/
+node_modules/
+.git/
+.vs/
+bin/
+obj/
+*.log
+*.tmp
