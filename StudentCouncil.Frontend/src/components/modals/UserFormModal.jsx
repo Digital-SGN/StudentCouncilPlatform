@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { API } from '../api';
+import { API } from '../../api.js';
 
 export default function UserFormModal({ isOpen, onClose, userId, isAdmin, onSuccess }) {
     const [formData, setFormData] = useState({
