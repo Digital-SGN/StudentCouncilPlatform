@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { API } from '../api';
 import logo from '../assets/logo.svg';
 import Bubbles from '../components/Bubbles';
-import '../css/login.css';
+import '../css/LoginPage.css';
 import '../css/bubbles.css';
 
 export default function LoginPage({ setUser }) {

@@ -1,17 +1,17 @@
 import { useState, useEffect} from 'react';
 import { Link } from 'react-router-dom';
-import { API } from '../api';
-import { useAuth } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faTable, faIdCard, faGraduationCap, faEnvelope, 
     faChartLine, faCircle, faEdit, faTrashAlt,
     faEye, faPlus, faCheckCircle
 } from '@fortawesome/free-solid-svg-icons';
+import { API } from '../api';
+import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
-import UserFormModal from '../components/UserFormModal';
-import ConfirmModal from '../components/ConfirmDialog';
-import '../css/users.css';
+import UserFormModal from '../components/modals/UserFormModal';
+import ConfirmModal from '../components/modals/ConfirmDialogModal';
+import '../css/UsersPage.css';
 
 function escapeHtml(str) {
     if (!str) return '';

@@ -1,9 +1,9 @@
-import { useAuth } from '../context/AuthContext';
 import { useEffect, useRef } from 'react';
+import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logo.svg';
 import Bubbles from '../components/Bubbles'; 
 import LeadershipCard from '../components/LeadershipCard';
-import logo from '../assets/logo.svg';
-import '../css/home.css'; 
+import '../css/HomePage.css'; 
 
 const leadershipData = [
   { name: 'Савин Иван', position: 'Председатель', photoUrl: 'src/assets/images/39186005c70975d20596305f13b1ca3c5beb0b39.jpg', bgColor: '#FFE8D9', rotateAngle: -2 },

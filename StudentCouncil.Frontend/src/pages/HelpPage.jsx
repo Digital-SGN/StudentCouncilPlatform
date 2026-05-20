@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faFileAlt, faPhoneAlt } from '@fortawesome/free-solid-svg-icons';
 import Bubbles from '../components/Bubbles';
-import '../css/help.css'; 
+import '../css/HelpPage.css'; 
 
 export default function HelpPage() {
   const pageRef = useRef(null);
