@@ -533,9 +533,10 @@
 }
 
 .chart-card h4 {
-    color: #4a5568;
+    color: black;
     margin-bottom: 15px;
-    font-size: 1.1rem;
+    font-size: 20px;
+    font-weight: 600;
     text-align: center;
 }
 
@@ -557,4 +558,102 @@
 .badge-link.pending:hover {
     text-decoration: none;
     color: #94a3b8;
+}
+
+.timeline-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding-left: 10px;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    position: relative;
+}
+
+.timeline-date {
+    min-width: 120px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0CBFA1;
+    padding-top: 4px;
+}
+
+.timeline-marker {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30px;
+    flex-shrink: 0;
+}
+
+.timeline-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid white;
+    z-index: 2;
+}
+
+.timeline-line {
+    width: 2px;
+    background: #e2e8f0;
+    flex: 1;
+    min-height: 40px;
+    margin-top: 6px;
+}
+
+.timeline-content {
+    flex: 1;
+    padding-bottom: 24px;
+}
+
+.timeline-title {
+    font-weight: 600;
+    color: black;
+    font-size: 18px;
+}
+
+.timeline-role {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+.timeline-role.join-text {
+    color: #f59e0b;
+    font-weight: 500;
+}
+
+.no-timeline {
+    text-align: center;
+    padding: 20px;
+    color: #94a3b8;
+    background: #f8fafc;
+    border-radius: 16px;
+}
+
+@media (max-width: 640px) {
+    .timeline-item {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .timeline-date {
+        min-width: auto;
+    }
+    .timeline-marker {
+        flex-direction: row;
+        width: auto;
+        margin-left: 0;
+    }
+    .timeline-line {
+        display: none;
+    }
+    .timeline-dot {
+        margin-right: 10px;
+    }
 }
