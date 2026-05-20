@@ -654,6 +654,13 @@
     white-space: nowrap;
 }
 
+.team-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
 .team-actions-cell {
     display: flex;
     flex-wrap: wrap;
@@ -666,10 +673,10 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 14px;
-    border-radius: 30px;
-    font-size: 16px;
-    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
     border: none;
     transition: all 0.2s ease;
@@ -975,6 +982,276 @@
     .team-role-badge {
         font-size: 11px;
         padding: 2px 4px;
+    }
+}
+
+/* Стили для группы кнопок в ячейке "Бейдж" */
+.badge-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Ячейка с действиями */
+.team-actions-cell {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Общие стили для кнопок */
+.team-badge-btn,
+.team-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.team-badge-btn.view {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+.team-badge-btn.view:hover {
+    background-color: #bfdbfe;
+    transform: translateY(-1px);
+}
+
+.team-badge-btn.download {
+    background-color: #e2e8f0;
+    color: #2d3748;
+}
+.team-badge-btn.download:hover {
+    background-color: #cbd5e0;
+    transform: translateY(-1px);
+}
+
+.team-badge-btn.upload {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+.team-badge-btn.upload:hover {
+    background-color: #fde68a;
+    transform: translateY(-1px);
+}
+
+.team-action-btn.edit {
+    background-color: #e2e8f0;
+    color: #2d3748;
+}
+.team-action-btn.edit:hover {
+    background-color: #cbd5e0;
+    transform: translateY(-1px);
+}
+
+.team-action-btn.delete {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+.team-action-btn.delete:hover {
+    background-color: #fecaca;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+    .badge-buttons,
+    .team-actions-cell {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .team-badge-btn,
+    .team-action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .team-table,
+    .team-table thead,
+    .team-table tbody,
+    .team-table tr,
+    .team-table th,
+    .team-table td {
+        display: block;
+    }
+
+    .team-table thead {
+        display: none;
+    }
+
+    .team-table tr {
+        margin-bottom: 20px;
+        padding: 12px;
+        background-color: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .team-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 8px;
+        border-bottom: 1px solid #edf2f7;
+        font-size: 14px;
+        flex-wrap: wrap;
+    }
+    .team-table td:last-child {
+        border-bottom: none;
+    }
+
+    /* Подпись из data-label */
+    .team-table td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #0CBFA1;
+        min-width: 100px;
+        flex-shrink: 0;
+    }
+
+    .badge-buttons,
+    .team-actions-cell {
+        flex-direction: column;
+        width: 100%;
+        margin-top: 5px;
+        gap: 6px;
+    }
+    .team-badge-btn,
+    .team-action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .no-badge {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.team-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.team-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+}
+.team-card:hover {
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.team-card-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #edf2f7;
+}
+.team-card-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.team-card-label {
+    font-weight: 700;
+    color: #0CBFA1;
+    min-width: 100px;
+    flex-shrink: 0;
+    font-size: 18px;
+}
+
+.team-card-value {
+    flex: 1;
+    color: #2d3748;
+    font-size: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.team-member-link {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.team-role-badge {
+    font-size: 18px; 
+    padding: 4px 12px;
+}
+
+
+.badge-buttons,
+.team-actions-cell {
+    display: flex;
+    font-size: 20px;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.team-badge-btn,
+.team-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.team-badge-btn.view { background: #dbeafe; color: #1e40af; }
+.team-badge-btn.view:hover { background: #bfdbfe; transform: translateY(-1px); }
+.team-badge-btn.download { background: #e2e8f0; color: #2d3748; }
+.team-badge-btn.download:hover { background: #cbd5e0; transform: translateY(-1px); }
+.team-badge-btn.upload { background: #fef3c7; color: #92400e; }
+.team-badge-btn.upload:hover { background: #fde68a; transform: translateY(-1px); }
+.team-action-btn.edit { background: #e2e8f0; color: #2d3748; }
+.team-action-btn.edit:hover { background: #cbd5e0; transform: translateY(-1px); }
+.team-action-btn.delete { background: #fee2e2; color: #dc2626; }
+.team-action-btn.delete:hover { background: #fecaca; transform: translateY(-1px); }
+
+@media (max-width: 640px) {
+    .team-card-row {
+        flex-direction: column;
+        gap: 6px;
+    }
+    .team-card-label {
+        min-width: auto;
+    }
+    .badge-buttons,
+    .team-actions-cell {
+        flex-direction: column;
+        width: 100%;
+    }
+    .team-badge-btn,
+    .team-action-btn {
+        width: 100%;
+        justify-content: center;
     }
 }
 

@@ -5,8 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faCalendar, faMapMarkerAlt, faUser, faLink, 
-    faEdit, faTrashAlt,
-    faDownload, faUpload, faFileAlt, faUsers
+    faEdit, faTrashAlt, faEye, faDownload, faUpload, faFileAlt, faUsers
 } from '@fortawesome/free-solid-svg-icons';
 import Bubbles from '../components/Bubbles';
 import EventFormModal from '../components/EventFormModal';
@@ -34,52 +33,37 @@ export default function EventDetailPage() {
     const [event, setEvent] = useState(null);
     const [badges, setBadges] = useState([]);
     const [usersMap, setUsersMap] = useState(new Map());
+    const [usersList, setUsersList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     
     const [showEditModal, setShowEditModal] = useState(false);
     const [showRoleModal, setShowRoleModal] = useState(false);
-    const [editingBadgeId, setEditingBadgeId] = useState(null);
-    const [editingRole, setEditingRole] = useState('');
+    const [editingBadge, setEditingBadge] = useState({ id: null, userId: null, role: '' });
     const [selectedRole, setSelectedRole] = useState('');
-
-    useEffect(() => {
-        if (canView) {
-            loadData();
-        } else {
-            setLoading(false);
-        }
-    }, [id]);
+    const [selectedUserId, setSelectedUserId] = useState('');
 
     const [confirmDeleteEvent, setConfirmDeleteEvent] = useState(false);
     const [confirmDeleteBadge, setConfirmDeleteBadge] = useState({ isOpen: false, badgeId: null });
 
-    const handleDeleteEventClick = () => setConfirmDeleteEvent(true);
+    // Загружаем пользователей один раз
+    useEffect(() => {
+        const loadUsers = async () => {
+            const result = await API.getUsers();
+            if (result.ok) {
+                setUsersList(result.data.users || []);
+            }
+        };
+        loadUsers();
+    }, []);
 
-    const confirmDeleteEventAction = async () => {
-        const result = await API.deleteEvent(id);
-        if (result.ok) {
-            navigate('/events');
+    useEffect(() => {
+        if (canView && id) {
+            loadData();
         } else {
-            alert(result.data?.error || 'Ошибка удаления');
+            setLoading(false);
         }
-        setConfirmDeleteEvent(false);
-    };
-
-    const handleDeleteBadgeClick = (badgeId) => {
-        setConfirmDeleteBadge({ isOpen: true, badgeId });
-    };
-
-    const confirmDeleteBadgeAction = async () => {
-        const { badgeId } = confirmDeleteBadge;
-        const result = await API.deleteBadge(badgeId);
-        if (result.ok) {
-            setBadges(badges.filter(b => b.id !== badgeId));
-        } else {
-            alert(result.data?.error || 'Ошибка удаления');
-        }
-        setConfirmDeleteBadge({ isOpen: false, badgeId: null });
-    };
+    }, [id, canView]);
 
     const loadData = async () => {
         try {
@@ -116,8 +100,23 @@ export default function EventDetailPage() {
         const fileName = `${eventTitle}_${userName}_${role}`
             .replace(/[^\wа-яё]/gi, '_')
             .toLowerCase();
-        const result = await API.downloadBadgeAndSave(badgeId, fileName);
+        const result = await API.downloadBadge(badgeId, fileName);
         if (!result) alert('Ошибка скачивания бейджа');
+    };
+
+    // (+) Просмотр бейджа в новой вкладке
+    const viewBadge = async (badgeId) => {
+        const response = await fetch(`/api/badges/${badgeId}/file`, {
+            credentials: 'include'
+        });
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+            URL.revokeObjectURL(url);
+        } else {
+            alert('Не удалось открыть бейдж');
+        }
     };
 
     const uploadBadgeFile = async (badgeId) => {
@@ -140,16 +139,31 @@ export default function EventDetailPage() {
         fileInput.click();
     };
 
-    const openEditRoleModal = (badgeId, currentRole) => {
-        setEditingBadgeId(badgeId);
-        setEditingRole(currentRole);
+    const handleDeleteBadgeClick = (badgeId) => {
+        setConfirmDeleteBadge({ isOpen: true, badgeId });
+    };
+
+    const confirmDeleteBadgeAction = async () => {
+        const { badgeId } = confirmDeleteBadge;
+        const result = await API.deleteBadge(badgeId);
+        if (result.ok) {
+            setBadges(badges.filter(b => b.id !== badgeId));
+        } else {
+            alert(result.data?.error || 'Ошибка удаления');
+        }
+        setConfirmDeleteBadge({ isOpen: false, badgeId: null });
+    };
+
+    // (+) Обновляем функцию: принимаем userId
+    const openEditRoleModal = (badgeId, userId, currentRole) => {
+        setEditingBadge({ id: badgeId, userId, role: currentRole });
         setSelectedRole(currentRole);
+        setSelectedUserId(userId);
         setShowRoleModal(true);
     };
 
     const showAddMemberModal = async () => {
-        const usersResult = await API.getUsers();
-        const users = usersResult.ok ? usersResult.data.users || [] : [];
+        const users = usersList;
         
         const modalHtml = `
             <div id="addMemberModal" class="modal">
@@ -223,6 +237,18 @@ export default function EventDetailPage() {
         };
     };
 
+    const handleDeleteEventClick = () => setConfirmDeleteEvent(true);
+
+    const confirmDeleteEventAction = async () => {
+        const result = await API.deleteEvent(id);
+        if (result.ok) {
+            navigate('/events');
+        } else {
+            alert(result.data?.error || 'Ошибка удаления');
+        }
+        setConfirmDeleteEvent(false);
+    };
+
     if (!canView) {
         return <div className="alert alert-danger">Доступ запрещён</div>;
     }
@@ -248,7 +274,7 @@ export default function EventDetailPage() {
     };
 
     return (
-        <div className="event-detail-page">
+        <div className="event-detail-page fade-in">
             <Bubbles />
             <div className="event-detail-container">
                 <div className="event-detail-card">
@@ -305,58 +331,61 @@ export default function EventDetailPage() {
                             {badges.length === 0 ? (
                                 <p className="no-team-message">Пока нет участников</p>
                             ) : (
-                                <div className="team-table-wrapper">
-                                    <table className="team-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Участник</th>
-                                                <th>Роль</th>
-                                                <th>Бейдж</th>
-                                                {isAdmin && <th>Действия</th>}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {badges.map(badge => (
-                                                <tr key={badge.id}>
-                                                    <td>
-                                                        <Link to={`/users/${badge.userId}`} className="team-member-link">
-                                                            {badge.userName}
-                                                        </Link>
-                                                    </td>
-                                                    <td>
-                                                        <span className="team-role-badge" style={roleStyles[badge.role] || { background: '#e2e8f0', color: '#2d3748' }}>
-                                                            {badge.role}
-                                                        </span>
-                                                    </td>
-                                                    <td>
-                                                        <div className="team-badge-cell">
-                                                            {badge.filePath && (
-                                                                <button onClick={() => downloadBadge(badge.id, badge.eventTitle, badge.userName, badge.role)} className="team-badge-btn download">
-                                                                    <FontAwesomeIcon icon={faDownload} /> Скачать
-                                                                </button>
-                                                            )}
-                                                            {isAdmin && (
-                                                                <button onClick={() => uploadBadgeFile(badge.id)} className="team-badge-btn upload">
-                                                                    <FontAwesomeIcon icon={faUpload} /> {badge.filePath ? 'Заменить' : 'Загрузить'}
-                                                                </button>
-                                                            )}
-                                                            {!badge.filePath && !isAdmin && <span className="no-badge">—</span>}
-                                                        </div>
-                                                    </td>
-                                                    {isAdmin && (
-                                                        <td className="team-actions">
-                                                            <button onClick={() => openEditRoleModal(badge.id, badge.role)} className="team-action-btn edit" title="Изменить роль">
-                                                                <FontAwesomeIcon icon={faEdit} />Изменить
+                                <div className="team-cards">
+                                    {badges.map(badge => (
+                                        <div key={badge.id} className="team-card">
+                                            <div className="team-card-row">
+                                                <span className="team-card-label">Участник</span>
+                                                <span className="team-card-value">
+                                                    <Link to={`/users/${badge.userId}`} className="team-member-link">
+                                                        {badge.userName}
+                                                    </Link>
+                                                </span>
+                                            </div>
+                                            <div className="team-card-row">
+                                                <span className="team-card-label">Роль</span>
+                                                <span className="team-card-value">
+                                                    <span className="team-role-badge" style={roleStyles[badge.role] || { background: '#e2e8f0', color: '#2d3748' }}>
+                                                        {badge.role}
+                                                    </span>
+                                                </span>
+                                            </div>
+                                            <div className="team-card-row">
+                                                <span className="team-card-label">Бейдж</span>
+                                                <div className="team-card-value badge-buttons">
+                                                    {badge.filePath && (
+                                                        <>
+                                                            <button onClick={() => viewBadge(badge.id)} className="team-badge-btn view">
+                                                                <FontAwesomeIcon icon={faEye} /> Просмотр
                                                             </button>
-                                                            <button onClick={() => handleDeleteBadgeClick(badge.id)} className="team-action-btn delete">
-                                                                <FontAwesomeIcon icon={faTrashAlt} /> Удалить
+                                                            <button onClick={() => downloadBadge(badge.id, badge.eventTitle, badge.userName, badge.role)} className="team-badge-btn download">
+                                                                <FontAwesomeIcon icon={faDownload} /> Скачать
                                                             </button>
-                                                        </td>
+                                                        </>
                                                     )}
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                                    {isAdmin && (
+                                                        <button onClick={() => uploadBadgeFile(badge.id)} className="team-badge-btn upload">
+                                                            <FontAwesomeIcon icon={faUpload} /> {badge.filePath ? 'Заменить' : 'Загрузить'}
+                                                        </button>
+                                                    )}
+                                                    {!badge.filePath && !isAdmin && <span className="no-badge">—</span>}
+                                                </div>
+                                            </div>
+                                            {isAdmin && (
+                                                <div className="team-card-row">
+                                                    <span className="team-card-label">Действия</span>
+                                                    <div className="team-card-value team-actions-cell">
+                                                        <button onClick={() => openEditRoleModal(badge.id, badge.userId, badge.role)} className="team-action-btn edit">
+                                                            <FontAwesomeIcon icon={faEdit} /> Изменить
+                                                        </button>
+                                                        <button onClick={() => handleDeleteBadgeClick(badge.id)} className="team-action-btn delete">
+                                                            <FontAwesomeIcon icon={faTrashAlt} /> Удалить
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
                             )}
                             {isAdmin && (
@@ -408,15 +437,31 @@ export default function EventDetailPage() {
 
             {showRoleModal && (
                 <div className="modal" onClick={() => setShowRoleModal(false)}>
-                    <div className="modal-content" onClick={(event) => event.stopPropagation()}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <div className="modal-header">
-                            <h3>Изменение роли</h3>
+                            <h3>Редактирование участника</h3>
                             <span className="modal-close" onClick={() => setShowRoleModal(false)}>&times;</span>
                         </div>
                         <div className="modal-body">
                             <div className="form-group">
-                                <label>Новая роль</label>
-                                <select value={selectedRole} onChange={(event) => setSelectedRole(event.target.value)}>
+                                <label>Участник</label>
+                                <select 
+                                    value={selectedUserId} 
+                                    onChange={(e) => setSelectedUserId(Number(e.target.value))}
+                                >
+                                    {usersList.map(u => (
+                                        <option key={u.id} value={u.id}>
+                                            {u.lastName} {u.firstName} ({u.role})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Роль</label>
+                                <select 
+                                    value={selectedRole} 
+                                    onChange={(e) => setSelectedRole(e.target.value)}
+                                >
                                     <option value="Главный организатор">Главный организатор</option>
                                     <option value="Организатор">Организатор</option>
                                     <option value="Медиа">Медиа</option>
@@ -426,17 +471,30 @@ export default function EventDetailPage() {
                             </div>
                             <div className="form-actions">
                                 <button className="btn-save" onClick={async () => {
-                                    if (selectedRole !== editingRole) {
-                                        const result = await API.updateBadge(editingBadgeId, { role: selectedRole });
-                                        if (result.ok) {
-                                            setBadges(badges.map(badge => badge.id === editingBadgeId ? { ...badge, role: selectedRole } : badge));
+                                    let success = true;
+                                    if (selectedRole !== editingBadge.role) {
+                                        const roleResult = await API.updateBadge(editingBadge.id, { role: selectedRole });
+                                        if (!roleResult.ok) success = false;
+                                    }
+                                    if (selectedUserId !== editingBadge.userId) {
+                                        const formData = new FormData();
+                                        formData.append('UserId', selectedUserId);
+                                        formData.append('EventId', id);
+                                        formData.append('Role', selectedRole);
+                                        const createResult = await API.createBadge(formData);
+                                        if (createResult.ok) {
+                                            await API.deleteBadge(editingBadge.id);
                                         } else {
-                                            alert(result.data?.error || 'Ошибка обновления');
+                                            success = false;
                                         }
                                     }
-                                    setShowRoleModal(false);
-                                }}>Сохранить
-                                </button>
+                                    if (success) {
+                                        loadData();
+                                        setShowRoleModal(false);
+                                    } else {
+                                        alert('Ошибка при обновлении');
+                                    }
+                                }}>Сохранить</button>
                                 <button className="btn-cancel" onClick={() => setShowRoleModal(false)}>Отмена</button>
                             </div>
                         </div>
