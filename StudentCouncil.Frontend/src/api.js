@@ -30,8 +30,12 @@
         }
 
         if (response.status === 401) {
-            return { ok: false, status: 401, data: { error: 'Unauthorized' } };
-        }
+            let errorData = { error: 'Unauthorized' };
+            try {
+                errorData = await response.json();
+            } catch (e) {}
+            return { ok: false, status: 401, data: errorData };
+    }
 
         return { ok: response.ok, status: response.status, data };
     },
@@ -41,6 +45,31 @@
         return this.request('/account/login', {
             method: 'POST',
             body: JSON.stringify({ email, password })
+        });
+    },
+
+    async setupTwoFactor(email, code) {
+        return this.request('/account/2fa/activation', {
+            method: 'POST',
+            body: JSON.stringify({ email, code })
+        });
+    },
+
+    async loginWithTwoFactor(code, rememberDevice = false) {
+        return this.request('/account/2fa/verification', {
+            method: 'POST',
+            body: JSON.stringify({ code, rememberDevice })
+        });
+    },
+
+    async getTwoFactorStatus() {
+        return this.request('/account/2fa/status');
+    },
+
+    async resetTwoFactor(userId) { 
+        return this.request('/account/2fa', {
+            method: 'DELETE',
+            body: JSON.stringify({ userId }) 
         });
     },
 

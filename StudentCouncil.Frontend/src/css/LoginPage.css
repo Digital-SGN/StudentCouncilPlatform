@@ -206,3 +206,89 @@ button:disabled {
         margin-right: 0; 
     }
 }
+
+.otp-container {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.otp-input {
+    width: 54px;
+    height: 60px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 600;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.otp-input:focus {
+    border-color: #0CBFA1;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(12, 191, 161, 0.2);
+    transform: scale(1.02);
+}
+
+.otp-input:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+}
+
+@media (max-width: 480px) {
+    .otp-container {
+        gap: 8px;
+    }
+    .otp-input {
+        width: 44px;
+        height: 50px;
+        font-size: 24px;
+    }
+}
+
+.twofa-setup {
+    text-align: center;
+}
+
+.qr-container {
+    margin: 20px auto;
+    display: inline-block;
+    background: white;
+    padding: 10px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.qr-container img {
+    width: 180px;
+    height: 180px;
+    display: block;
+}
+
+.hint {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 15px;
+}
+
+.checkbox-group {
+    margin: 15px 0;
+    text-align: left;
+    font-size: 14px;
+}
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: #4a5568;
+}
+.checkbox-group input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
