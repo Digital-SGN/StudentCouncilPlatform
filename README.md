@@ -105,6 +105,9 @@ StudentCouncil/
 | POST | `/api/account/login` | Вход (email, пароль) | Публичный |
 | POST | `/api/account/logout` | Выход | Авторизованный |
 | GET | `/api/account/current` | Текущий пользователь | Авторизованный |
+| POST | `/api/account/2fa/activation` | Активация 2FA после сканирования QR-кода | Публичный (после успешной проверки пароля) |
+| POST | `/api/account/2fa/verification` | Вход с кодом 2FA (принимает code и rememberDevice) | Публичный|
+| DELETE | `/api/account/2fa/{userId}` | Сброс 2FA для указанного пользователя | Admin |
 
 ### Users
 
