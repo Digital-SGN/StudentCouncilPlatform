@@ -36,6 +36,9 @@
         public string? Telegram { get; set; }
         public string? ClothingSize { get; set; }
         public DateTime? BirthDate { get; set; }
+        public DateTime JoinedAt { get; set; }
+        public int Balance { get; set; }
+        public int ExperiencePoints { get; set; }
         public bool IsActive { get; set; }
         public string Role { get; set; } = "Member";
     }
