@@ -205,16 +205,16 @@ export default function UsersPage() {
                                                 <Link to={`/users/${user.id}`} className="action-btn view">
                                                     <FontAwesomeIcon icon={faEye} /> Профиль
                                                 </Link>
-                                                {isAdmin && (
-                                                    <>
-                                                        <button onClick={() => openEditModal(user.id)} className="action-btn edit">
-                                                            <FontAwesomeIcon icon={faEdit} /> Ред.
-                                                        </button>
-                                                       <button onClick={() => handleDeleteClick(user.id)} className="action-btn delete">
+                                            {isAdmin && (
+                                                <>
+                                                    <button onClick={() => openEditModal(user.id)} className="action-btn edit">
+                                                        <FontAwesomeIcon icon={faEdit} /> Ред.
+                                                    </button>
+                                                    <button onClick={() => handleDeleteClick(user.id)} className="action-btn delete">
                                                         <FontAwesomeIcon icon={faTrashAlt} /> Удалить
                                                     </button>
-                                                    </>
-                                                )}
+                                                </>
+                                            )}
                                             </td>
                                         </tr>
                                     ))}
@@ -240,6 +240,7 @@ export default function UsersPage() {
                 onClose={closeModal}
                 userId={modalState.userId}
                 isAdmin={isAdmin}
+                isOwnProfile={false}
                 onSuccess={loadUsers}
             />
         </div>
