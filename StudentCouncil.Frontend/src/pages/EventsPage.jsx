@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faCalendar, faMapMarkerAlt, faUser, faLink, 
-    faEdit, faTrashAlt, faEye, faPlus, faCalendarDay
+    faEdit, faTrashAlt, faEye, faPlus, faCalendarDay, faMoneyBillWave 
 } from '@fortawesome/free-solid-svg-icons';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -153,6 +153,12 @@ export default function EventsPage() {
                                                 })}
                                             </span>
                                         </div>
+                                        {event.budget != null && (
+                                            <div className="event-info-item">
+                                                <span className="event-info-icon"><FontAwesomeIcon icon={faMoneyBillWave} /></span>
+                                                <span className="event-info-text">{event.budget.toLocaleString()} ₽</span>
+                                            </div>
+                                        )}
                                         <div className="event-info-item">
                                             <span className="event-info-icon"><FontAwesomeIcon icon={faMapMarkerAlt} /></span>
                                             <span className="event-info-text">{event.location}</span>
@@ -177,7 +183,7 @@ export default function EventsPage() {
                                     )}
                                 </div>
                                 <div className="event-card-footer">
-                                    <Link to={`/events/${event.id}`} className="event-btn view"><FontAwesomeIcon icon={faEye} />Подробнее</Link>
+                                    <Link to={`/events/${event.id}`} className="event-btn view"><FontAwesomeIcon icon={faEye} /> Подробнее</Link>
                                     {isAdmin && (
                                         <>
                                             <button onClick={() => openEditModal(event.id)} className="event-btn edit"><

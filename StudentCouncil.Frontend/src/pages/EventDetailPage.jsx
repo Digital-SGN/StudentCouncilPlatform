@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faCalendar, faMapMarkerAlt, faUser, faLink, 
-    faEdit, faTrashAlt, faEye, faDownload, faUpload, faFileAlt, faUsers
+    faEdit, faTrashAlt, faEye, faDownload, faUpload, faFileAlt, faUsers, faMoneyBillWave
 } from '@fortawesome/free-solid-svg-icons';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -231,6 +231,14 @@ export default function EventDetailPage() {
                                     </Link>
                                 </span>
                             </div>
+                            {event.budget != null && (
+                                <div className="event-info-row">
+                                    <span className="event-info-icon"><FontAwesomeIcon icon={faMoneyBillWave} /></span>
+                                    <span className="event-info-label">Бюджет:</span>
+                                    <span className="event-info-value">{event.budget.toLocaleString()} ₽</span>
+                                </div>
+                            )}
+
                             {event.registrationLink && (
                                 <div className="event-info-row">
                                     <span className="event-info-icon"><FontAwesomeIcon icon={faLink} /></span>
@@ -243,13 +251,13 @@ export default function EventDetailPage() {
                                 </div>
                             )}
                         </div>
-
                         {event.description && (
                             <div className="event-description-section">
                                 <h3><FontAwesomeIcon icon={faFileAlt} /> Описание</h3>
                                 <p>{event.description}</p>
                             </div>
                         )}
+
 
                         <div className="event-team-section">
                             <h3><FontAwesomeIcon icon={faUsers} /> Организаторский состав</h3>
@@ -260,9 +268,8 @@ export default function EventDetailPage() {
                                     {badges.map(badge => (
                                         <div key={badge.id} className="team-card">
                                             <div className="team-card-row">
-                                                <span className="team-card-label">Участник</span>
-                                                <span className="team-card-value">
-                                                    <Link to={`/users/${badge.userId}`} className="team-member-link">
+                                                <span className="team-card-label">
+                                                     <Link to={`/users/${badge.userId}`} className="team-member-link">
                                                         {badge.userName}
                                                     </Link>
                                                 </span>

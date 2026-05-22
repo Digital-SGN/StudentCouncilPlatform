@@ -5,6 +5,7 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
     const [formData, setFormData] = useState({
         title: '',
         description: '',
+        budget: '',
         eventDate: '',
         location: '',
         registrationLink: '',
@@ -44,6 +45,7 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
             setFormData({
                 title: event.title || '',
                 description: event.description || '',
+                budget: event.budget || '',
                 eventDate: event.eventDate ? event.eventDate.slice(0, 16) : '',
                 location: event.location || '',
                 registrationLink: event.registrationLink || '',
@@ -60,6 +62,7 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
         setFormData({
             title: '',
             description: '',
+            budget: '',
             eventDate: '',
             location: '',
             registrationLink: '',
@@ -84,6 +87,7 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
         const data = {
             title: formData.title,
             description: formData.description,
+            budget: formData.budget ? parseFloat(formData.budget) : null,
             eventDate: new Date(formData.eventDate).toISOString(),
             location: formData.location,
             registrationLink: formData.registrationLink,
@@ -136,7 +140,17 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
                                 <label>Описание</label>
                                 <textarea name="description" rows="4" value={formData.description} onChange={handleChange} />
                             </div>
-
+                            <div className="form-group">
+                                <label>Бюджет (₽)</label>
+                                <input 
+                                    type="number" 
+                                    step="0.01" 
+                                    name="budget" 
+                                    value={formData.budget} 
+                                    onChange={handleChange} 
+                                    placeholder="0.00" 
+                                />
+                            </div>
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>Дата и время *</label>
