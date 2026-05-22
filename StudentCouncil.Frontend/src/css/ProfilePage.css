@@ -570,25 +570,25 @@
 .timeline-item {
     display: flex;
     align-items: flex-start;
-    gap: 20px;
-    position: relative;
+    gap: 1rem;
 }
 
 .timeline-date {
-    min-width: 120px;
-    font-size: 16px;
-    font-weight: 600;
-    color: #0CBFA1;
-    padding-top: 4px;
+    flex: 0 0 160px;          
+    font-weight: 500;
+    color: #2d3748;
+    white-space: nowrap;
+    overflow-x: auto;
 }
 
+
 .timeline-marker {
+    flex-shrink: 0;
+    width: 24px;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 30px;
-    flex-shrink: 0;
 }
 
 .timeline-dot {
