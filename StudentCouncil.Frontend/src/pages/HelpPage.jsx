@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLock, faFileAlt, faPhoneAlt } from '@fortawesome/free-solid-svg-icons';
+import { faLock, faFileAlt, faPhoneAlt, faBug } from '@fortawesome/free-solid-svg-icons';
 import Bubbles from '../components/Bubbles';
 import '../css/HelpPage.css'; 
 
@@ -54,10 +54,7 @@ export default function HelpPage() {
           <p>Всё, что нужно знать о платформе студсовета СГН</p>
         </div>
         <div className="help-content">
-          <div 
-            className="help-block" 
-            ref={el => blocksRef.current[0] = el}
-          >
+          <div  className="help-block"  ref={el => blocksRef.current[0] = el}>
             <div className="help-icon">
               <FontAwesomeIcon icon={faLock} />
             </div>
@@ -66,10 +63,7 @@ export default function HelpPage() {
               <p>Платформа предназначена <strong>только для участников студенческого совета СГН</strong>. Данные для входа выдаются при вступлении в совет.</p>
             </div>
           </div>
-          <div 
-            className="help-block" 
-            ref={el => blocksRef.current[1] = el}
-          >
+          <div className="help-block"  ref={el => blocksRef.current[1] = el}>
             <div className="help-icon">
               <FontAwesomeIcon icon={faFileAlt} />
             </div>
@@ -83,19 +77,24 @@ export default function HelpPage() {
               </ul>
             </div>
           </div>
-          <div 
-            className="help-block" 
-            ref={el => blocksRef.current[2] = el}
-          >
+          <div className="help-block" ref={el => blocksRef.current[3] = el}>
             <div className="help-icon">
-              <FontAwesomeIcon icon={faPhoneAlt} />
+                <FontAwesomeIcon icon={faBug} />
             </div>
             <div className="help-text">
-              <h3>Контакты</h3>
-              <p>По всем вопросам обращайтесь к администратору:</p>
-              <p className="help-contacts"><strong>demonrux201@gmail.com</strong> &nbsp;|&nbsp; Telegram: <strong>@skebob_gg</strong></p>
+                <h3>Сообщить об ошибке</h3>
+                <p>
+                    Нашли баг или есть предложение? Напишите нам:{' '}
+                    <a href="https://t.me/skebob_gg" target="_blank" rel="noopener noreferrer">
+                        <strong>@skebob_gg</strong>
+                    </a>{' '}
+                    или на почту:{' '}
+                    <a href="https://demonrux201@gmail.com">
+                        <strong>demonrux201@gmail.com</strong>
+                    </a>
+                </p>
             </div>
-          </div>
+        </div>
         </div>
       </div>
     </div>

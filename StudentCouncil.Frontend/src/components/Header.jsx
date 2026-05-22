@@ -12,9 +12,7 @@ export default function Header({ user, onLogout }) {
         }
     };
 
-    const displayEmail = user?.email && user.email.length > 25
-        ? user.email.substring(0, 17) + '...' 
-        : user?.email;
+    const displayEmail = user?.email && user.email.length > 25 ? user.email.substring(0, 17) + '...' : user?.email;
 
     return (
         <header>
@@ -38,11 +36,11 @@ export default function Header({ user, onLogout }) {
                                     <li className="nav-item">
                                         <span className="nav-text"> Привет, {displayEmail}! </span>
                                     </li>
-                                    <li className="nav-item">
-                                        <Link className="nav-link" to="" onClick={closeMenu}>Альбом</Link>
+                                       <li className="nav-item">
+                                        <Link className="nav-link" to="/" onClick={closeMenu}>Главная</Link>
                                     </li>
                                     <li className="nav-item">
-                                        <Link className="nav-link" to="/" onClick={closeMenu}>Главная</Link>
+                                        <Link className="nav-link" to="" onClick={closeMenu}>Альбом</Link>
                                     </li>
                                     <li className="nav-item">
                                         <Link className="nav-link" to="/users" onClick={closeMenu}>Участники</Link>
