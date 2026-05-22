@@ -6,6 +6,7 @@ namespace StudentCouncil.Logic.DTOs
     {
         public string Title { get; set; } = string.Empty;
         public string Description {  get; set; } = string.Empty;
+        public decimal? Budget { get; set; }
         public DateTime EventDate { get; set; }
         public string Location { get; set; } = string.Empty;
         public string RegistrationLink {  get; set; } = string.Empty;
@@ -16,6 +17,7 @@ namespace StudentCouncil.Logic.DTOs
     {
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public decimal? Budget { get; set; }
         public DateTime EventDate { get; set; }
         public string Location { get; set; } = string.Empty;
         public string RegistrationLink { get; set; } = string.Empty;
@@ -28,6 +30,7 @@ namespace StudentCouncil.Logic.DTOs
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public decimal? Budget { get; set; }
         public DateTime EventDate { get; set; }
         public string Location { get; set; } = string.Empty;
         public string RegistrationLink { get; set; } = string.Empty;

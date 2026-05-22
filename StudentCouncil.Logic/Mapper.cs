@@ -71,6 +71,10 @@ public static class Mapper
         if (isAdminOrLeader)
         {
             user.IsActive = dto.IsActive;
+            user.JoinedAt = dto.JoinedAt.ToUniversalTime();
+            user.Balance = dto.Balance;
+            user.ExperiencePoints = dto.ExperiencePoints;
+            user.Level = (dto.ExperiencePoints / 250) + 1;
         }
     }
 
@@ -81,6 +85,7 @@ public static class Mapper
             Id = ev.Id,
             Title = ev.Title,
             Description = ev.Description,
+            Budget = ev.Budget,
             EventDate = ev.EventDate,
             Location = ev.Location,
             RegistrationLink = ev.RegistrationLink,
@@ -96,6 +101,7 @@ public static class Mapper
         {
             Title = dto.Title,
             Description = dto.Description,
+            Budget = dto.Budget,
             EventDate = dto.EventDate.ToUniversalTime(),
             Location = dto.Location,
             RegistrationLink = dto.RegistrationLink,
@@ -110,6 +116,7 @@ public static class Mapper
     {
         ev.Title = dto.Title;
         ev.Description = dto.Description;
+        ev.Budget = dto.Budget;
         ev.EventDate = dto.EventDate.ToUniversalTime();
         ev.Location = dto.Location;
         ev.RegistrationLink = dto.RegistrationLink;
