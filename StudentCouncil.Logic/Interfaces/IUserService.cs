@@ -14,4 +14,5 @@ public interface IUserService
     Task<ServiceResult> DeleteUserAsync(int id, ClaimsPrincipal currentUser);
     Task<ServiceResult> UpdateAvatarAsync(int userId, IFormFile avatar, ClaimsPrincipal currentUser);
     Task<ServiceResult> DeleteAvatarAsync(int userId, ClaimsPrincipal currentUser);
+    Task<ServiceResult> ResetPasswordAsync(int userId, string newPassword, ClaimsPrincipal currentUser);
 }

@@ -313,4 +313,34 @@ public class UserService : IUserService
             return ServiceResult.InternalError("Ошибка удаления аватара");
         }
     }
+
+    public async Task<ServiceResult> ResetPasswordAsync(int userId, string newPassword, ClaimsPrincipal currentUser)
+    {
+        try
+        {
+            if (!currentUser.IsInRole("Admin"))
+                return ServiceResult.Forbidden("Только администратор может сбросить пароль");
+
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+                return ServiceResult.NotFound("Пользователь не найден");
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                _logger.Warning($"Ошибка сброса пароля для {userId}: {errors}");
+                return ServiceResult.BadRequest($"Ошибка: {errors}");
+            }
+
+            _logger.Info($"Пароль сброшен для {userId} администратором {_userManager.GetUserId(currentUser)}");
+            return ServiceResult.Ok("Пароль успешно изменён");
+        }
+        catch (Exception ex)
+        {
+            _logger.Error($"Ошибка сброса пароля {userId}: {ex.Message}");
+            return ServiceResult.InternalError("Ошибка сброса пароля");
+        }
+    }
 }

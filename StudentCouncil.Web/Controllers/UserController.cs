@@ -74,4 +74,15 @@ public class UserController : BaseController
         ServiceResult result = await _userService.DeleteAvatarAsync(id, User);
         return HandleServiceResult(result);
     }
+
+    [HttpPost("{id}/reset-password")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ResetPasswordAsync(int id, [FromBody] ResetPasswordDTO dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.NewPassword))
+            return BadRequest(new { error = "Новый пароль не может быть пустым" });
+
+        var result = await _userService.ResetPasswordAsync(id, dto.NewPassword, User);
+        return HandleServiceResult(result);
+    }
 }
