@@ -12,17 +12,12 @@ export function AuthProvider({ children }) {
     }, []);
 
     const checkAuth = async () => {
-        const hasAuthCookie = document.cookie .split(';').some(cookie => cookie.trim().startsWith('.AspNetCore.Identity.Application='));
-        if (!hasAuthCookie) {
-            setLoading(false);
-            return;
-        }
-
         try {
             const currentUser = await API.getCurrentUser();
             setUser(currentUser);
         } catch (err) {
             console.error('Auth check failed', err);
+            setUser(null);
         } finally {
             setLoading(false);
         }

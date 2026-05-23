@@ -31,11 +31,11 @@ function AppContent() {
         navigate('/login');
     };
 
-    if (loading) return <div className="loading">Загрузка...</div>;
+    if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
 
     return (
         <div className="app-wrapper">
-            <Header user={user} onLogout={handleLogout} />
+            <Header onLogout={handleLogout} />
             <main>
                 <div className="container">
                     <Routes>
