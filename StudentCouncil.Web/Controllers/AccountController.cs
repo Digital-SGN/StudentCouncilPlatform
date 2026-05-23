@@ -40,29 +40,16 @@ public class AccountController : BaseController
                 await _userManager.ResetAuthenticatorKeyAsync(user);
                 key = await _userManager.GetAuthenticatorKeyAsync(user);
             }
-            string issuer = "Студсовет СГН";
-            string uri = $"otpauth://totp/{Uri.EscapeDataString($"{issuer}:{user.Email}")}?secret={key}&issuer={Uri.EscapeDataString(issuer)}&digits=6";
+            var uri = $"otpauth://totp/{Uri.EscapeDataString($"Студсовет СГН:{user.Email}")}?secret={key}&issuer=StudentCouncil&digits=6";
             return StatusCode(402, new TwoFactorSetupResponseDTO { SharedKey = key, AuthenticatorUri = uri });
-        }
-
-        var signInResult = await _signInManager.PasswordSignInAsync(user, request.Password, false, false);
-        if (signInResult.Succeeded)
-        {
-            var roles = await _userManager.GetRolesAsync(user);
-            return Ok(new LoginResponseDTO
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Role = roles.FirstOrDefault() ?? "Member"
-            });
-        }
-        else if (signInResult.RequiresTwoFactor)
-        {
-            return StatusCode(403, new { requiresTwoFactorCode = true });
         }
         else
         {
+            var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, false);
+            if (result.RequiresTwoFactor)
+            {
+                return StatusCode(403, new { requiresTwoFactorCode = true });
+            }
             return Unauthorized(new { error = "Неверный email или пароль" });
         }
     }
@@ -138,7 +125,7 @@ public class AccountController : BaseController
         var result = await _signInManager.TwoFactorAuthenticatorSignInAsync(dto.Code, false, dto.RememberDevice);
         if (result.Succeeded)
         {
-            IList<string> roles = await _userManager.GetRolesAsync(user);
+            var roles = await _userManager.GetRolesAsync(user);
             return Ok(new LoginResponseDTO
             {
                 Id = user.Id,
@@ -148,15 +135,19 @@ public class AccountController : BaseController
             });
         }
 
-        return BadRequest(new { error = "Неверный код" });
+        return BadRequest(new { error = "Неверный код двухфакторной аутентификации" });
     }
 
-    [HttpDelete("2fa")]
+    [HttpDelete("2fa/{userId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> ResetTwoFactor(int userId) 
+    public async Task<IActionResult> ResetTwoFactor(int userId)
     {
         User? user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null) return NotFound();
+
+        if (!await _userManager.GetTwoFactorEnabledAsync(user))
+            return BadRequest(new { error = "У пользователя не настроена 2FA" });
+
         await _userManager.SetTwoFactorEnabledAsync(user, false);
         await _userManager.ResetAuthenticatorKeyAsync(user);
         return Ok();
