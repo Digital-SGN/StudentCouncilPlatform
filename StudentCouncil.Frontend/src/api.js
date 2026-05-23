@@ -21,23 +21,11 @@
             data = { error: response.statusText || "Ошибка сервера" };
         }
 
-        if (response.status === 403) {
-            return {
-                ok: false,
-                status: 403,
-                data: data  
-            };
+        if (!response.ok) {
+            return { ok: false, status: response.status, data };
         }
 
-        if (response.status === 401) {
-            let errorData = { error: 'Unauthorized' };
-            try {
-                errorData = await response.json();
-            } catch (e) {}
-            return { ok: false, status: 401, data: errorData };
-    }
-
-        return { ok: response.ok, status: response.status, data };
+        return { ok: true, status: response.status, data };
     },
 
     /* Работа с сессией*/
@@ -79,7 +67,13 @@
 
     async getCurrentUser() {
         const res = await this.request('/account/current');
-        return res.ok ? res.data : null;  
+        return res.ok ? res.data : null;
+    },
+
+    async resetTwoFactor(userId) {
+        return this.request(`/account/2fa/${userId}`, {
+            method: 'DELETE'
+        });
     },
 
     /* Юзеры */
@@ -129,6 +123,14 @@
         const error = await response.json();
         return { ok: false, error: error.error || 'Ошибка удаления' };
     },
+
+    async resetPassword(userId, newPassword) {
+    return this.request(`/users/${userId}/reset-password`, {
+        method: 'POST',
+        body: JSON.stringify({ newPassword })
+    });
+    },
+
     /**/
 
      /* Мероприятия */
