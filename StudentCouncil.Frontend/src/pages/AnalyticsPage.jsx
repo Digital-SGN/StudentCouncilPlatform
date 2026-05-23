@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faUsers, faCalendarAlt, faIdCard, faChartLine, 
     faTrophy, faMedal, faUserGraduate, faLayerGroup,
-    faCalendarWeek, faUserPlus, faUserCheck
+    faCalendarWeek, faUserPlus, faUserCheck, faMoneyBillWave  
 } from '@fortawesome/free-solid-svg-icons';
 import {
     Chart as ChartJS,
@@ -52,7 +52,10 @@ export default function AnalyticsPage() {
         totalBalance: 0,
         roleDistribution: {},
         topUsersByBadges: [],
-        eventsPerMonth: []
+        eventsPerMonth: [],
+        totalBudget: 0,
+        avgBudget: 0,
+        topEventsByBudget: []
     });
 
     useEffect(() => {
@@ -116,7 +119,7 @@ export default function AnalyticsPage() {
                     balance: u.balance || 0
                 }))
                 .sort((a, b) => b.badgeCount - a.badgeCount)
-                .slice(0, 10); 
+                .slice(0, 10);
 
             const eventsByMonth = {};
             events.forEach(e => {
@@ -132,6 +135,21 @@ export default function AnalyticsPage() {
                 count: eventsByMonth[month]
             }));
 
+            let totalBudget = 0;
+            let eventsWithBudget = 0;
+            const eventsWithBudgetList = [];
+            events.forEach(e => {
+                if (e.budget && e.budget > 0) {
+                    totalBudget += e.budget;
+                    eventsWithBudget++;
+                    eventsWithBudgetList.push({ id: e.id, title: e.title, budget: e.budget });
+                }
+            });
+            const avgBudget = eventsWithBudget ? (totalBudget / eventsWithBudget).toFixed(2) : 0;
+            const topEventsByBudget = [...eventsWithBudgetList]
+                .sort((a, b) => b.budget - a.budget)
+                .slice(0, 5);
+
             setStats({
                 totalUsers,
                 activeUsers,
@@ -141,7 +159,11 @@ export default function AnalyticsPage() {
                 totalBalance,
                 roleDistribution: roleDist,
                 topUsersByBadges: topUsers,
-                eventsPerMonth
+                eventsPerMonth,
+                totalBudget,
+                avgBudget,
+                eventsWithBudget,
+                topEventsByBudget
             });
 
         } catch (err) {
@@ -204,7 +226,7 @@ export default function AnalyticsPage() {
         }
     };
 
-    const topNames = stats.topUsersByBadges.map(u => u.name.split(' ')[1] || u.name); 
+    const topNames = stats.topUsersByBadges.map(u => u.name.split(' ')[1] || u.name);
     const topBadgeCounts = stats.topUsersByBadges.map(u => u.badgeCount);
     const barData = {
         labels: topNames,
@@ -220,6 +242,24 @@ export default function AnalyticsPage() {
         maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    };
+
+    const budgetBarLabels = stats.topEventsByBudget.map(e => e.title.length > 20 ? e.title.slice(0,17)+'...' : e.title);
+    const budgetBarValues = stats.topEventsByBudget.map(e => e.budget);
+    const budgetBarData = {
+        labels: budgetBarLabels,
+        datasets: [{
+            label: 'Бюджет (₽)',
+            data: budgetBarValues,
+            backgroundColor: '#F39C12',
+            borderRadius: 8
+        }]
+    };
+    const budgetBarOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toLocaleString()} ₽` } } },
+        scales: { y: { beginAtZero: true, ticks: { callback: (value) => value.toLocaleString() } } }
     };
 
     return (
@@ -256,9 +296,14 @@ export default function AnalyticsPage() {
                             <div className="stat-value">{stats.totalBalance}</div>
                             <div className="stat-label">Общий баланс</div>
                         </div>
+                        <div className="stat-card">
+                            <div className="stat-icon"><FontAwesomeIcon icon={faMoneyBillWave} /></div>
+                            <div className="stat-value">{stats.totalBudget.toLocaleString()} ₽</div>
+                            <div className="stat-label">Общий бюджет</div>
+                            <div className="stat-sub">Ср. бюджет: {stats.avgBudget.toLocaleString()} ₽</div>
+                        </div>
                     </div>
 
-                    {/* Графики */}
                     <div className="charts-grid">
                         {pieLabels.length > 0 && (
                             <div className="chart-card">
@@ -274,6 +319,30 @@ export default function AnalyticsPage() {
                                 <h3><FontAwesomeIcon icon={faCalendarWeek} /> Динамика мероприятий</h3>
                                 <div style={{ height: '300px' }}>
                                     <Line data={lineData} options={lineOptions} />
+                                </div>
+                            </div>
+                        )}
+
+                        {stats.topEventsByBudget.length > 0 && (
+                            <div className="chart-card">
+                                <h3><FontAwesomeIcon icon={faMoneyBillWave} /> Топ мероприятий по бюджету</h3>
+                                <div style={{ height: '300px' }}>
+                                    <Bar data={budgetBarData} options={budgetBarOptions} />
+                                </div>
+                                <div className="top-users-table" style={{ marginTop: '16px' }}>
+                                    <table className="simple-table">
+                                        <thead>
+                                            <tr><th>Мероприятие</th><th>Бюджет (₽)</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            {stats.topEventsByBudget.map(e => (
+                                                <tr key={e.id}>
+                                                    <td>{e.title}</td>
+                                                    <td>{e.budget.toLocaleString()}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         )}
