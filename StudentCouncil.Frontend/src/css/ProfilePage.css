@@ -657,3 +657,35 @@
         margin-right: 10px;
     }
 }
+
+@media (max-width: 640px) {
+    .timeline-item {
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+    .timeline-date {
+        flex: none;
+        width: 100%;
+        white-space: normal;
+        font-size: 14px;
+        overflow-x: visible;
+        margin-bottom: 4px;
+    }
+    .timeline-marker {
+        flex-direction: row;
+        width: auto;
+        margin-left: 0;
+        align-items: center;
+        gap: 10px;
+    }
+    .timeline-line {
+        display: none;
+    }
+    .timeline-dot {
+        margin-right: 0;
+    }
+    .timeline-content {
+        padding-bottom: 16px;
+    }
+}
