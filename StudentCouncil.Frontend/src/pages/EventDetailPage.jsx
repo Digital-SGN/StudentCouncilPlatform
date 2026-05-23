@@ -8,6 +8,7 @@ import {
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
+import Alert from '../components/Alert';
 import EventFormModal from '../components/modals/EventFormModal';
 import ConfirmModal from '../components/modals/ConfirmDialogModal';
 import AddMemberModal from '../components/modals/AddMemberModal';
@@ -179,7 +180,7 @@ export default function EventDetailPage() {
     }
 
     if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
-    if (error) return <div className="alert alert-danger">{error}</div>;
+    if (error) return <Alert type="danger" message={error} />;
     if (!event) return <div className="alert alert-danger">Мероприятие не найдено</div>;
 
     const eventDate = new Date(event.eventDate);

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { API } from '../api';
 import logo from '../assets/logo.svg';
 import Bubbles from '../components/Bubbles';
+import Alert from '../components/Alert';
 import '../css/LoginPage.css';
 import '../css/bubbles.css';
 
@@ -123,11 +124,11 @@ export default function LoginPage({ setUser }) {
         event.preventDefault();
         setError('');
         setLoading(true);
-
         try {
             const result = await API.setupTwoFactor(email, code);
             if (result.ok) {
-                setUser(result.data);
+                const fullUser = await API.getCurrentUser();
+                setUser(fullUser);
                 navigate('/');
             } else {
                 setError(result.data?.error || 'Неверный код. Попробуйте снова.');
@@ -146,7 +147,8 @@ export default function LoginPage({ setUser }) {
         try {
             const result = await API.loginWithTwoFactor(code, rememberDevice);
             if (result.ok) {
-                setUser(result.data);
+                const fullUser = await API.getCurrentUser();
+                setUser(fullUser);
                 navigate('/');
             } else {
                 setError(result.data?.error || 'Неверный код двухфакторной аутентификации');
@@ -181,7 +183,7 @@ export default function LoginPage({ setUser }) {
                     disabled={loading}
                 />
             </div>
-            {error && <div className="error-message">{error}</div>}
+            {error && <Alert type="danger" message={error} />}
             <button type="submit" disabled={loading}>
                 {loading ? 'Вход...' : 'Войти'}
             </button>
@@ -202,7 +204,7 @@ export default function LoginPage({ setUser }) {
                     <label>Код из приложения</label>
                     <OtpInput value={code} onChange={setCode} disabled={loading} />
                 </div>
-                {error && <div className="error-message">{error}</div>}
+                {error && <Alert type="danger" message={error} />}
                 <button type="submit" disabled={loading}>
                     {loading ? 'Проверка...' : 'Подтвердить и войти'}
                 </button>
@@ -214,7 +216,6 @@ export default function LoginPage({ setUser }) {
         <form onSubmit={handleVerifySubmit}>
             <p>Введите код из вашего приложения-аутентификатора.</p>
             <div className="form-group">
-                <label>Код</label>
                 <OtpInput value={code} onChange={setCode} disabled={loading} />
             </div>
             <div className="form-group checkbox-group">
@@ -228,7 +229,7 @@ export default function LoginPage({ setUser }) {
                     Запомнить это устройство
                 </label>
             </div>
-            {error && <div className="error-message">{error}</div>}
+            {error && <Alert type="danger" message={error} />}
             <button type="submit" disabled={loading}>
                 {loading ? 'Вход...' : 'Войти'}
             </button>
