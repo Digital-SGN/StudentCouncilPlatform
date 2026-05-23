@@ -2,28 +2,24 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-    server: {
-        proxy: {
-            '/api': {
-                target: 'https://localhost:7107',
-                changeOrigin: true,
-                secure: false,
-                configure: (proxy, options) => {
-                    proxy.on('error', (err, req, res) => {
-                        console.log('proxy error', err);
-                    });
-                }
-            },
-            '/avatars': {
-                target: 'https://localhost:7107',
-                changeOrigin: true,
-                secure: false
-            },
-            '/music': {
-                target: 'https://localhost:7107',
-                changeOrigin: true,
-                secure: false
-            }
-        }
+  server: {
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5247',   // ← меняем порт на 5247
+        changeOrigin: true,
+        secure: false
+      },
+      '/avatars': {
+        target: 'http://localhost:5247',
+        changeOrigin: true,
+        secure: false
+      },
+      '/music': {
+        target: 'http://localhost:5247',
+        changeOrigin: true,
+        secure: false
+      }
     }
+  }
 })
