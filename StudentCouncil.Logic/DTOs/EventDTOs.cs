@@ -12,7 +12,6 @@ namespace StudentCouncil.Logic.DTOs
         public string RegistrationLink {  get; set; } = string.Empty;
         public int ResponsibleUserId { get; set; }
     }
-
     public class UpdateEventDTO
     {
         public string Title { get; set; } = string.Empty;
@@ -24,7 +23,6 @@ namespace StudentCouncil.Logic.DTOs
         public int ResponsibleUserId { get; set; }
         public EventStatus Status { get; set; }
     }
-
     public class EventResponseDTO
     {
         public int Id { get; set; }
@@ -38,7 +36,6 @@ namespace StudentCouncil.Logic.DTOs
         public int ResponsibleUserId { get; set; }
         public DateTime CreatedAt { get; set; }
     }
-
     public class EventListResponseDTO
     {
         public int Count { get; set; }
