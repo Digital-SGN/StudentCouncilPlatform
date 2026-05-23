@@ -24,6 +24,7 @@ import { Radar, Bar } from 'react-chartjs-2';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
+import Alert from '../components/Alert';
 import ConfirmModal from '../components/modals/ConfirmDialogModal';
 import UserFormModal from '../components/modals/UserFormModal';
 import '../css/ProfilePage.css';
@@ -49,7 +50,6 @@ export default function ProfilePage() {
     const isAdmin = currentUser?.role === 'Admin';
     const isLeader = currentUser?.role === 'Leader';
     const isOwnProfile = currentUser?.id === userId;
-    // Редактировать можно только свой профиль или чужой, если ты админ
     const canEdit = isOwnProfile || isAdmin;
 
     const [user, setUser] = useState(null);
@@ -131,7 +131,7 @@ export default function ProfilePage() {
     const handleEditProfile = () => setShowEditModal(true);
 
     if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
-    if (error) return <div className="alert alert-danger">{error}</div>;
+    if (error) return <Alert type="danger" message={error} />;
     if (!user) return <div className="alert alert-danger">Пользователь не найден</div>;
 
     if (!isOwnProfile && !isAdmin && !isLeader) {
