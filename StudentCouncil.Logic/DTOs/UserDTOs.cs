@@ -25,7 +25,6 @@
         public string? AvatarPath { get; set; }
         public bool IsActive { get; set; }
     }
-
     public class UpdateUserDTO
     {
         public string FirstName { get; set; } = string.Empty;
@@ -42,7 +41,6 @@
         public bool IsActive { get; set; }
         public string Role { get; set; } = "Member";
     }
-
     public class UserDTO
     {
         public int Id { get; set; }

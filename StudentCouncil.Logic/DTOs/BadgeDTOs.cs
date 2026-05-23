@@ -11,19 +11,16 @@ public class BadgeResponseDTO
     public string FilePath { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
 }
-
 public class CreateBadgeDTO
 {
     public int UserId { get; set; }
     public int EventId { get; set; }
     public string Role { get; set; } = string.Empty;
 }
-
 public class UpdateBadgeDTO
 {
     public string Role { get; set; } = string.Empty;
 }
-
 public class BadgeListResponseDTO
 {
     public int Count { get; set; }
