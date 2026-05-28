@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using StudentCouncil.Data;
 using StudentCouncil.Data.Models;
@@ -85,7 +86,23 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
-app.UseStaticFiles();
+
+var provider = new FileExtensionContentTypeProvider();
+provider.Mappings[".gif"] = "image/gif";
+provider.Mappings[".jpg"] = "image/jpeg";
+provider.Mappings[".jpeg"] = "image/jpeg";
+provider.Mappings[".png"] = "image/png";
+provider.Mappings[".svg"] = "image/svg+xml";
+provider.Mappings[".mp3"] = "audio/mpeg";
+provider.Mappings[".mp4"] = "video/mp4";
+provider.Mappings[".webm"] = "video/webm";
+provider.Mappings[".pdf"] = "application/pdf";
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    ContentTypeProvider = provider
+});
+
 app.UseRouting();
 
 app.UseCors(builder => builder.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader().AllowCredentials());
