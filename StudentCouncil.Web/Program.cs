@@ -7,7 +7,7 @@ using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.Interfaces;
 using StudentCouncil.Logic.Services;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -73,7 +73,7 @@ builder.Services.AddTransient<IBadgeService, BadgeService>();
 builder.Services.AddTransient<IFileStorageService, FileStorageService>();
 builder.Services.AddSingleton<ILoggerService, FileLoggerService>();
 
-WebApplication app = builder.Build();
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
@@ -94,16 +94,16 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-using (IServiceScope scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
-    IServiceProvider services = scope.ServiceProvider;
-    await SeedData.Initialize(services);
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
 }
 
-using (IServiceScope scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
-    AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
+    var services = scope.ServiceProvider;
+    await SeedData.Initialize(services);
 }
 
 app.Run();
