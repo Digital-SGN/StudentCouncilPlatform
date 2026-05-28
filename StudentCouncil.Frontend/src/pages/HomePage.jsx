@@ -6,12 +6,12 @@ import LeadershipCard from '../components/LeadershipCard';
 import '../css/HomePage.css'; 
 
 const leadershipData = [
-  { name: 'Савин Иван', position: 'Председатель', photoUrl: 'src/assets/images/39186005c70975d20596305f13b1ca3c5beb0b39.jpg', bgColor: '#FFE8D9', rotateAngle: -2 },
-  { name: 'Кулькова Анна', position: 'Старостат', photoUrl: 'src/assets/images/d050eeec9bcfe2419e4b0100b921c6cdd58e05db.jpg', bgColor: '#D9E8FF', rotateAngle: 1.5 },
-  { name: 'Ананьев Дмитрий', position: 'Цифровое развитие', photoUrl: 'src/assets/images/256faba4e678509c364feb68f8c98469be792dcc.jpg', bgColor: '#E0FFD9', rotateAngle: -1 },
-  { name: 'Бирюков Александр', position: 'Медиа отдел', photoUrl: 'src/assets/images/2196c77377bbe98659f8aa8faf8ab17310d7ea6e.jpg', bgColor: '#FFF2D9', rotateAngle: 2 },
-  { name: 'Комардин Максим', position: 'Научный отдел', photoUrl: 'src/assets/images/b356b0ae5c9a9094ef1339edf00d3e5ce671709c.jpg', bgColor: '#F0D9FF', rotateAngle: -1.5 },
-  { name: 'Владимир Николаев', position: 'Координаторы', photoUrl: 'src/assets/images/2c2b1e5ecebc1b06a9fd7e55dbe34cdbae51922a.jpg', bgColor: '#FFD9E5', rotateAngle: 1 }
+  { name: 'Савин Иван', position: 'Председатель', photoUrl: '/images/39186005c70975d20596305f13b1ca3c5beb0b39.jpg', bgColor: '#FFE8D9', rotateAngle: -2 },
+  { name: 'Кулькова Анна', position: 'Старостат', photoUrl: '/images/d050eeec9bcfe2419e4b0100b921c6cdd58e05db.jpg', bgColor: '#D9E8FF', rotateAngle: 1.5 },
+  { name: 'Ананьев Дмитрий', position: 'Цифровое развитие', photoUrl: '/images/256faba4e678509c364feb68f8c98469be792dcc.jpg', bgColor: '#E0FFD9', rotateAngle: -1 },
+  { name: 'Бирюков Александр', position: 'Медиа отдел', photoUrl: '/images/2196c77377bbe98659f8aa8faf8ab17310d7ea6e.jpg', bgColor: '#FFF2D9', rotateAngle: 2 },
+  { name: 'Комардин Максим', position: 'Научный отдел', photoUrl: '/images/b356b0ae5c9a9094ef1339edf00d3e5ce671709c.jpg', bgColor: '#F0D9FF', rotateAngle: -1.5 },
+  { name: 'Владимир Николаев', position: 'Координаторы', photoUrl: '/images/2c2b1e5ecebc1b06a9fd7e55dbe34cdbae51922a.jpg', bgColor: '#FFD9E5', rotateAngle: 1 }
 ];
 
 export default function HomePage() {
