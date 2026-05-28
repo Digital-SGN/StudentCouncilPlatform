@@ -20,7 +20,7 @@ public static class SeedData
             }
         }
 
-        string adminEmail = "admin@studsovet.ru";
+        string adminEmail = "demonrux201@gmail.com";
         if (await userManager.FindByEmailAsync(adminEmail) == null)
         {
             User admin = new User
