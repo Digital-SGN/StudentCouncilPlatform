@@ -26,8 +26,8 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SameSite = SameSiteMode.Lax;
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-    options.ExpireTimeSpan = TimeSpan.FromDays(7);   
-    options.SlidingExpiration = true;       
+    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+    options.SlidingExpiration = true;
     options.LoginPath = null;
     options.AccessDeniedPath = null;
     options.Events.OnRedirectToLogin = context =>
@@ -44,7 +44,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorUserIdScheme, options =>
 {
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; 
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 });
 
 builder.Services.Configure<FormOptions>(options =>
@@ -55,7 +55,7 @@ builder.Services.Configure<FormOptions>(options =>
 
 builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 {
-    options.ValidationInterval = TimeSpan.FromDays(7); 
+    options.ValidationInterval = TimeSpan.FromDays(7);
 });
 
 builder.Services.AddControllers().AddJsonOptions(options =>
