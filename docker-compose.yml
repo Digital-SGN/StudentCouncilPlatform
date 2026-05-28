@@ -1,34 +1,37 @@
+version: '3.8'
+
 services:
-  db:
-    image: postgres:15
+  postgres:
+    image: postgres:16
     container_name: studentcouncil_db
     environment:
-      POSTGRES_DB: studentcouncil
-      POSTGRES_USER: admin_studsovet
-      POSTGRES_PASSWORD: Demonrux201
+      POSTGRES_DB: studsovet
+      POSTGRES_USER: studsovet_admin
+      POSTGRES_PASSWORD: Demonrux201$
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin_studsovet"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    restart: unless-stopped
 
   backend:
-    build:
-      context: .
-      dockerfile: StudentCouncil.Web/Dockerfile
+    build: .
     container_name: studentcouncil_backend
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=db;Database=studentcouncil;Username=admin_studsovet;Password=Demonrux201
     ports:
-      - "8080:80"
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=studsovet;Username=studsovet_admin;Password=Demonrux201$
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  frontend:
+    build: ./StudentCouncil.Frontend
+    container_name: studentcouncil_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
     restart: unless-stopped
 
 volumes:

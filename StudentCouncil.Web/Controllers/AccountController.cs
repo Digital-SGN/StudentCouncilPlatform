@@ -40,7 +40,9 @@ public class AccountController : BaseController
                 await _userManager.ResetAuthenticatorKeyAsync(user);
                 key = await _userManager.GetAuthenticatorKeyAsync(user);
             }
-            var uri = $"otpauth://totp/{Uri.EscapeDataString($"Студсовет СГН:{user.Email}")}?secret={key}&issuer=StudentCouncil&digits=6";
+            string issuer = "Студсовет СГН";
+            string prefix = issuer; 
+            var uri = $"otpauth://totp/{Uri.EscapeDataString($"{prefix}:{user.Email}")}?secret={key}&issuer={Uri.EscapeDataString(issuer)}&digits=6";
             return StatusCode(402, new TwoFactorSetupResponseDTO { SharedKey = key, AuthenticatorUri = uri });
         }
         else
@@ -62,7 +64,7 @@ public class AccountController : BaseController
         return Ok(new { message = "Выход успешно выполнен" });
     }
 
-    [HttpGet("current")]
+    [HttpGet("me")]
     [Authorize]
     public async Task<ActionResult<CurrentUserDTO>> GetCurrentUserAsync()
     {

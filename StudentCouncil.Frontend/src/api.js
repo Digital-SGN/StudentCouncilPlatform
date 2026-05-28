@@ -66,7 +66,7 @@
     },
 
     async getCurrentUser() {
-        const res = await this.request('/account/current');
+        const res = await this.request('/account/me');
         return res.ok ? res.data : null;
     },
 

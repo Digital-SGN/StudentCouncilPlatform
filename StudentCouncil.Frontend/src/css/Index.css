@@ -288,8 +288,7 @@ button.nav-link:hover {
     font-weight: bold;
     padding: 8px 16px;
     display: inline-block;
-    user-select: none;            
-    pointer-events: none;         
+    user-select: none;                   
     border-right: 1px solid #e2e8f0; 
     margin-right: 8px;
 }
@@ -301,7 +300,6 @@ button.nav-link:hover {
         text-align: center;
         width: 100%;
         background: transparent;
-        pointer-events: none;
     }
 }
 
