@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: studsovet
       POSTGRES_USER: studsovet_admin
-      POSTGRES_PASSWORD: Demonrux201$
+      POSTGRES_PASSWORD: Demonrux201
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -20,7 +20,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=studsovet;Username=studsovet_admin;Password=Demonrux201$
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=studsovet;Username=studsovet_admin;Password=Demonrux201
     depends_on:
       - postgres
     restart: unless-stopped
