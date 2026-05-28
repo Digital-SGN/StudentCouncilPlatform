@@ -94,11 +94,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-//using (IServiceScope scope = app.Services.CreateScope())
-//{
-//    IServiceProvider services = scope.ServiceProvider;
-//    await SeedData.Initialize(services);
-//}
+using (IServiceScope scope = app.Services.CreateScope())
+{
+    IServiceProvider services = scope.ServiceProvider;
+    await SeedData.Initialize(services);
+}
 
 using (IServiceScope scope = app.Services.CreateScope())
 {
