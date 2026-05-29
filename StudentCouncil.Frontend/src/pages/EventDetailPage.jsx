@@ -224,6 +224,16 @@ export default function EventDetailPage() {
                                 <span className="event-info-value">{event.location}</span>
                             </div>
                             <div className="event-info-row">
+                                <span className="event-info-icon"><FontAwesomeIcon icon={faUsers} /></span>
+                                <span className="event-info-label">Посещаемость:</span>
+                                <span className="event-info-value">
+                                    {event.actualParticipants}  / {event.registeredParticipants}
+                                    ({event.registeredParticipants > 0 
+                                        ? Math.round(event.actualParticipants / event.registeredParticipants * 100) 
+                                        : 0}%)
+                                </span>
+                            </div>
+                            <div className="event-info-row">
                                 <span className="event-info-icon"><FontAwesomeIcon icon={faUser} /></span>
                                 <span className="event-info-label">Ответственный:</span>
                                 <span className="event-info-value">
