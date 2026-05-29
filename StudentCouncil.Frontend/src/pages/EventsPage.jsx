@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faCalendar, faMapMarkerAlt, faUser, faLink, 
     faEdit, faTrashAlt, faEye, faPlus, faCalendarDay, faMoneyBillWave,
-    faSort, faSortUp, faSortDown, faSearch, faFileExport
+    faSort, faSortUp, faSortDown, faSearch, faFileExport, faUsers
 } from '@fortawesome/free-solid-svg-icons';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -254,6 +254,20 @@ export default function EventsPage() {
                                             <span className="event-info-text">{event.location}</span>
                                         </div>
                                         <div className="event-info-item">
+                                            <FontAwesomeIcon icon={faUsers} className="event-info-icon" />
+                                            <div className="attendance-stats">
+                                                <div className="attendance-numbers">
+                                                    {event.actualParticipants} / {event.registeredParticipants} ({event.registeredParticipants > 0 ? Math.round(event.actualParticipants / event.registeredParticipants * 100) : 0}%)
+                                                </div>
+                                                <div className="progress-bar">
+                                                    <div 
+                                                        className="progress-fill" 
+                                                        style={{ width: `${event.registeredParticipants > 0 ? (event.actualParticipants / event.registeredParticipants * 100) : 0}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="event-info-item">
                                             <span className="event-info-icon"><FontAwesomeIcon icon={faUser} /></span>
                                             <span className="event-info-text">
                                                 Ответственный: {usersMap.get(event.responsibleUserId) || '—'}
@@ -263,7 +277,7 @@ export default function EventsPage() {
                                             <div className="event-info-item">
                                                 <span className="event-info-icon"><FontAwesomeIcon icon={faLink} /></span>
                                                 <a href={event.registrationLink} target="_blank" rel="noopener noreferrer" className="event-link">
-                                                    Регистрация
+                                                    Ссылка пока никуда:(
                                                 </a>
                                             </div>
                                         )}

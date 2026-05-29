@@ -535,3 +535,47 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     background: #f8fafc;
 }
+
+.attendance-stats {
+    font-size: ;
+    width: 80%;
+}
+
+.progress-bar {
+    background: #e2e8f0;
+    border-radius: 10px;
+    height: 6px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    background: #0CBFA1;
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.attendance-stats {
+    width: 100%;
+}
+
+.attendance-numbers {
+    font-size: 18px;
+    color: black;
+    margin-bottom: 4px;
+}
+
+.progress-bar {
+    background: #e2e8f0;
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    background: #0CBFA1;
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
