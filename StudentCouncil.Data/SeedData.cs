@@ -20,7 +20,7 @@ public static class SeedData
             }
         }
 
-        string adminEmail = "demonrux201@gmail.com";
+        string adminEmail = "testing@gmail.com";
         if (await userManager.FindByEmailAsync(adminEmail) == null)
         {
             User admin = new User
@@ -33,11 +33,12 @@ public static class SeedData
                 IsActive = true
             };
 
-            IdentityResult result = await userManager.CreateAsync(admin, "Demonrux201$");
+            IdentityResult result = await userManager.CreateAsync(admin, "test123");
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(admin, "Admin");
             }
+            Console.WriteLine("Admin is inizialized!");
         }
     }
 }

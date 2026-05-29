@@ -292,3 +292,68 @@ button:disabled {
     height: 18px;
     margin: 0;
 }
+.password-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 40px;
+    height: 48px;
+    box-sizing: border-box;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin: 0;
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: none;
+}
+
+/* Переопределяем глобальные стили */
+.login-page .password-toggle {
+    width: 24px !important;
+    min-width: 24px !important;
+    max-width: 24px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    color: #94a3b8;
+    font-size: 18px;
+    transition: none !important;
+    top: 50%;
+    right: 12px;
+}
+
+.login-page .password-toggle:hover {
+    transform: translateY(-50%) !important;
+    background: transparent !important;
+    scale: 1 !important;
+    color: #0CBFA1;
+    transition: none !important;
+}
+
+.login-page .password-toggle:focus,
+.login-page .password-toggle:active {
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}

@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API } from '../api';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import logo from '../assets/logo.svg';
 import Bubbles from '../components/Bubbles';
 import Alert from '../components/Alert';
@@ -79,6 +81,7 @@ export default function LoginPage({ setUser }) {
     const [rememberDevice, setRememberDevice] = useState(false);
     const [code, setCode] = useState('');
     const [qrUri, setQrUri] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -175,13 +178,23 @@ export default function LoginPage({ setUser }) {
             </div>
             <div className="form-group">
                 <label>Пароль</label>
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={loading}
-                />
+                <div className="password-wrapper">
+                    <input
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        disabled={loading}
+                    />
+                    <button
+                        type="button"
+                        className="password-toggle"
+                        onClick={() => setShowPassword(!showPassword)}
+                        tabIndex={-1}
+                    >
+                        <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                    </button>
+                </div>
             </div>
             {error && <Alert type="danger" message={error} />}
             <button type="submit" disabled={loading}>
