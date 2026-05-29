@@ -31,7 +31,7 @@ services:
     build: ./StudentCouncil.Frontend
     container_name: studentcouncil_frontend
     ports:
-      - "8081:80"   # ← другой порт, не 80
+      - "8081:80"   
     depends_on:
       - backend
     restart: unless-stopped
