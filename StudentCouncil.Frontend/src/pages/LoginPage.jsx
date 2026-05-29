@@ -8,7 +8,7 @@ import logo from '../assets/logo.svg';
 import Bubbles from '../components/Bubbles';
 import Alert from '../components/Alert';
 import '../css/LoginPage.css';
-import '../css/bubbles.css';
+import '../css/Bubbles.css';
 
 function OtpInput({ value, onChange, disabled }) {
     const [otp, setOtp] = useState(value.split('').slice(0, 6));
