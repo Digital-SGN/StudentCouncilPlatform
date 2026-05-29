@@ -88,6 +88,8 @@ public static class Mapper
             Budget = ev.Budget,
             EventDate = ev.EventDate,
             Location = ev.Location,
+            RegisteredParticipants = ev.RegisteredParticipants,
+            ActualParticipants = ev.ActualParticipants,
             RegistrationLink = ev.RegistrationLink,
             Status = ev.Status,
             ResponsibleUserId = ev.ResponsibleUserId,
@@ -104,6 +106,8 @@ public static class Mapper
             Budget = dto.Budget,
             EventDate = dto.EventDate.ToUniversalTime(),
             Location = dto.Location,
+            RegisteredParticipants = dto.RegisteredParticipants,
+            ActualParticipants = dto.ActualParticipants,
             RegistrationLink = dto.RegistrationLink,
             ResponsibleUserId = dto.ResponsibleUserId,
             CreatedAt = DateTime.UtcNow,
@@ -119,6 +123,8 @@ public static class Mapper
         ev.Budget = dto.Budget;
         ev.EventDate = dto.EventDate.ToUniversalTime();
         ev.Location = dto.Location;
+        ev.RegisteredParticipants = dto.RegisteredParticipants;
+        ev.ActualParticipants = dto.ActualParticipants;
         ev.RegistrationLink = dto.RegistrationLink;
         ev.Status = dto.Status;
         ev.ResponsibleUserId = dto.ResponsibleUserId;

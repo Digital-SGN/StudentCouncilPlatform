@@ -9,6 +9,8 @@ namespace StudentCouncil.Logic.DTOs
         public decimal? Budget { get; set; }
         public DateTime EventDate { get; set; }
         public string Location { get; set; } = string.Empty;
+        public int RegisteredParticipants { get; set; }
+        public int ActualParticipants { get; set; }
         public string RegistrationLink {  get; set; } = string.Empty;
         public int ResponsibleUserId { get; set; }
     }
@@ -19,6 +21,8 @@ namespace StudentCouncil.Logic.DTOs
         public decimal? Budget { get; set; }
         public DateTime EventDate { get; set; }
         public string Location { get; set; } = string.Empty;
+        public int RegisteredParticipants { get; set; }
+        public int ActualParticipants { get; set; }
         public string RegistrationLink { get; set; } = string.Empty;
         public int ResponsibleUserId { get; set; }
         public EventStatus Status { get; set; }
@@ -31,6 +35,8 @@ namespace StudentCouncil.Logic.DTOs
         public decimal? Budget { get; set; }
         public DateTime EventDate { get; set; }
         public string Location { get; set; } = string.Empty;
+        public int RegisteredParticipants { get; set; }
+        public int ActualParticipants { get; set; }
         public string RegistrationLink { get; set; } = string.Empty;
         public EventStatus Status { get; set; }
         public int ResponsibleUserId { get; set; }

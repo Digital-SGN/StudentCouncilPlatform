@@ -25,6 +25,8 @@ public class Event
     [Required]
     [MaxLength(100)]
     public string Location { get; set; } = string.Empty;
+    public int RegisteredParticipants { get; set; } = 0;      
+    public int ActualParticipants { get; set; } = 0;
     [MaxLength(200)]
     public string RegistrationLink { get; set; } = string.Empty;
     public EventStatus Status { get; set; } = EventStatus.Upcoming;
