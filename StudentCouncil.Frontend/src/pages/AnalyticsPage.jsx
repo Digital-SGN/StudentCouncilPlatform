@@ -50,6 +50,10 @@ export default function AnalyticsPage() {
         totalBadges: 0,
         avgLevel: 0,
         totalBalance: 0,
+        totalRegistered: 0,
+        totalActual: 0,
+        averageAttendanceRate: 0,
+        topEventsByAttendance: [],
         roleDistribution: {},
         topUsersByBadges: [],
         eventsPerMonth: [],
@@ -78,6 +82,28 @@ export default function AnalyticsPage() {
             const eventsResult = await API.getEvents();
             if (!eventsResult.ok) throw new Error(eventsResult.data?.error || 'Ошибка загрузки мероприятий');
             const events = eventsResult.data.events || [];
+
+            let totalRegistered = 0;
+            let totalActual = 0;
+            const eventsAttendance = [];
+
+            events.forEach(e => {
+                const registered = e.registeredParticipants || 0;
+                const actual = e.actualParticipants || 0;
+                totalRegistered += registered;
+                totalActual += actual;
+                const rate = registered > 0 ? (actual / registered) * 100 : 0;
+                eventsAttendance.push({
+                    id: e.id,
+                    title: e.title,
+                    registered,
+                    actual,
+                    rate
+                });
+            });
+
+            const averageAttendanceRate = events.length > 0 ? (totalActual / totalRegistered * 100).toFixed(1) : 0;
+            const topEventsByAttendance = [...eventsAttendance].sort((a, b) => b.rate - a.rate).slice(0, 5);
 
             const badgesPromises = users.map(u => API.getBadgesByUser(u.id));
             const badgesResults = await Promise.all(badgesPromises);
@@ -157,6 +183,10 @@ export default function AnalyticsPage() {
                 totalBadges,
                 avgLevel,
                 totalBalance,
+                totalRegistered,
+                totalActual,
+                averageAttendanceRate,
+                topEventsByAttendance,
                 roleDistribution: roleDist,
                 topUsersByBadges: topUsers,
                 eventsPerMonth,
@@ -302,6 +332,18 @@ export default function AnalyticsPage() {
                             <div className="stat-label">Общий бюджет</div>
                             <div className="stat-sub">Ср. бюджет: {stats.avgBudget.toLocaleString()} ₽</div>
                         </div>
+                        <div className="stat-card">
+                            <div className="stat-icon"><FontAwesomeIcon icon={faUserPlus} /></div>
+                            <div className="stat-value">{stats.totalRegistered}</div>
+                            <div className="stat-label">Всего записей</div>
+                        </div>
+                        <div className="stat-card">
+                            <div className="stat-icon"><FontAwesomeIcon icon={faUserCheck} /></div>
+                            <div className="stat-value">{stats.totalActual}</div>
+                            <div className="stat-label">Всего пришло</div>
+                            <div className="stat-sub">Явка: {stats.averageAttendanceRate}%</div>
+                        </div>
+                        
                     </div>
 
                     <div className="charts-grid">
@@ -339,6 +381,34 @@ export default function AnalyticsPage() {
                                                 <tr key={e.id}>
                                                     <td>{e.title}</td>
                                                     <td>{e.budget.toLocaleString()}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {stats.topEventsByAttendance.length > 0 && (
+                            <div className="chart-card">
+                                <h3><FontAwesomeIcon icon={faChartLine} /> Топ мероприятий по посещаемости</h3>
+                                <div className="top-users-table">
+                                    <table className="simple-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Мероприятие</th>
+                                                <th>Записалось</th>
+                                                <th>Пришло</th>
+                                                <th>Явка</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {stats.topEventsByAttendance.map(e => (
+                                                <tr key={e.id}>
+                                                    <td>{e.title}</td>
+                                                    <td>{e.registered}</td>
+                                                    <td>{e.actual}</td>
+                                                    <td>{e.rate.toFixed(1)}%</td>
                                                 </tr>
                                             ))}
                                         </tbody>
