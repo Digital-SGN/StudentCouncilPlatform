@@ -23,6 +23,8 @@ services:
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=studsovet;Username=studsovet_admin;Password=Demonrux201
     depends_on:
       - postgres
+    volumes:
+      - backend_wwwroot:/app/wwwroot   
     restart: unless-stopped
 
   frontend:
@@ -36,3 +38,4 @@ services:
 
 volumes:
   postgres_data:
+  backend_wwwroot:   
