@@ -8,6 +8,8 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
         budget: '',
         eventDate: '',
         location: '',
+        registeredParticipants: 0,
+        actualParticipants: 0,
         registrationLink: '',
         responsibleUserId: '',
         status: 'Upcoming'
@@ -48,6 +50,8 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
                 budget: event.budget || '',
                 eventDate: event.eventDate ? event.eventDate.slice(0, 16) : '',
                 location: event.location || '',
+                registeredParticipants: event.registeredParticipants ?? 0,
+                actualParticipants: event.actualParticipants ?? 0,
                 registrationLink: event.registrationLink || '',
                 responsibleUserId: event.responsibleUserId || '',
                 status: event.status || 'Upcoming'
@@ -65,6 +69,8 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
             budget: '',
             eventDate: '',
             location: '',
+            registeredParticipants: 0,
+            actualParticipants: 0,
             registrationLink: '',
             responsibleUserId: '',
             status: 'Upcoming'
@@ -84,15 +90,17 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
         setError('');
         setLoading(true);
 
-        const data = {
-            title: formData.title,
-            description: formData.description,
-            budget: formData.budget ? parseFloat(formData.budget) : null,
-            eventDate: new Date(formData.eventDate).toISOString(),
-            location: formData.location,
-            registrationLink: formData.registrationLink,
-            responsibleUserId: parseInt(formData.responsibleUserId)
-        };
+    const data = {
+        title: formData.title,
+        description: formData.description,
+        budget: formData.budget ? parseFloat(formData.budget) : null,
+        eventDate: new Date(formData.eventDate).toISOString(),
+        location: formData.location,
+        registeredParticipants: parseInt(formData.registeredParticipants) || 0,
+        actualParticipants: parseInt(formData.actualParticipants) || 0,
+        registrationLink: formData.registrationLink,
+        responsibleUserId: parseInt(formData.responsibleUserId)
+    };
 
         if (isEditMode && isAdmin) {
             data.status = formData.status;
@@ -161,7 +169,16 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
                                     <input type="text" name="location" value={formData.location} onChange={handleChange} required />
                                 </div>
                             </div>
-
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Зарегистрировалось</label>
+                                    <input type="number" min="0" name="registeredParticipants" value={formData.registeredParticipants} onChange={handleChange} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Пришло</label>
+                                    <input type="number" min="0" name="actualParticipants" value={formData.actualParticipants} onChange={handleChange} />
+                                </div>
+                            </div>
                             <div className="form-group">
                                 <label>Ссылка на регистрацию</label>
                                 <input type="url" name="registrationLink" placeholder="https://..." value={formData.registrationLink} onChange={handleChange} />
