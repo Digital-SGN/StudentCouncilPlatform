@@ -106,8 +106,8 @@
 ## Структура проекта
 ```text
 StudentCouncil/
-├── StudentCouncil.Data/ # Контекст БД, модели, миграции, SeedData
-├── StudentCouncil.Logic/ # DTO, интерфейсы, сервисы, Mapper, ServiceResult
+├── StudentCouncil.Data/ # Контекст БД, модели, миграции
+├── StudentCouncil.Logic/ # DTO, интерфейсы, сервисы, Mapper
 ├── StudentCouncil.WebApi/ # Контроллеры API, Program.cs, wwwroot
 ├── StudentCouncil.Frontend/ # React-приложение (Vite)
 ├── docker-compose.yml # Контейнеризация бэкенда + PostgreSQL
@@ -170,14 +170,14 @@ StudentCouncil/
 
 ```yaml
 services:
-  postgres:        # PostgreSQL 16 с volume
-  backend:         # ASP.NET Core 8 на порту 8080
-  frontend:        # Nginx со статикой (порт 8081)
+  postgres:        # PostgreSQL 16 
+  backend:         # ASP.NET Core 8 
+  frontend:        # Nginx со статикой
 ```
 
 ## Хост-инфраструктура
 - Хост-nginx слушает порты 80/443, отдаёт статику из /var/www/studsovetsgn
-- Proxy_pass для /api, /avatars, /badges, /music → бэкенд (127.0.0.1:8080)
+- Proxy_pass для /api, /avatars, /badges, /music бэкенд (127.0.0.1:8080)
 - HTTPS настроен через Let's Encrypt (Certbot), автоматическое продление
 - Docker-тома: postgres_data (БД), backend_wwwroot (аватары, бейджи)
 
@@ -189,8 +189,8 @@ services:
 ```
 Скрипт автоматически:
 - 1.git pull origin feature/development
-- 2.Пересобирает бэкенд (docker compose build backend --no-cache)
-- 3.Пересобирает фронтенд и копирует статику в /var/www/studsovetsgn
+- 2.Пересобирает бэкенд 
+- 3.Пересобирает фронтенд и копирует статику
 - 4.Перезагружает nginx
 - 5.Очищает неиспользуемые образы Docker
 
