@@ -5,7 +5,7 @@ import {
     faTable, faIdCard, faGraduationCap, faEnvelope, 
     faChartLine, faCircle, faEdit, faTrashAlt,
     faEye, faPlus, faCheckCircle, faKey, faShieldAlt, faEllipsisV,
-    faSort, faSortUp, faSortDown, faFileExport
+    faSort, faSortUp, faSortDown, faFileExport, faSearch
 } from '@fortawesome/free-solid-svg-icons';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -203,6 +203,7 @@ export default function UsersPage() {
                     <h1>Список участников</h1>
                     <div className="header-actions">
                         <div className="search-box">
+                            <FontAwesomeIcon icon={faSearch} className="search-icon" />
                             <input
                                 type="text"
                                 placeholder="Поиск..."

@@ -1,48 +1,53 @@
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import logo from '../assets/logo.svg';
-import Bubbles from '../components/Bubbles'; 
+import Bubbles from '../components/Bubbles';
 import LeadershipCard from '../components/LeadershipCard';
-import '../css/HomePage.css'; 
+import '../css/HomePage.css';
 
 const leadershipData = [
-  { name: 'Савин Иван', position: 'Председатель', photoUrl: '/images/39186005c70975d20596305f13b1ca3c5beb0b39.jpg', bgColor: '#FFE8D9', rotateAngle: -2 },
-  { name: 'Кулькова Анна', position: 'Старостат', photoUrl: '/images/d050eeec9bcfe2419e4b0100b921c6cdd58e05db.jpg', bgColor: '#D9E8FF', rotateAngle: 1.5 },
-  { name: 'Ананьев Дмитрий', position: 'Цифровое развитие', photoUrl: '/images/256faba4e678509c364feb68f8c98469be792dcc.jpg', bgColor: '#E0FFD9', rotateAngle: -1 },
-  { name: 'Бирюков Александр', position: 'Медиа отдел', photoUrl: '/images/2196c77377bbe98659f8aa8faf8ab17310d7ea6e.jpg', bgColor: '#FFF2D9', rotateAngle: 2 },
-  { name: 'Комардин Максим', position: 'Научный отдел', photoUrl: '/images/b356b0ae5c9a9094ef1339edf00d3e5ce671709c.jpg', bgColor: '#F0D9FF', rotateAngle: -1.5 },
-  { name: 'Владимир Николаев', position: 'Координаторы', photoUrl: '/images/2c2b1e5ecebc1b06a9fd7e55dbe34cdbae51922a.jpg', bgColor: '#FFD9E5', rotateAngle: 1 }
+  { name: 'Савин Иван', position: 'Председатель', photoUrl: '/images/39186005c70975d20596305f13b1ca3c5beb0b39.jpg', bgColor: '#FFE8D9' },
+  { name: 'Кулькова Анна', position: 'Старостат', photoUrl: '/images/d050eeec9bcfe2419e4b0100b921c6cdd58e05db.jpg', bgColor: '#D9E8FF' },
+  { name: 'Ананьев Дмитрий', position: 'Цифровое развитие', photoUrl: '/images/256faba4e678509c364feb68f8c98469be792dcc.jpg', bgColor: '#E0FFD9' },
+  { name: 'Бирюков Александр', position: 'Медиа отдел', photoUrl: '/images/2196c77377bbe98659f8aa8faf8ab17310d7ea6e.jpg', bgColor: '#FFF2D9' },
+  { name: 'Комардин Максим', position: 'Научный отдел', photoUrl: '/images/b356b0ae5c9a9094ef1339edf00d3e5ce671709c.jpg', bgColor: '#F0D9FF' },
+  { name: 'Владимир Николаев', position: 'Координаторы', photoUrl: '/images/2c2b1e5ecebc1b06a9fd7e55dbe34cdbae51922a.jpg', bgColor: '#FFD9E5' }
 ];
 
 export default function HomePage() {
   const { user } = useAuth();
-  const heroRef = useRef(null);
-  const aboutRef = useRef(null);
-  const leadershipRef = useRef(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const autoPlayRef = useRef(null);
+
+  const total = leadershipData.length;
+  const prevIndex = (currentIndex - 1 + total) % total;
+  const nextIndex = (currentIndex + 1) % total;
+
+  const goToSlide = (index) => {
+    setCurrentIndex(index);
+  };
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => (prev + 1) % total);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + total) % total);
+  };
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-
-    if (heroRef.current) observer.observe(heroRef.current);
-    if (aboutRef.current) observer.observe(aboutRef.current);
-    if (leadershipRef.current) observer.observe(leadershipRef.current);
-
-    return () => observer.disconnect();
+    autoPlayRef.current = setInterval(nextSlide, 5000);
+    return () => clearInterval(autoPlayRef.current);
   }, []);
 
+  const pauseAutoPlay = () => clearInterval(autoPlayRef.current);
+  const resumeAutoPlay = () => {
+    autoPlayRef.current = setInterval(nextSlide, 5000);
+  };
+
   return (
-    <div className="home-page">
+    <div className="home-page fade-in">
       <Bubbles />
-      <section className="hero-section" ref={heroRef}>
+      <section className="hero-section">
         <div className="hero-overlay">
           <div className="container">
             <h1>Студенческий совет СГН</h1>
@@ -53,7 +58,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="about-section" ref={aboutRef}>
+      <section className="about-section">
         <div className="container">
           <div className="about-grid">
             <div className="about-text">
@@ -70,28 +75,48 @@ export default function HomePage() {
             <div className="stat-item">
               <span className="stat-number">10+</span>
               <span className="stat-label">Мероприятий в год</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-number">50+</span>
+              <span className="stat-label">Активных участников</span>
+            </div>
           </div>
-          <div className="stat-item">
-            <span className="stat-number">50+</span>
-            <span className="stat-label">Активных участников</span>
-          </div>
-        </div>
         </div>
       </section>
 
-      <section className="leadership-section" ref={leadershipRef}>
-      <div className="container">
-        <div className="leadership-header">
-          <div className="oval-bg"></div>
+      <section className="leadership-section">
+        <div className="container">
           <h2>Наше руководство</h2>
+          <div 
+            className="carousel-wrapper"
+            onMouseEnter={pauseAutoPlay}
+            onMouseLeave={resumeAutoPlay}
+          >
+            <button className="carousel-btn prev" onClick={prevSlide}>‹</button>
+            <div className="carousel-container">
+              <div key={prevIndex} className="carousel-card side">
+                <LeadershipCard {...leadershipData[prevIndex]} />
+              </div>
+              <div key={currentIndex} className="carousel-card active">
+                <LeadershipCard {...leadershipData[currentIndex]} />
+              </div>
+              <div key={nextIndex} className="carousel-card side">
+                <LeadershipCard {...leadershipData[nextIndex]} />
+              </div>
+            </div>
+            <button className="carousel-btn next" onClick={nextSlide}>›</button>
+          </div>
+          <div className="carousel-indicators">
+            {leadershipData.map((_, idx) => (
+              <span
+                key={idx}
+                className={`indicator ${idx === currentIndex ? 'active' : ''}`}
+                onClick={() => goToSlide(idx)}
+              />
+            ))}
+          </div>
         </div>
-        <div className="leadership-grid">
-          {leadershipData.map((member, idx) => (
-            <LeadershipCard key={idx} {...member} />
-          ))}
-        </div>
-      </div>
-    </section>
+      </section>
     </div>
   );
 }

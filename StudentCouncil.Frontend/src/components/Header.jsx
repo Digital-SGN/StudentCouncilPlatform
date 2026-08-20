@@ -63,12 +63,7 @@ export default function Header({ onLogout }) {
                             {user && (
                                 <li className="nav-item">
                                     <span className="nav-text">
-                                        <img 
-                                            src={catImage} 
-                                            alt="кот" 
-                                            onClick={playMeow}
-                                            style={{ width: 100, height: 55, marginRight: 1, verticalAlign: 'middle', cursor: 'pointer' }} 
-                                        />
+                                        <img src={catImage} alt="кот" onClick={playMeow} className="cat-in-header" />
                                         Привет, {displayEmail}!
                                     </span>
                                 </li>

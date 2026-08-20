@@ -2,7 +2,7 @@
   background-image: url('../assets/home.png');
   background-size: cover;
   background-position: center;
-  background-attachment: fixed;  
+  background-attachment: fixed;
   background-repeat: no-repeat;
   min-height: 500px;
   display: flex;
@@ -64,7 +64,7 @@
   flex-direction: column;
   gap: 1.5rem;
   background: white;
-  padding: 2rem;
+  padding: 1rem;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -93,7 +93,6 @@
 }
 
 .leadership-section {
-  padding: 60px 0;
   background-color: white;
   border-bottom-right-radius: 20px;
   border-bottom-left-radius: 20px;
@@ -116,108 +115,157 @@
   bottom: -15px;
   left: 50%;
   transform: translateX(-50%);
-  width: 80px;
-  height: 4px;
+  width: 160px;
+  height: 6px;
   background: linear-gradient(90deg, #0CBFA1, #148C9C);
   border-radius: 2px;
 }
 
-/* Сетка карточек */
-.leadership-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 2rem;
+.carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 1000px;
+  padding: 20px 0 10px;
 }
 
-.leadership-card {
-  background: linear-gradient(135deg, #0CBFA1, #148C9C);
-  border-radius: 24px;           
-  padding: 2rem 1rem 0rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-  text-align: center;
-  position: relative;
+.carousel-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
   overflow: hidden;
 }
 
-.leadership-card::before {
-  content: "★";
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  font-size: 40px;
-  color: rgba(255, 255, 255, 0.15);
-  font-family: Arial;
+.carousel-card {
+  transition: all 0.5s ease;
+  flex-shrink: 0;
+  will-change: transform, opacity;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.leadership-card::after {
-  content: "✦";
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  font-size: 35px;
-  color: rgba(255, 255, 255, 0.15);
-}
-
-.leadership-card .decor-line {
-  position: absolute;
+.carousel-card .leadership-card {
   width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  box-sizing: border-box;
 }
 
-.leadership-card .decor-line-1 {
-  top: 30%;
-}
-
-.leadership-card .decor-line-2 {
-  bottom: 20%;
-}
-
-.leadership-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-}
-
-.card-inner {
-  text-align: center;
-}
-
-.card-photo {
-  width: 170px;
-  height: 170px;
+.carousel-card .card-photo {
+  width: 200px;
+  height: 200px;
   object-fit: cover;
   border-radius: 50%;
   border: 4px solid white;
-  margin-bottom: 1rem;
-  background-color: white;
+  margin-bottom: 0.8rem;
+  background: white;
+  flex-shrink: 0;
+}
+
+.carousel-card.active .card-photo {
+  width: 180px;
+  height: 180px;
+}
+
+.carousel-card.active {
+  transform: scale(1);
+  opacity: 1;
+  flex: 0 0 240px;
+}
+
+.carousel-card.active .leadership-card {
+  min-height: 400px;            
+}
+
+.carousel-card.side {
+  transform: scale(0.8);
+  opacity: 0.6;
+  flex: 0 0 200px;
+}
+
+.carousel-card.side .card-photo {
+  width: 120px;
+  height: 120px;
+}
+
+.carousel-btn {
+  background: rgba(0,0,0,0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  transition: background 0.2s;
+}
+
+.carousel-btn:hover {
+  background: rgba(0,0,0,0.8);
+}
+
+.carousel-btn.prev {
+  left: 10px;
+}
+
+.carousel-btn.next {
+  right: 10px;
+}
+
+.carousel-indicators {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  margin-top: 30px !important;
+  padding-bottom: 10px !important;
+  position: relative !important;
+  clear: both !important;
+}
+
+.indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.indicator.active {
+  background: #0CBFA1;
+  transform: scale(1.2);
 }
 
 .leadership-card h3 {
-  margin: 0.5rem 0 0.25rem;
-  font-size: 30px;
+  font-size: 1.5rem;
   font-weight: 700;
+  margin: 0.3rem 0 0.1rem;
+  color: black;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .leadership-card p {
+  font-size: 1.3rem;
+  font-weight: 500;
   color: black;
-  font-size: 22px;
-  font-weight: 600;
-}
-
-.hero-section,
-.about-section,
-.leadership-section {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.8s ease, transform 0.8s ease;
-}
-
-.hero-section.visible,
-.about-section.visible,
-.leadership-section.visible {
-  opacity: 1;
-  transform: translateY(0);
+  text-align: center;
+  opacity: 0.9;
+  margin: 0;
 }
 
 @media (max-width: 768px) {
@@ -243,41 +291,42 @@
     bottom: -10px;
   }
 
-  .leadership-grid {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-  }
-
-  .leadership-card {
-    width: 90%;
-    max-width: 280px;
-    margin: 0 auto;
-  }
-
-  .leadership-card h3 {
-    font-size: 1.2rem;
-  }
-
-  .leadership-card p {
-    font-size: 0.9rem;
-  }
-
-  .card-photo {
+  .carousel-card .card-photo {
     width: 120px;
     height: 120px;
+  }
+  .carousel-card.active .card-photo {
+    width: 150px;
+    height: 150px;
+  }
+  .carousel-card.side .card-photo {
+    width: 90px;
+    height: 90px;
+  }
+  .carousel-card.active {
+    flex: 0 0 220px;
+  }
+  .carousel-card.side {
+    flex: 0 0 160px;
+  }
+  .carousel-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+  }
+  .leadership-card h3 {
+    font-size: 1.3rem;
+  }
+  .leadership-card p {
+    font-size: 1.1rem;
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-  .leadership-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1.5rem;
-    justify-items: center;
+  .carousel-card.active {
+    flex: 0 0 240px;
   }
-
-  .leadership-card {
-    width: 100%;
+  .carousel-card.side {
+    flex: 0 0 180px;
   }
 }

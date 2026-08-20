@@ -236,7 +236,7 @@ th:hover .sort-icon {
     background: white;
     border-radius: 20px;
     padding: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.08);
     border: 1px solid #e2e8f0;
 }
 .user-card-header {
