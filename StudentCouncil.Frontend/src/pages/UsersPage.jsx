@@ -281,7 +281,6 @@ export default function UsersPage() {
                                 <table className="users-table">
                                     <thead>
                                         <tr>
-                                            <th onClick={() => handleSort('level')}>Уровень{renderSortIcon('level')}</th>
                                             <th onClick={() => handleSort('firstName')}>Имя{renderSortIcon('firstName')}</th>
                                             <th onClick={() => handleSort('lastName')}>Фамилия{renderSortIcon('lastName')}</th>
                                             <th onClick={() => handleSort('group')}>Группа{renderSortIcon('group')}</th>
@@ -294,7 +293,6 @@ export default function UsersPage() {
                                     <tbody>
                                         {sortedUsers.map(user => (
                                             <tr key={user.id} className={user.role === 'Admin' ? 'admin-row' : (user.role === 'Leader' ? 'leader-row' : '')}>
-                                                <td>{user.level}</td>
                                                 <td>{escapeHtml(user.firstName)}</td>
                                                 <td>{escapeHtml(user.lastName)}</td>
                                                 <td>{escapeHtml(user.group || '—')}</td>
