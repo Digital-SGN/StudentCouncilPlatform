@@ -14,9 +14,9 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
 
     const isEditMode = !!userId;
 
-    const canEditRoleAndStatus = isAdmin && !isOwnProfile;          
-    const canEditStats = isAdmin && !isOwnProfile;                 
-    const showStatsForSelf = isAdmin && isOwnProfile;              
+    const canEditRoleAndStatus = isAdmin && !isOwnProfile;
+    const canEditStats = isAdmin && !isOwnProfile;
+    const showStatsForSelf = isAdmin && isOwnProfile;
 
     useEffect(() => {
         if (isOpen && userId) loadUser();
@@ -88,7 +88,6 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
             data.password = formData.password;
         }
 
-        // Добавляем дополнительные поля в зависимости от прав
         if (canEditRoleAndStatus) {
             data.role = formData.role;
             data.isActive = formData.isActive;
@@ -134,10 +133,26 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
                                 <div className="form-group"><label>Фамилия *</label><input type="text" name="lastName" value={formData.lastName} onChange={handleChange} required /></div>
                             </div>
                             <div className="form-group"><label>Отчество</label><input type="text" name="patronymic" value={formData.patronymic} onChange={handleChange} /></div>
-                            <div className="form-row">
-                                <div className="form-group"><label>Email *</label><input type="email" name="email" value={formData.email} onChange={handleChange} required /></div>
-                                {!isEditMode && <div className="form-group"><label>Пароль *</label><input type="password" name="password" value={formData.password} onChange={handleChange} required /></div>}
+
+                            <div className="form-group">
+                                <label>Email *</label>
+                                <input 
+                                    type="email" 
+                                    name="email" 
+                                    value={formData.email} 
+                                    onChange={handleChange} 
+                                    required 
+                                    disabled={!isAdmin}
+                                />
                             </div>
+
+                            {!isEditMode && (
+                                <div className="form-group">
+                                    <label>Пароль *</label>
+                                    <input type="password" name="password" value={formData.password} onChange={handleChange} required />
+                                </div>
+                            )}
+
                             <div className="form-row">
                                 <div className="form-group"><label>Группа</label><input type="text" name="group" value={formData.group} onChange={handleChange} /></div>
                                 <div className="form-group"><label>Телефон</label><input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} /></div>
@@ -153,6 +168,7 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
                                 </div>
                             </div>
                             <div className="form-group"><label>Дата рождения</label><input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} /></div>
+
                             {canEditRoleAndStatus && (
                                 <div className="form-row">
                                     <div className="form-group"><label>Роль</label>

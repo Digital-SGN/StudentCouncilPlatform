@@ -137,6 +137,15 @@ public class UserService : IUserService
                 return ServiceResult.Forbidden("У вас нет прав на редактирование этого пользователя");
             }
 
+            if (isAdminOrLeader && !string.IsNullOrEmpty(dto.Email) && dto.Email != user.Email)
+            {
+                var existingUser = await _userManager.FindByEmailAsync(dto.Email);
+                if (existingUser != null && existingUser.Id != user.Id)
+                {
+                    return ServiceResult.Conflict("Пользователь с таким email уже существует");
+                }
+            }
+
             Mapper.UpdateUserEntity(user, dto, isAdminOrLeader);
 
             if (isAdminOrLeader)
@@ -193,7 +202,12 @@ public class UserService : IUserService
                 await _userManager.AddToRoleAsync(user, dto.Role);
             }
 
-            await _userManager.UpdateAsync(user);
+            IdentityResult updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                var errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
+                return ServiceResult.BadRequest($"Ошибка обновления: {errors}");
+            }
 
             _logger.Info($"Пользователь {currentUserId} изменил данные профиля");
             return ServiceResult.Ok("Данные успешно обновлены");

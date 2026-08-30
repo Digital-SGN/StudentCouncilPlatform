@@ -70,6 +70,14 @@ public static class Mapper
 
         if (isAdminOrLeader)
         {
+            if (!string.IsNullOrEmpty(dto.Email))
+            {
+                user.Email = dto.Email;
+                user.UserName = dto.Email;  
+                user.NormalizedEmail = dto.Email.ToUpperInvariant();
+                user.NormalizedUserName = dto.Email.ToUpperInvariant();
+            }
+
             user.IsActive = dto.IsActive;
             user.JoinedAt = dto.JoinedAt.ToUniversalTime();
             user.Balance = dto.Balance;
