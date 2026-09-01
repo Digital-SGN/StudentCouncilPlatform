@@ -3,7 +3,7 @@
 **Полноценное веб-приложение** для управления студенческим советом: учёт участников, организация мероприятий, выдача бейджей, система уровней и баллов.
 
 [![C#](https://img.shields.io/badge/C%23-8.0-blue.svg)](https://dotnet.microsoft.com/download)
-[![React](https://img.shields.io/badge/React-18.0-blue.svg)](https://reactjs.org/)
+[![React](https://img.shields.io/badge/React-19.0-blue.svg)](https://reactjs.org/)
 
 
 ## Состояние проекта
