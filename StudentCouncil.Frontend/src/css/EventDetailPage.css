@@ -313,7 +313,7 @@
 }
 
 .add-member-section {
-    margin-top: 16px;
+    margin-top: 100px;
     text-align: right;
 }
 
@@ -321,12 +321,14 @@
     background: linear-gradient(135deg, #0CBFA1 0%, #148C9C 100%);
     color: white;
     border: none;
-    padding: 10px 30px;
+    padding: 10px 20px;
     border-radius: 25px;
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
     transition: all 0.2s;
+    margin-top: 15px;         
+    display: inline-block;  
 }
 
 .add-member-btn:hover {

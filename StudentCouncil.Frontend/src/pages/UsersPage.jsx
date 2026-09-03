@@ -238,9 +238,20 @@ export default function UsersPage() {
                                 {sortedUsers.map(user => (
                                     <div key={user.id} className="user-card">
                                         <div className="user-card-header">
-                                            <div className="user-name">{user.lastName} {user.firstName}</div>
-                                            <div className={`role-badge ${user.role === 'Admin' ? 'admin' : (user.role === 'Leader' ? 'leader' : 'member')}`}>
-                                                {user.role === 'Admin' ? 'Админ' : (user.role === 'Leader' ? 'Руководство' : 'Участник')}
+                                            <div className="user-avatar-wrapper">
+                                                {user.avatarPath ? (
+                                                    <img src={user.avatarPath} alt="Аватар" className="user-avatar-img" />
+                                                ) : (
+                                                    <div className="user-avatar-placeholder">
+                                                        {user.firstName?.[0]}{user.lastName?.[0]}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="user-card-info">
+                                                <div className="user-name">{user.lastName} {user.firstName}</div>
+                                                <div className={`role-badge ${user.role === 'Admin' ? 'admin' : (user.role === 'Leader' ? 'leader' : 'member')}`}>
+                                                    {user.role === 'Admin' ? 'Админ' : (user.role === 'Leader' ? 'Руководство' : 'Участник')}
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="user-card-body">

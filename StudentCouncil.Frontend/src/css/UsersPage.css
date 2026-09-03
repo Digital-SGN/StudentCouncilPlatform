@@ -284,3 +284,53 @@ th:hover .sort-icon {
 @media (max-width: 700px) {
     .users-table th:nth-child(5), .users-table td:nth-child(5) { display: none; }
 }
+
+.user-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+.user-avatar-wrapper {
+    flex-shrink: 0;
+}
+.user-avatar-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e2e8f0;
+}
+.user-avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0CBFA1, #148C9C);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border: 2px solid #e2e8f0;
+}
+.user-card-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.user-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.user-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    flex-wrap: nowrap; 
+}

@@ -54,7 +54,16 @@ export default function EventDetailPage() {
         const loadUsers = async () => {
             const result = await API.getUsers();
             if (result.ok) {
-                setUsersList(result.data.users || []);
+                const users = result.data.users || [];
+
+                users.sort((a, b) => {
+                    const lastNameA = a.lastName.toLowerCase();
+                    const lastNameB = b.lastName.toLowerCase();
+                    if (lastNameA < lastNameB) return -1;
+                    if (lastNameA > lastNameB) return 1;
+                    return 0;
+                });
+                setUsersList(users);
             }
         };
         loadUsers();
