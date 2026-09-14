@@ -71,7 +71,7 @@ th:hover .sort-icon {
 }
 .role-badge.admin { background: linear-gradient(135deg, #dc3545, #c82333); color: white; }
 .role-badge.leader { background: linear-gradient(135deg, #ffc107, #e0a800); color: #1a202c; }
-.role-badge.member { background: linear-gradient(135deg, #6c757d, #5a6268); color: white; }
+.role-badge.member { background: linear-gradient(135deg, #0CBFA1, #04b194); color: white; }
 .status-badge.active { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
 .status-badge.inactive { background: #fed7d7; color: #742a2a; border: 1px solid #fc8181; }
 .action-buttons {
@@ -302,8 +302,8 @@ th:hover .sort-icon {
     border: 2px solid #e2e8f0;
 }
 .user-avatar-placeholder {
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     background: linear-gradient(135deg, #0CBFA1, #148C9C);
     color: white;
