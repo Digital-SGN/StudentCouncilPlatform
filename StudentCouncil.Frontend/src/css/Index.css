@@ -414,3 +414,13 @@ input, textarea, select, [contenteditable="true"] {
 .help-link:hover {
     text-decoration: underline;
 }
+
+main.main-login {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-wrapper-login footer {
+    margin-top: 0;
+}

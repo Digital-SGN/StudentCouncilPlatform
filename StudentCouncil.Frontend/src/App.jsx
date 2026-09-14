@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { API } from './api';
@@ -24,6 +24,7 @@ import './css/HelpPage.css';
 function AppContent() {
     const { user, setUser, loading } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleLogout = async () => {
         await API.logout();
@@ -33,22 +34,27 @@ function AppContent() {
 
     if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
 
+    const isLoginPage = location.pathname === '/login';
+
     return (
-        <div className="app-wrapper">
+        <div className={`app-wrapper ${isLoginPage ? 'app-wrapper-login' : ''}`}>
             <Header onLogout={handleLogout} />
-            <main>
-                <div className="container">
-                    <Routes>
-                        <Route path="/" element={<HomePage />} />
-                        <Route path="/login" element={<LoginPage setUser={setUser} />} />
-                        <Route path="/users" element={<UsersPage />} />
-                        <Route path="/users/:id" element={<ProfilePage />} />
-                        <Route path="/analytics" element={<AnalyticsPage />} />
-                        <Route path="/events" element={<EventsPage />} />
-                        <Route path="/events/:id" element={<EventDetailPage />} />
-                        <Route path="/help" element={<HelpPage />} />
-                    </Routes>
-                </div>
+            <main className={isLoginPage ? 'main-login' : ''}>
+                {isLoginPage ? (
+                    <LoginPage setUser={setUser} />
+                ) : (
+                    <div className="container">
+                        <Routes>
+                            <Route path="/" element={<HomePage />} />
+                            <Route path="/users" element={<UsersPage />} />
+                            <Route path="/users/:id" element={<ProfilePage />} />
+                            <Route path="/analytics" element={<AnalyticsPage />} />
+                            <Route path="/events" element={<EventsPage />} />
+                            <Route path="/events/:id" element={<EventDetailPage />} />
+                            <Route path="/help" element={<HelpPage />} />
+                        </Routes>
+                    </div>
+                )}
             </main>
             <Footer />
         </div>

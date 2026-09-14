@@ -249,22 +249,40 @@ export default function LoginPage({ setUser }) {
         </form>
     );
 
-    return (
+ return (
         <div className="login-page fade-in">
-            <Bubbles />
-            <div className="login-container">
-                <div className="login-logo">
-                    <img src={logo} alt="Лого" style={{ width: '120px', height: '82px' }} />
+            <div className="login-bg-circles">
+                <ul className="login-bg-list">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                </ul>
+            </div>
+
+            <div className="login-layout">
+                <div className="login-hero">
+                    <h2 className="login-hero-title">Студсовет СГН</h2>
+                    <p className="login-hero-subtitle">
+                        Развиваем студенческую жизнь, организуем мероприятия, поддерживаем инициативы
+                    </p>
                 </div>
-                <h1>Добро пожаловать!</h1>
 
-                {step === 'login' && renderLoginForm()}
-                {step === 'setup' && renderSetupForm()}
-                {step === 'verify' && renderVerifyForm()}
+                <div className="login-container">
+                    <div className="login-logo">
+                        <img src={logo} alt="Лого" />
+                    </div>
+                    <h1>Добро пожаловать!</h1>
 
-                <div className="help-row">
-                    <div className="help-link">
-                        <a href="/help">Помощь</a>
+                    {step === 'login' && renderLoginForm()}
+                    {step === 'setup' && renderSetupForm()}
+                    {step === 'verify' && renderVerifyForm()}
+
+                    <div className="help-row">
+                        <div className="help-link">
+                            <a href="/help">Помощь</a>
+                        </div>
                     </div>
                 </div>
             </div>
