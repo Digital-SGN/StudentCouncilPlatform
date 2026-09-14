@@ -28,7 +28,7 @@
         return { ok: true, status: response.status, data };
     },
 
-    /* Работа с сессией*/
+    /* Работа с сессией */
     async login(email, password) {
         return this.request('/account/login', {
             method: 'POST',
@@ -52,13 +52,6 @@
 
     async getTwoFactorStatus() {
         return this.request('/account/2fa/status');
-    },
-
-    async resetTwoFactor(userId) { 
-        return this.request('/account/2fa', {
-            method: 'DELETE',
-            body: JSON.stringify({ userId }) 
-        });
     },
 
     async logout() {
@@ -94,7 +87,7 @@
 
     async updateUser(id, data) {
         return this.request(`/users/${id}`, {
-            method: 'PUT',  
+            method: 'PUT',
             body: JSON.stringify(data)
         });
     },
@@ -125,15 +118,13 @@
     },
 
     async resetPassword(userId, newPassword) {
-    return this.request(`/users/${userId}/reset-password`, {
-        method: 'POST',
-        body: JSON.stringify({ newPassword })
-    });
+        return this.request(`/users/${userId}/reset-password`, {
+            method: 'POST',
+            body: JSON.stringify({ newPassword })
+        });
     },
 
-    /**/
-
-     /* Мероприятия */
+    /* Мероприятия */
     async getEvents() {
         return this.request('/events');
     },
@@ -150,7 +141,6 @@
     },
 
     async updateEvent(id, data) {
-        console.log('Updating event:', id, data); // <- добавьте
         return this.request(`/events/${id}`, {
             method: 'PUT',
             body: JSON.stringify(data)
@@ -162,9 +152,29 @@
             method: 'DELETE'
         });
     },
-    /**/
 
-    /* Бейджы */
+    async uploadEventPhoto(eventId, formData) {
+        const response = await fetch(`/api/events/${eventId}/photo`, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include'
+        });
+        if (response.ok) return { ok: true };
+        const error = await response.json().catch(() => ({}));
+        return { ok: false, error: error.error || 'Ошибка загрузки фото' };
+    },
+
+    async deleteEventPhoto(eventId) {
+        const response = await fetch(`/api/events/${eventId}/photo`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        if (response.ok) return { ok: true };
+        const error = await response.json().catch(() => ({}));
+        return { ok: false, error: error.error || 'Ошибка удаления фото' };
+    },
+
+    /* Бейджи */
     async getBadgesByUser(userId) {
         return this.request(`/users/${userId}/badges`);
     },
@@ -197,9 +207,9 @@
         return false;
     },
 
-        async uploadBadgeFile(badgeId, formData) {
-        const response = await fetch(`/api/badges/${badgeId}/file`, {  
-            method: 'POST',  
+    async uploadBadgeFile(badgeId, formData) {
+        const response = await fetch(`/api/badges/${badgeId}/file`, {
+            method: 'POST',
             body: formData,
             credentials: 'include'
         });
@@ -235,5 +245,4 @@
     async deleteBadge(id) {
         return this.request(`/badges/${id}`, { method: 'DELETE' });
     },
-    /**/
 };

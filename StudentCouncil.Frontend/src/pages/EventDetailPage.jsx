@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-    faCalendar, faMapMarkerAlt, faUser, faLink, 
+import {
+    faCalendar, faMapMarkerAlt, faUser, faLink,
     faEdit, faTrashAlt, faEye, faDownload, faUpload, faFileAlt, faUsers, faMoneyBillWave
 } from '@fortawesome/free-solid-svg-icons';
 import { API } from '../api';
@@ -31,18 +31,18 @@ export default function EventDetailPage() {
     const isAdmin = user?.role === 'Admin';
     const isLeader = user?.role === 'Leader';
     const canView = isAdmin || isLeader;
-    
+
     const [event, setEvent] = useState(null);
     const [badges, setBadges] = useState([]);
     const [usersMap, setUsersMap] = useState(new Map());
     const [usersList, setUsersList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+
     const [showEditModal, setShowEditModal] = useState(false);
     const [showRoleModal, setShowRoleModal] = useState(false);
     const [showAddMemberModal, setShowAddMemberModal] = useState(false);
-    
+
     const [editingBadge, setEditingBadge] = useState({ id: null, userId: null, role: '' });
     const [selectedRole, setSelectedRole] = useState('');
     const [selectedUserId, setSelectedUserId] = useState('');
@@ -80,19 +80,19 @@ export default function EventDetailPage() {
     const loadData = async () => {
         try {
             setLoading(true);
-            
+
             const eventResult = await API.getEvent(id);
             if (!eventResult.ok) {
                 setError(eventResult.data?.error || 'Мероприятие не найдено');
                 return;
             }
             setEvent(eventResult.data);
-            
+
             const badgesResult = await API.getBadgesByEvent(id);
             if (badgesResult.ok) {
                 setBadges(badgesResult.data.badges || []);
             }
-            
+
             const usersResult = await API.getUsers();
             if (usersResult.ok) {
                 const map = new Map();
@@ -201,25 +201,37 @@ export default function EventDetailPage() {
     const statusClass = getStatusClass(event.status);
 
     const roleStyles = {
-        'Главный организатор': { background: '#0CBFA1', color: 'white' },           
-        'Организатор': { background: '#148C9C', color: 'white' },                  
-        'Медиа': { background: '#FF6B6B', color: 'white' },                        
-        'Техпод': { background: '#4ECDC4', color: 'white' },                      
-        'Волонтёр': { background: '#FFE66D', color: '#2d3748' },                  
+        'Главный организатор': { background: '#0CBFA1', color: 'white' },
+        'Организатор': { background: '#148C9C', color: 'white' },
+        'Медиа': { background: '#FF6B6B', color: 'white' },
+        'Техпод': { background: '#4ECDC4', color: 'white' },
+        'Волонтёр': { background: '#FFE66D', color: '#2d3748' },
     };
 
     return (
         <div className="event-detail-page fade-in">
             <Bubbles />
             <div className="event-detail-container">
-                <div className="event-detail-card">
+                <div className={`event-detail-card ${event.photoPath ? 'has-photo' : ''}`}>
                     <div className="event-detail-header">
                         <Link to="/events" className="back-link">← Назад к списку</Link>
-                        <div className="event-detail-title">
+                    </div>
+                    {event.photoPath ? (
+                        <div className="event-detail-hero">
+                            <img src={event.photoPath} alt={event.title} className="event-detail-hero-img" />
+                            <div className="event-detail-hero-overlay" />
+                            <div className="event-detail-hero-content">
+                                <h1>{event.title}</h1>
+                                <span className={`event-status-badge ${statusClass}`}>{statusText}</span>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="event-detail-title-plain">
                             <h1>{event.title}</h1>
                             <span className={`event-status-badge ${statusClass}`}>{statusText}</span>
                         </div>
-                    </div>
+                    )}
+
                     <div className="event-detail-body">
                         <div className="event-info-grid">
                             <div className="event-info-row">
@@ -237,8 +249,8 @@ export default function EventDetailPage() {
                                 <span className="event-info-label">Посещаемость:</span>
                                 <span className="event-info-value">
                                     {event.actualParticipants}  / {event.registeredParticipants}
-                                    ({event.registeredParticipants > 0 
-                                        ? Math.round(event.actualParticipants / event.registeredParticipants * 100) 
+                                    ({event.registeredParticipants > 0
+                                        ? Math.round(event.actualParticipants / event.registeredParticipants * 100)
                                         : 0}%)
                                 </span>
                             </div>
@@ -278,7 +290,6 @@ export default function EventDetailPage() {
                             </div>
                         )}
 
-
                         <div className="event-team-section">
                             <h3><FontAwesomeIcon icon={faUsers} /> Организаторский состав</h3>
                             {badges.length === 0 ? (
@@ -289,7 +300,7 @@ export default function EventDetailPage() {
                                         <div key={badge.id} className="team-card">
                                             <div className="team-card-row">
                                                 <span className="team-card-label">
-                                                     <Link to={`/users/${badge.userId}`} className="team-member-link">
+                                                    <Link to={`/users/${badge.userId}`} className="team-member-link">
                                                         {badge.userName}
                                                     </Link>
                                                 </span>
@@ -403,8 +414,8 @@ export default function EventDetailPage() {
                         <div className="modal-body">
                             <div className="form-group">
                                 <label>Участник</label>
-                                <select 
-                                    value={selectedUserId} 
+                                <select
+                                    value={selectedUserId}
                                     onChange={(e) => setSelectedUserId(Number(e.target.value))}
                                 >
                                     {usersList.map(u => (
@@ -416,8 +427,8 @@ export default function EventDetailPage() {
                             </div>
                             <div className="form-group">
                                 <label>Роль</label>
-                                <select 
-                                    value={selectedRole} 
+                                <select
+                                    value={selectedRole}
                                     onChange={(e) => setSelectedRole(e.target.value)}
                                 >
                                     <option value="Главный организатор">Главный организатор</option>

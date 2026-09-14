@@ -19,6 +19,10 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
     const [error, setError] = useState('');
     const [initialLoading, setInitialLoading] = useState(false);
 
+    const [photoFile, setPhotoFile] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState(null);
+    const [removePhoto, setRemovePhoto] = useState(false);
+
     const isEditMode = !!eventId;
 
     useEffect(() => {
@@ -56,6 +60,9 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
                 responsibleUserId: event.responsibleUserId || '',
                 status: event.status || 'Upcoming'
             });
+            setPhotoPreview(event.photoPath || null);
+            setPhotoFile(null);
+            setRemovePhoto(false);
         } else {
             setError('Ошибка загрузки мероприятия');
         }
@@ -75,6 +82,9 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
             responsibleUserId: '',
             status: 'Upcoming'
         });
+        setPhotoFile(null);
+        setPhotoPreview(null);
+        setRemovePhoto(false);
         setError('');
     };
 
@@ -85,40 +95,80 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
         });
     };
 
+    const handlePhotoChange = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setPhotoFile(file);
+        setPhotoPreview(URL.createObjectURL(file));
+        setRemovePhoto(false);
+    };
+
+    const handleRemovePhoto = () => {
+        setPhotoFile(null);
+        setPhotoPreview(null);
+        setRemovePhoto(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
-    const data = {
-        title: formData.title,
-        description: formData.description,
-        budget: formData.budget ? parseFloat(formData.budget) : null,
-        eventDate: new Date(formData.eventDate).toISOString(),
-        location: formData.location,
-        registeredParticipants: parseInt(formData.registeredParticipants) || 0,
-        actualParticipants: parseInt(formData.actualParticipants) || 0,
-        registrationLink: formData.registrationLink,
-        responsibleUserId: parseInt(formData.responsibleUserId)
-    };
+        const data = {
+            title: formData.title,
+            description: formData.description,
+            budget: formData.budget ? parseFloat(formData.budget) : null,
+            eventDate: new Date(formData.eventDate).toISOString(),
+            location: formData.location,
+            registeredParticipants: parseInt(formData.registeredParticipants) || 0,
+            actualParticipants: parseInt(formData.actualParticipants) || 0,
+            registrationLink: formData.registrationLink,
+            responsibleUserId: parseInt(formData.responsibleUserId)
+        };
 
         if (isEditMode && isAdmin) {
             data.status = formData.status;
         }
 
-        let result;
+        let eventIdToUse = eventId;
+
         if (isEditMode) {
-            result = await API.updateEvent(eventId, data);
+            const result = await API.updateEvent(eventId, data);
+            if (!result.ok) {
+                setError(result.data?.error || 'Ошибка сохранения');
+                setLoading(false);
+                return;
+            }
         } else {
-            result = await API.createEvent(data);
+            const result = await API.createEvent(data);
+            if (!result.ok) {
+                setError(result.data?.error || 'Ошибка создания');
+                setLoading(false);
+                return;
+            }
+            eventIdToUse = result.data.id;
         }
 
-        if (result.ok) {
-            onSuccess();
-            onClose();
-        } else {
-            setError(result.data?.error || 'Ошибка сохранения');
+        if (photoFile) {
+            const fd = new FormData();
+            fd.append('photo', photoFile);
+            const photoRes = await API.uploadEventPhoto(eventIdToUse, fd);
+            if (!photoRes.ok) {
+                setError(photoRes.data?.error || 'Ошибка загрузки фото');
+                setLoading(false);
+                return;
+            }
+        } else if (removePhoto && isEditMode) {
+            const delRes = await API.deleteEventPhoto(eventIdToUse);
+            if (!delRes.ok) {
+                setError(delRes.data?.error || 'Ошибка удаления фото');
+                setLoading(false);
+                return;
+            }
         }
+
+        onSuccess();
+        onClose();
         setLoading(false);
     };
 
@@ -148,17 +198,40 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
                                 <label>Описание</label>
                                 <textarea name="description" rows="4" value={formData.description} onChange={handleChange} />
                             </div>
+
                             <div className="form-group">
-                                <label>Бюджет (₽)</label>
-                                <input 
-                                    type="number" 
-                                    step="0.01" 
-                                    name="budget" 
-                                    value={formData.budget} 
-                                    onChange={handleChange} 
-                                    placeholder="0.00" 
+                                <label>Фото мероприятия</label>
+                                {photoPreview && (
+                                    <div className="photo-preview-wrapper">
+                                        <img src={photoPreview} alt="Превью" className="photo-preview" />
+                                        <button
+                                            type="button"
+                                            className="btn-remove-photo"
+                                            onClick={handleRemovePhoto}
+                                        >
+                                            Удалить фото
+                                        </button>
+                                    </div>
+                                )}
+                                <input
+                                    type="file"
+                                    accept=".jpg,.jpeg,.png,.gif"
+                                    onChange={handlePhotoChange}
                                 />
                             </div>
+
+                            <div className="form-group">
+                                <label>Бюджет (₽)</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    name="budget"
+                                    value={formData.budget}
+                                    onChange={handleChange}
+                                    placeholder="0.00"
+                                />
+                            </div>
+
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>Дата и время *</label>
@@ -169,6 +242,7 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
                                     <input type="text" name="location" value={formData.location} onChange={handleChange} required />
                                 </div>
                             </div>
+
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>Зарегистрировалось</label>
@@ -179,6 +253,7 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
                                     <input type="number" min="0" name="actualParticipants" value={formData.actualParticipants} onChange={handleChange} />
                                 </div>
                             </div>
+
                             <div className="form-group">
                                 <label>Ссылка на регистрацию</label>
                                 <input type="url" name="registrationLink" placeholder="https://..." value={formData.registrationLink} onChange={handleChange} />

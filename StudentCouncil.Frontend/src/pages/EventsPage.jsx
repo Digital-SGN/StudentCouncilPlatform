@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-    faCalendar, faMapMarkerAlt, faUser, faLink, 
+import {
+    faCalendar, faMapMarkerAlt, faUser, faLink,
     faEdit, faTrashAlt, faEye, faPlus, faCalendarDay, faMoneyBillWave,
     faSort, faSortUp, faSortDown, faSearch, faFileExport, faUsers
 } from '@fortawesome/free-solid-svg-icons';
@@ -19,16 +19,16 @@ export default function EventsPage() {
     const isAdmin = user?.role === 'Admin';
     const isLeader = user?.role === 'Leader';
     const canView = isAdmin || isLeader;
-    
+
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [usersMap, setUsersMap] = useState(new Map());
-    
+
     const [searchTerm, setSearchTerm] = useState('');
     const [sortField, setSortField] = useState('eventDate');
     const [sortOrder, setSortOrder] = useState('asc');
-    
+
     const [modalState, setModalState] = useState({ isOpen: false, eventId: null });
     const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, eventId: null });
 
@@ -47,15 +47,15 @@ export default function EventsPage() {
             if (result.ok) {
                 const eventsList = result.data.events || [];
                 setEvents(eventsList);
-                
+
                 const responsibleIds = [...new Set(eventsList.map(e => e.responsibleUserId).filter(id => id))];
                 const map = new Map();
                 await Promise.all(
                     responsibleIds.map(async (userId) => {
                         const userResult = await API.getUser(userId);
                         if (userResult.ok) {
-                            const user = userResult.data;
-                            map.set(userId, `${user.lastName} ${user.firstName} ${user.patronymic || ''}`.trim());
+                            const u = userResult.data;
+                            map.set(userId, `${u.lastName} ${u.firstName} ${u.patronymic || ''}`.trim());
                         }
                     })
                 );
@@ -106,7 +106,7 @@ export default function EventsPage() {
 
     const renderSortIcon = (field) => {
         if (sortField !== field) return <FontAwesomeIcon icon={faSort} className="sort-icon" />;
-        return sortOrder === 'asc' 
+        return sortOrder === 'asc'
             ? <FontAwesomeIcon icon={faSortUp} className="sort-icon" />
             : <FontAwesomeIcon icon={faSortDown} className="sort-icon" />;
     };
@@ -215,7 +215,7 @@ export default function EventsPage() {
                         )}
                     </div>
                 </div>
-                
+
                 {sortedEvents.length === 0 ? (
                     <div className="empty-state">
                         <div className="empty-icon"><FontAwesomeIcon icon={faCalendarDay} /></div>
@@ -226,6 +226,12 @@ export default function EventsPage() {
                     <div className="events-grid">
                         {sortedEvents.map(event => (
                             <div key={event.id} className="event-card">
+                                {event.photoPath && (
+                                    <div
+                                        className="event-card-photo"
+                                        style={{ backgroundImage: `url(${event.photoPath})` }}
+                                    />
+                                )}
                                 <div className="event-card-header">
                                     <div className="event-title">{event.title}</div>
                                     <div className={`event-status ${getStatusClass(event.status)}`}>
@@ -260,8 +266,8 @@ export default function EventsPage() {
                                                     {event.actualParticipants} / {event.registeredParticipants} ({event.registeredParticipants > 0 ? Math.round(event.actualParticipants / event.registeredParticipants * 100) : 0}%)
                                                 </div>
                                                 <div className="progress-bar">
-                                                    <div 
-                                                        className="progress-fill" 
+                                                    <div
+                                                        className="progress-fill"
                                                         style={{ width: `${event.registeredParticipants > 0 ? (event.actualParticipants / event.registeredParticipants * 100) : 0}%` }}
                                                     />
                                                 </div>
@@ -277,7 +283,7 @@ export default function EventsPage() {
                                             <div className="event-info-item">
                                                 <span className="event-info-icon"><FontAwesomeIcon icon={faLink} /></span>
                                                 <a href={event.registrationLink} target="_blank" rel="noopener noreferrer" className="event-link">
-                                                    Ссылка пока никуда:(
+                                                    Ссылка на регистрацию
                                                 </a>
                                             </div>
                                         )}

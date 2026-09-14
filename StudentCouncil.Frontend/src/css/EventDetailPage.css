@@ -26,9 +26,10 @@
 }
 
 .back-link {
-    color: rgba(255, 255, 255, 0.8);
+    color: white;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 18px;
+    font-weight: bold;
     display: inline-block;
     margin-bottom: 16px;
 }
@@ -49,6 +50,7 @@
 .event-detail-title h1 {
     margin: 0;
     color: white;
+    font-weight: 400;
     font-size: 30px;
 }
 
@@ -562,4 +564,103 @@
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+.event-detail-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.event-detail-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px; 
+}
+
+.event-detail-hero {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    overflow: hidden;
+    margin: 0 -1px;
+}
+
+.event-detail-hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.event-detail-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.15) 0%,
+        rgba(0, 0, 0, 0.55) 70%,
+        rgba(0, 0, 0, 0.75) 100%
+    );
+    pointer-events: none;
+}
+
+.event-detail-hero-content {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    z-index: 1;
+}
+
+.event-detail-hero-content h1 {
+    color: #fff;
+    margin: 0;
+    font-size: 28px;
+    font-weight: bold;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+    flex: 1 1 auto;
+}
+
+.event-detail-title-plain {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px 12px;
+}
+
+.event-detail-card.has-photo .event-detail-body {
+    padding-top: 16px;
+}
+
+@media (max-width: 576px) {
+    .event-detail-hero {
+        height: 220px;
+        margin: 0;
+        border-radius: 0;
+    }
+    .event-detail-hero-content {
+        left: 16px;
+        right: 16px;
+        bottom: 14px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .event-detail-hero-content h1 {
+        font-size: 20px;
+        line-height: 1.25;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .event-detail-hero-content .event-status-badge {
+        font-size: 12px;
+        padding: 4px 10px;
+    }
 }
