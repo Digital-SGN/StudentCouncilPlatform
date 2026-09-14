@@ -6,11 +6,16 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:5247',  
+        target: 'http://localhost:5247',
         changeOrigin: true,
         secure: false
       },
       '/avatars': {
+        target: 'http://localhost:5247',
+        changeOrigin: true,
+        secure: false
+      },
+      '/event-images': {
         target: 'http://localhost:5247',
         changeOrigin: true,
         secure: false
