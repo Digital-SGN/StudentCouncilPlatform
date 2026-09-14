@@ -37,7 +37,7 @@ public class EventController : BaseController
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateAsync([FromBody] CreateEventDTO dto)
     {
-        ServiceResult result = await _eventService.CreateEventAsync(dto, User);
+        ServiceResult<EventResponseDTO> result = await _eventService.CreateEventAsync(dto, User);
         return HandleServiceResult(result);
     }
 
@@ -54,6 +54,23 @@ public class EventController : BaseController
     public async Task<IActionResult> DeleteAsync(int id)
     {
         ServiceResult result = await _eventService.DeleteEventAsync(id, User);
+        return HandleServiceResult(result);
+    }
+
+    [HttpPost("{id}/photo")]
+    [Authorize(Roles = "Admin")]
+    [RequestSizeLimit(10_485_760)]
+    public async Task<IActionResult> UploadPhotoAsync(int id, IFormFile photo)
+    {
+        ServiceResult result = await _eventService.UpdateEventPhotoAsync(id, photo, User);
+        return HandleServiceResult(result);
+    }
+
+    [HttpDelete("{id}/photo")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeletePhotoAsync(int id)
+    {
+        ServiceResult result = await _eventService.DeleteEventPhotoAsync(id, User);
         return HandleServiceResult(result);
     }
 }

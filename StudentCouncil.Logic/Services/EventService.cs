@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using StudentCouncil.Data;
 using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.DTOs;
@@ -10,11 +11,16 @@ namespace StudentCouncil.Logic.Services
     public class EventService : IEventService
     {
         private readonly AppDbContext _context;
+        private readonly IFileStorageService _fileStorage;
         private readonly ILoggerService _logger;
 
-        public EventService(AppDbContext context, ILoggerService logger)
+        public const string eventsFolder = "event-images";
+        public static readonly string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+
+        public EventService(AppDbContext context, IFileStorageService fileStorage, ILoggerService logger)
         {
             _context = context;
+            _fileStorage = fileStorage;
             _logger = logger;
         }
 
@@ -63,7 +69,7 @@ namespace StudentCouncil.Logic.Services
             }
         }
 
-        public async Task<ServiceResult> CreateEventAsync(CreateEventDTO dto, ClaimsPrincipal currentUser)
+        public async Task<ServiceResult<EventResponseDTO>> CreateEventAsync(CreateEventDTO dto, ClaimsPrincipal currentUser)
         {
             try
             {
@@ -73,7 +79,7 @@ namespace StudentCouncil.Logic.Services
                 if (responsibleUser == null)
                 {
                     _logger.Warning($"Попытка создать мероприятие с несуществующим ответственным {dto.ResponsibleUserId}");
-                    return ServiceResult.NotFound("Ответственный пользователь не найден");
+                    return ServiceResult<EventResponseDTO>.NotFound("Ответственный пользователь не найден");
                 }
 
                 Event ev = Mapper.ToEventEntity(dto);
@@ -82,12 +88,12 @@ namespace StudentCouncil.Logic.Services
                 await _context.SaveChangesAsync();
                 _logger.Info($"Мероприятие '{ev.Title}' создано пользователем {currentUserId}");
 
-                return ServiceResult.Created("Мероприятие успешно создано");
+                return ServiceResult<EventResponseDTO>.Ok(Mapper.ToEventDTO(ev));
             }
             catch (Exception ex)
             {
                 _logger.Error($"Ошибка создания мероприятия: {ex.Message}");
-                return ServiceResult.InternalError("Ошибка создания мероприятия");
+                return ServiceResult<EventResponseDTO>.InternalError("Ошибка создания мероприятия");
             }
         }
 
@@ -147,6 +153,66 @@ namespace StudentCouncil.Logic.Services
             {
                 _logger.Error($"Ошибка удаления мероприятия {id}: {ex.Message}");
                 return ServiceResult.InternalError("Ошибка удаления мероприятия");
+            }
+        }
+
+        public async Task<ServiceResult> UpdateEventPhotoAsync(int id, IFormFile photo, ClaimsPrincipal currentUser)
+        {
+            try
+            {
+                int currentUserId = GetCurrentUserId(currentUser);
+
+                Event? ev = await _context.Events.FindAsync(id);
+                if (ev == null)
+                    return ServiceResult.NotFound("Мероприятие не найдено");
+
+                if (photo == null || photo.Length == 0)
+                    return ServiceResult.BadRequest("Файл не выбран");
+
+                _fileStorage.DeleteFile(ev.PhotoPath);
+
+                try
+                {
+                    string prefix = $"{id}_";
+                    ev.PhotoPath = await _fileStorage.SaveFileAsync(photo, eventsFolder, imageExtensions, prefix);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return ServiceResult.BadRequest(ex.Message);
+                }
+
+                await _context.SaveChangesAsync();
+                _logger.Info($"Фото мероприятия {id} обновлено пользователем {currentUserId}");
+                return ServiceResult.Ok("Фото успешно загружено");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Ошибка загрузки фото мероприятия {id}: {ex.Message}");
+                return ServiceResult.InternalError("Ошибка загрузки фото");
+            }
+        }
+
+        public async Task<ServiceResult> DeleteEventPhotoAsync(int id, ClaimsPrincipal currentUser)
+        {
+            try
+            {
+                int currentUserId = GetCurrentUserId(currentUser);
+
+                Event? ev = await _context.Events.FindAsync(id);
+                if (ev == null)
+                    return ServiceResult.NotFound("Мероприятие не найдено");
+
+                _fileStorage.DeleteFile(ev.PhotoPath);
+                ev.PhotoPath = null;
+                await _context.SaveChangesAsync();
+
+                _logger.Info($"Фото мероприятия {id} удалено пользователем {currentUserId}");
+                return ServiceResult.Ok("Фото удалено");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Ошибка удаления фото мероприятия {id}: {ex.Message}");
+                return ServiceResult.InternalError("Ошибка удаления фото");
             }
         }
     }

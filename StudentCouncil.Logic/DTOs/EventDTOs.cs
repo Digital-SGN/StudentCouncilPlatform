@@ -37,6 +37,7 @@ namespace StudentCouncil.Logic.DTOs
         public string Location { get; set; } = string.Empty;
         public int RegisteredParticipants { get; set; }
         public int ActualParticipants { get; set; }
+        public string? PhotoPath { get; set; }
         public string RegistrationLink { get; set; } = string.Empty;
         public EventStatus Status { get; set; }
         public int ResponsibleUserId { get; set; }

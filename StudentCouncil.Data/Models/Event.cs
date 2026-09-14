@@ -29,6 +29,8 @@ public class Event
     public int ActualParticipants { get; set; } = 0;
     [MaxLength(200)]
     public string RegistrationLink { get; set; } = string.Empty;
+    [MaxLength(200)]
+    public string? PhotoPath { get; set; }
     public EventStatus Status { get; set; } = EventStatus.Upcoming;
     [Required]
     public int ResponsibleUserId { get; set; }

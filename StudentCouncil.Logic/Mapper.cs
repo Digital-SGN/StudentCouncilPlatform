@@ -98,6 +98,7 @@ public static class Mapper
             Location = ev.Location,
             RegisteredParticipants = ev.RegisteredParticipants,
             ActualParticipants = ev.ActualParticipants,
+            PhotoPath = ev.PhotoPath,
             RegistrationLink = ev.RegistrationLink,
             Status = ev.Status,
             ResponsibleUserId = ev.ResponsibleUserId,

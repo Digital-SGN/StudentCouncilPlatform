@@ -123,4 +123,10 @@ using (var scope = app.Services.CreateScope())
     await SeedData.Initialize(services);
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.Run();
