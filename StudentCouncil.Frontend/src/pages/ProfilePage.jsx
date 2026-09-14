@@ -46,10 +46,12 @@ export default function ProfilePage() {
     const { id } = useParams();
     const { user: currentUser } = useAuth();
 
-    const userId = id || currentUser?.id;
+    const userId = id ?? currentUser?.id;
     const isAdmin = currentUser?.role === 'Admin';
     const isLeader = currentUser?.role === 'Leader';
-    const isOwnProfile = currentUser?.id === userId;
+    const isOwnProfile = currentUser?.id != null && String(currentUser.id) === String(userId);
+    const hasAccess = isOwnProfile || isAdmin || isLeader
+
     const canEdit = isOwnProfile || isAdmin;
 
     const [user, setUser] = useState(null);
