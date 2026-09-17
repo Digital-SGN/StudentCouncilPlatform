@@ -43,7 +43,7 @@ export default function Header({ onLogout }) {
             <nav className="navbar navbar-expand-sm navbar-light">
                 <div className="container-fluid">
                     <Link className="navbar-brand" to="/" onClick={closeMenu}>
-                        <img src={logo} alt="Лого" style={{ height: '35px' }} /> Студсовет
+                         Студсовет
                     </Link>
                     <button 
                         className="navbar-toggler" 

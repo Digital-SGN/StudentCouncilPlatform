@@ -88,7 +88,7 @@ main {
 .nav-link {
     color: var(--dark) !important;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16px;
     transition: color 0.3s ease;
     text-decoration: none;
     padding: 8px 16px;
@@ -332,7 +332,7 @@ button.nav-link:hover {
 
 .nav-text {
     color:#0CBFA1;   
-    font-size: 20px;           
+    font-size: 18px;           
     font-weight: bold;
     padding: 8px 16px;
     display: inline-block;
@@ -390,13 +390,15 @@ input, textarea, select, [contenteditable="true"] {
 
 .social-icons {
     display: flex;
-    gap: 16px;
 }
 
 .social-icons a {
     color: #0CBFA1;
     font-size: 2.5rem;      
     transition: color 0.2s, transform 0.2s;
+    display: inline-flex;      
+    align-items: center;
+    line-height: 1;          
 }
 
 .social-icons a:hover {
@@ -409,6 +411,7 @@ input, textarea, select, [contenteditable="true"] {
     text-decoration: none;
     font-size: 0.9rem;
     transition: color 0.2s;
+    margin-top: -1px;
 }
 
 .help-link:hover {
