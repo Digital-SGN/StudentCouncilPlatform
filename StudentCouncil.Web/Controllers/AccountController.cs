@@ -48,10 +48,24 @@ public class AccountController : BaseController
         else
         {
             var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, false);
+
+            if (result.Succeeded)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                return Ok(new LoginResponseDTO
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Role = roles.FirstOrDefault() ?? "Member"
+                });
+            }
+
             if (result.RequiresTwoFactor)
             {
                 return StatusCode(403, new { requiresTwoFactorCode = true });
             }
+
             return Unauthorized(new { error = "Неверный email или пароль" });
         }
     }
