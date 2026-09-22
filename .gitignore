@@ -82,4 +82,7 @@ Desktop.ini
 StudentCouncil.Web/wwwroot/avatars/
 StudentCouncil.Web/wwwroot/badges/
 StudentCouncil.Web/wwwroot/event-images/
-StudentCouncil.Web/wwwroot/music/
+StudentCouncil.Web/wwwroot/music/.env
+get-docker.sh
+
+.env
