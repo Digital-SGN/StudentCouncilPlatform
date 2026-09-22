@@ -1,13 +1,13 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16
     container_name: studentcouncil_db
+    ports:
+      - "127.0.0.1:5432:5432"
     environment:
       POSTGRES_DB: studsovet
       POSTGRES_USER: studsovet_admin
-      POSTGRES_PASSWORD: Demonrux201
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
