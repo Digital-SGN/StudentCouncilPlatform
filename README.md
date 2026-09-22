@@ -73,66 +73,22 @@ StudentCouncil/
 
 ## Архитектура
 
-**Слоистый монолит.** Один backend-процесс, три слоя:
-
-```
-StudentCouncil.WebApi   ← контроллеры, HTTP
-       ↓
-StudentCouncil.Logic    ← сервисы, DTO, бизнес-логика
-       ↓
-StudentCouncil.Data     ← EF Core, модели, миграции
-       ↓
-    PostgreSQL
-```
-
-Frontend — отдельное SPA на React, общается с backend по REST API.
-
 ---
 
 ## Локальный запуск
-
-**Требования:** .NET 8 SDK, Node.js 20+, PostgreSQL 16 (или Docker).
-
-```bash
-# 1. Backend
-dotnet ef database update --project StudentCouncil.Data --startup-project StudentCouncil.WebApi
-dotnet run --project StudentCouncil.WebApi
-
-# 2. Frontend (в отдельном терминале)
-cd StudentCouncil.Frontend
-npm install
-npm run dev
-```
-
-Сайт откроется на `http://localhost:5173`, API — на `http://localhost:8080`.
-
-Подробнее — в [справочнике отдела](https://github.com/<org>/digital-department-handbook).
 
 ---
 
 ## Docker
 
-```bash
-docker-compose up -d
-```
-
-Поднимает backend и PostgreSQL. Nginx на хосте раздаёт статику и проксирует `/api`.
-
 ---
 
-## Документация API
-
-Swagger UI доступен в dev-режиме: `http://localhost:8080/swagger`
-
-Спецификация: [`openapi.yaml`](openapi.yaml)
-
----
 
 ## Ссылки
 
 - Сайт: [studsovetsgn.ru](https://studsovetsgn.ru)
-- Справочник отдела: [digital-department-handbook](https://github.com/<org>/digital-department-handbook)
-- Организация на GitHub: [github.com/&lt;org&gt;](https://github.com/<org>)
+- Справочник отдела: [Handbook](https://github.com/Digital-SGN/Handbook)
+- Организация на GitHub: [Digital-SGN](https://github.com/Digital-SGN)
 
 ---
 
