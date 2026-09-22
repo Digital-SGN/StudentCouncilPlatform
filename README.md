@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://studsovetsgn.ru"><img src="https://img.shields.io/badge/сайт-studsovetsgn.ru-0CBFA1" /></a>
+  <a href="https://studsovetsgn.ru"><img src="https://img.shields.io/badge/studsovetsgn.ru-0CBFA1" /></a>
   <img src="https://img.shields.io/badge/.NET-8.0-512BD4" />
   <img src="https://img.shields.io/badge/React-19-61DAFB" />
   <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1" />
