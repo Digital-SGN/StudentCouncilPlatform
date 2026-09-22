@@ -47,7 +47,7 @@ StudentCouncil/
 
 ##  Документация API
 
-- [Swagger UI](https://digital-sgn.github.io/StudentCouncilPlatform-AP)
+- [Swagger UI](https://digital-sgn.github.io/StudentCouncilPlatform-API)
 - [openapi.yaml](openapi.yaml) — спецификация в репозитории
 - Swagger в dev-режиме: `http://localhost:8080/swagger`
 
