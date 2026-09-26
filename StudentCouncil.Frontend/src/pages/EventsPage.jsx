@@ -27,7 +27,7 @@ export default function EventsPage() {
 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortField, setSortField] = useState('eventDate');
-    const [sortOrder, setSortOrder] = useState('asc');
+    const [sortOrder, setSortOrder] = useState('desc');
 
     const [modalState, setModalState] = useState({ isOpen: false, eventId: null });
     const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, eventId: null });
