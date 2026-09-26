@@ -582,8 +582,11 @@
 
 .event-card-photo {
     height: 160px;
+    width: 100%;
     background-size: cover;
     background-position: center;
-    border-radius: 12px 12px 0 0;
-    margin: -1px -1px 12px -1px;
+    background-repeat: no-repeat;
+    display: block;
+    margin: 0;               
+    border-radius: 0;        
 }
