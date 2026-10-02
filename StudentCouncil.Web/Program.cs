@@ -7,6 +7,7 @@ using StudentCouncil.Data;
 using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.Interfaces;
 using StudentCouncil.Logic.Services;
+using StudentCouncil.Web.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -107,6 +108,8 @@ app.UseStaticFiles(new StaticFileOptions
 {
     ContentTypeProvider = provider
 });
+
+app.UseMiddleware<StudentCouncil.Web.Middlewares.ExceptionMiddleware>();
 
 app.UseRouting();
 

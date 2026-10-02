@@ -18,9 +18,8 @@ public class Badge
     [MaxLength(100)]
     public string Role { get; set; } = string.Empty;
 
-    [Required]
     [MaxLength(500)]
-    public string FilePath { get; set; } = string.Empty;
+    public string? FilePath { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

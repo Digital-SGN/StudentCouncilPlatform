@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using StudentCouncil.Logic.DTOs;
 using StudentCouncil.Logic.Interfaces;
-using StudentCouncil.Logic.Services;
 
 namespace StudentCouncil.Web.Controllers;
 
@@ -21,57 +20,54 @@ public class BadgeController : BaseController
     [HttpGet("~/api/users/{userId}/badges")]
     public async Task<IActionResult> GetByUser(int userId)
     {
-        ServiceResult<BadgeListResponseDTO> result = await _badgeService.GetBadgesByUserAsync(userId, User);
-        return HandleServiceResult(result);
+        BadgeListResponseDTO result = await _badgeService.GetBadgesByUserAsync(userId, User);
+        return Ok(result);
     }
-
 
     [HttpGet("~/api/events/{eventId}/badges")]
     [Authorize(Roles = "Admin,Leader")]
     public async Task<IActionResult> GetByEvent(int eventId)
     {
-        ServiceResult<BadgeListResponseDTO> result = await _badgeService.GetBadgesByEventAsync(eventId, User);
-        return HandleServiceResult(result);
+        BadgeListResponseDTO result = await _badgeService.GetBadgesByEventAsync(eventId, User);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
-        ServiceResult<BadgeResponseDTO> result = await _badgeService.GetBadgeByIdAsync(id, User);
-        return HandleServiceResult(result);
+        BadgeResponseDTO result = await _badgeService.GetBadgeByIdAsync(id, User);
+        return Ok(result);
     }
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromForm] CreateBadgeDTO dto, IFormFile? file)
     {
-        ServiceResult result = await _badgeService.CreateBadgeAsync(dto, file, User);
-        return HandleServiceResult(result);
+        await _badgeService.CreateBadgeAsync(dto, file, User);
+        return StatusCode(201, new { message = "Бейдж успешно создан" });
     }
 
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateBadgeDTO dto)
     {
-        ServiceResult result = await _badgeService.UpdateBadgeAsync(id, dto, User);
-        return HandleServiceResult(result);
+        await _badgeService.UpdateBadgeAsync(id, dto, User);
+        return Ok(new { message = "Бейдж успешно обновлён" });
     }
 
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        ServiceResult result = await _badgeService.DeleteBadgeAsync(id, User);
-        return HandleServiceResult(result);
+        await _badgeService.DeleteBadgeAsync(id, User);
+        return Ok(new { message = "Бейдж успешно удалён" });
     }
 
     [HttpGet("{id}/file")]
     public async Task<IActionResult> DownloadBadgeFile(int id)
     {
-        ServiceResult<(byte[] FileContent, string ContentType, string FileName)> result = await _badgeService.DownloadBadgeAsync(id, User);
-        if (!result.Success)
-            return HandleServiceResult(result);
-        return File(result.Data.FileContent, result.Data.ContentType, result.Data.FileName);
+        var (fileContent, contentType, fileName) = await _badgeService.DownloadBadgeAsync(id, User);
+        return File(fileContent, contentType, fileName);
     }
 
     [HttpPost("{id}/file")]
@@ -79,15 +75,15 @@ public class BadgeController : BaseController
     [RequestSizeLimit(10_485_760)]
     public async Task<IActionResult> UploadBadgeFile(int id, IFormFile file)
     {
-        ServiceResult result = await _badgeService.UploadBadgeFileAsync(id, file, User);
-        return HandleServiceResult(result);
+        await _badgeService.UploadBadgeFileAsync(id, file, User);
+        return Ok(new { message = "Файл успешно загружен" });
     }
 
     [HttpDelete("{id}/file")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteBadgeFile(int id)
     {
-        ServiceResult result = await _badgeService.DeleteBadgeFileAsync(id, User);
-        return HandleServiceResult(result);
+        await _badgeService.DeleteBadgeFileAsync(id, User);
+        return Ok(new { message = "Файл бейджа успешно удалён" });
     }
 }

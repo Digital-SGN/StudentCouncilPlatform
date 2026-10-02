@@ -155,7 +155,7 @@ public static class Mapper
         };
     }
 
-    public static Badge ToBadgeEntity(CreateBadgeDTO dto, string filePath)
+    public static Badge ToBadgeEntity(CreateBadgeDTO dto, string? filePath)
     {
         return new Badge
         {

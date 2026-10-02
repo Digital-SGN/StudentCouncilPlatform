@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StudentCouncil.Logic.Interfaces;
-using StudentCouncil.Logic.Services;
 using StudentCouncil.Logic.DTOs;
+using StudentCouncil.Logic.Exceptions;
+using StudentCouncil.Logic.Interfaces;
 
 namespace StudentCouncil.Web.Controllers;
 
@@ -21,41 +21,40 @@ public class UserController : BaseController
     [Authorize(Roles = "Admin,Leader")]
     public async Task<IActionResult> GetAllAsync()
     {
-        ServiceResult<UserListResponseDTO> result = await _userService.GetAllUsersAsync();
-        return HandleServiceResult(result);
+        UserListResponseDTO result = await _userService.GetAllUsersAsync();
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
     [Authorize]
     public async Task<IActionResult> GetByIdAsync(int id)
     {
-        ServiceResult<UserDTO> result = await _userService.GetUserByIdAsync(id, User);
-        return HandleServiceResult(result);
+        UserDTO result = await _userService.GetUserByIdAsync(id, User);
+        return Ok(result);
     }
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateAsync([FromBody] CreateUserDTO dto)
     {
-        ServiceResult result = await _userService.CreateUserAsync(dto, dto.Password);
-        return HandleServiceResult(result);
+        await _userService.CreateUserAsync(dto, dto.Password);
+        return StatusCode(201, new { message = "Пользователь успешно создан" });  // ← 201
     }
-
 
     [HttpPut("{id}")]
     [Authorize]
     public async Task<IActionResult> UpdateAsync(int id, [FromBody] UpdateUserDTO dto)
     {
-        ServiceResult result = await _userService.UpdateUserAsync(id, dto, User);
-        return HandleServiceResult(result);
+        await _userService.UpdateUserAsync(id, dto, User);
+        return Ok(new { message = "Данные успешно обновлены" });
     }
 
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteAsync(int id)
     {
-        ServiceResult result = await _userService.DeleteUserAsync(id, User);
-        return HandleServiceResult(result);
+        await _userService.DeleteUserAsync(id, User);
+        return Ok(new { message = "Пользователь успешно удалён" });
     }
 
     [HttpPost("{id}/avatar")]
@@ -63,16 +62,16 @@ public class UserController : BaseController
     [RequestSizeLimit(10_485_760)]
     public async Task<IActionResult> UploadAvatarAsync(int id, IFormFile avatar)
     {
-        ServiceResult result = await _userService.UpdateAvatarAsync(id, avatar, User);
-        return HandleServiceResult(result);
+        await _userService.UpdateAvatarAsync(id, avatar, User);
+        return Ok(new { message = "Аватар успешно загружен" });
     }
 
     [HttpDelete("{id}/avatar")]
     [Authorize]
     public async Task<IActionResult> DeleteAvatarAsync(int id)
     {
-        ServiceResult result = await _userService.DeleteAvatarAsync(id, User);
-        return HandleServiceResult(result);
+        await _userService.DeleteAvatarAsync(id, User);
+        return Ok(new { message = "Аватар успешно удалён" });
     }
 
     [HttpPost("{id}/reset-password")]
@@ -80,9 +79,9 @@ public class UserController : BaseController
     public async Task<IActionResult> ResetPasswordAsync(int id, [FromBody] ResetPasswordDTO dto)
     {
         if (string.IsNullOrWhiteSpace(dto.NewPassword))
-            return BadRequest(new { error = "Новый пароль не может быть пустым" });
+            throw new BadRequestException("Новый пароль не может быть пустым");
 
-        var result = await _userService.ResetPasswordAsync(id, dto.NewPassword, User);
-        return HandleServiceResult(result);
+        await _userService.ResetPasswordAsync(id, dto.NewPassword, User);
+        return Ok(new { message = "Пароль успешно изменён" });
     }
 }

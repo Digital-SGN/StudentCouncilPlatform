@@ -3,217 +3,173 @@ using Microsoft.EntityFrameworkCore;
 using StudentCouncil.Data;
 using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.DTOs;
+using StudentCouncil.Logic.Exceptions;
 using StudentCouncil.Logic.Interfaces;
 using System.Security.Claims;
 
-namespace StudentCouncil.Logic.Services
+namespace StudentCouncil.Logic.Services;
+
+public class EventService : IEventService
 {
-    public class EventService : IEventService
+    private readonly AppDbContext _context;
+    private readonly IFileStorageService _fileStorage;
+    private readonly ILoggerService _logger;
+
+    public const string eventsFolder = "event-images";
+    public static readonly string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+
+    public EventService(AppDbContext context, IFileStorageService fileStorage, ILoggerService logger)
     {
-        private readonly AppDbContext _context;
-        private readonly IFileStorageService _fileStorage;
-        private readonly ILoggerService _logger;
+        _context = context;
+        _fileStorage = fileStorage;
+        _logger = logger;
+    }
 
-        public const string eventsFolder = "event-images";
-        public static readonly string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+    private static int GetCurrentUserId(ClaimsPrincipal user)
+    {
+        var userIdStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0";
+        return int.Parse(userIdStr);
+    }
 
-        public EventService(AppDbContext context, IFileStorageService fileStorage, ILoggerService logger)
+    public async Task<EventListResponseDTO> GetAllEventsAsync()
+    {
+        List<Event> events = await _context.Events
+            .Where(e => !e.IsDeleted)
+            .ToListAsync();
+
+        List<EventResponseDTO> eventDtos = [.. events.Select(Mapper.ToEventDTO)];
+
+        return new EventListResponseDTO
         {
-            _context = context;
-            _fileStorage = fileStorage;
-            _logger = logger;
+            Count = eventDtos.Count,
+            Events = eventDtos
+        };
+    }
+
+    public async Task<EventResponseDTO> GetEventByIdAsync(int id)
+    {
+        Event? ev = await _context.Events
+            .Where(e => !e.IsDeleted)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (ev == null)
+            throw new NotFoundException("Мероприятие не найдено");
+
+        return Mapper.ToEventDTO(ev);
+    }
+
+    public async Task<EventResponseDTO> CreateEventAsync(CreateEventDTO dto, ClaimsPrincipal currentUser)
+    {
+        int currentUserId = GetCurrentUserId(currentUser);
+
+        User? responsibleUser = await _context.Users.FindAsync(dto.ResponsibleUserId);
+        if (responsibleUser == null)
+        {
+            _logger.Warning($"Попытка создать мероприятие с несуществующим ответственным {dto.ResponsibleUserId}");
+            throw new NotFoundException("Ответственный пользователь не найден");
         }
 
-        private static int GetCurrentUserId(ClaimsPrincipal user)
+        Event ev = Mapper.ToEventEntity(dto);
+
+        _context.Events.Add(ev);
+        await _context.SaveChangesAsync();
+        _logger.Info($"Мероприятие '{ev.Title}' создано пользователем {currentUserId}");
+
+        return Mapper.ToEventDTO(ev);
+    }
+
+    public async Task UpdateEventAsync(int id, UpdateEventDTO dto, ClaimsPrincipal currentUser)
+    {
+        int currentUserId = GetCurrentUserId(currentUser);
+
+        Event? ev = await _context.Events
+            .Where(e => !e.IsDeleted)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (ev == null)
+            throw new NotFoundException("Мероприятие не найдено");
+
+        if (ev.ResponsibleUserId != dto.ResponsibleUserId)
         {
-            var userIdStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0";
-            return int.Parse(userIdStr);
-        }
-
-        public async Task<ServiceResult<EventListResponseDTO>> GetAllEventsAsync()
-        {
-            try
+            User? responsibleUser = await _context.Users.FindAsync(dto.ResponsibleUserId);
+            if (responsibleUser == null)
             {
-                IQueryable<Event> query = _context.Events.AsQueryable();
-                int count = await query.CountAsync();
-                List<Event> events = await query.ToListAsync();
-                List<EventResponseDTO> eventDtos = [.. events.Select(Mapper.ToEventDTO)];
-
-                return ServiceResult<EventListResponseDTO>.Ok(new EventListResponseDTO
-                {
-                    Count = count,
-                    Events = eventDtos
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"Ошибка получения списка мероприятий: {ex.Message}");
-                return ServiceResult<EventListResponseDTO>.InternalError("Ошибка получения списка мероприятий");
-            }
-        }
-
-        public async Task<ServiceResult<EventResponseDTO>> GetEventByIdAsync(int id)
-        {
-            try
-            {
-                Event? ev = await _context.Events.FirstOrDefaultAsync(e => e.Id == id);
-                if (ev == null)
-                    return ServiceResult<EventResponseDTO>.NotFound("Мероприятие не найдено");
-
-                return ServiceResult<EventResponseDTO>.Ok(Mapper.ToEventDTO(ev));
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"Ошибка получения мероприятия {id}: {ex.Message}");
-                return ServiceResult<EventResponseDTO>.InternalError("Ошибка получения мероприятия");
-            }
-        }
-
-        public async Task<ServiceResult<EventResponseDTO>> CreateEventAsync(CreateEventDTO dto, ClaimsPrincipal currentUser)
-        {
-            try
-            {
-                int currentUserId = GetCurrentUserId(currentUser);
-
-                User? responsibleUser = await _context.Users.FindAsync(dto.ResponsibleUserId);
-                if (responsibleUser == null)
-                {
-                    _logger.Warning($"Попытка создать мероприятие с несуществующим ответственным {dto.ResponsibleUserId}");
-                    return ServiceResult<EventResponseDTO>.NotFound("Ответственный пользователь не найден");
-                }
-
-                Event ev = Mapper.ToEventEntity(dto);
-
-                _context.Events.Add(ev);
-                await _context.SaveChangesAsync();
-                _logger.Info($"Мероприятие '{ev.Title}' создано пользователем {currentUserId}");
-
-                return ServiceResult<EventResponseDTO>.Ok(Mapper.ToEventDTO(ev));
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"Ошибка создания мероприятия: {ex.Message}");
-                return ServiceResult<EventResponseDTO>.InternalError("Ошибка создания мероприятия");
+                _logger.Warning($"Попытка обновить мероприятие с несуществующим ответственным {dto.ResponsibleUserId}");
+                throw new NotFoundException("Ответственный пользователь не найден");
             }
         }
 
-        public async Task<ServiceResult> UpdateEventAsync(int id, UpdateEventDTO dto, ClaimsPrincipal currentUser)
+        Mapper.UpdateEventEntity(ev, dto);
+
+        await _context.SaveChangesAsync();
+        _logger.Info($"Мероприятие '{ev.Title}' обновлено пользователем {currentUserId}");
+    }
+
+    public async Task DeleteEventAsync(int id, ClaimsPrincipal currentUser)
+    {
+        int currentUserId = GetCurrentUserId(currentUser);
+
+        Event? ev = await _context.Events
+            .Where(e => !e.IsDeleted)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (ev == null)
         {
-            try
-            {
-                int currentUserId = GetCurrentUserId(currentUser);
-
-                Event? ev = await _context.Events.FindAsync(id);
-                if (ev == null)
-                    return ServiceResult.NotFound("Мероприятие не найдено");
-
-                if (ev.ResponsibleUserId != dto.ResponsibleUserId)
-                {
-                    User? responsibleUser = await _context.Users.FindAsync(dto.ResponsibleUserId);
-                    if (responsibleUser == null)
-                    {
-                        _logger.Warning($"Попытка обновить мероприятие с несуществующим ответственным {dto.ResponsibleUserId}");
-                        return ServiceResult.NotFound("Ответственный пользователь не найден");
-                    }
-                }
-
-                Mapper.UpdateEventEntity(ev, dto);
-
-                await _context.SaveChangesAsync();
-                _logger.Info($"Мероприятие '{ev.Title}' обновлено пользователем {currentUserId}");
-
-                return ServiceResult.Ok("Мероприятие успешно обновлено");
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"Ошибка обновления мероприятия {id}: {ex.Message}");
-                return ServiceResult.InternalError("Ошибка обновления мероприятия");
-            }
+            _logger.Warning($"Попытка удалить несуществующее мероприятие {id}");
+            throw new NotFoundException("Мероприятие не найдено");
         }
 
-        public async Task<ServiceResult> DeleteEventAsync(int id, ClaimsPrincipal currentUser)
+        ev.IsDeleted = true;
+        await _context.SaveChangesAsync();
+
+        _logger.Info($"Мероприятие '{ev.Title}' (ID: {id}) помечено как удалённое пользователем {currentUserId}");
+    }
+
+    public async Task UpdateEventPhotoAsync(int id, IFormFile photo, ClaimsPrincipal currentUser)
+    {
+        int currentUserId = GetCurrentUserId(currentUser);
+
+        Event? ev = await _context.Events
+            .Where(e => !e.IsDeleted)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (ev == null)
+            throw new NotFoundException("Мероприятие не найдено");
+
+        if (photo == null || photo.Length == 0)
+            throw new BadRequestException("Файл не выбран");
+
+        _fileStorage.DeleteFile(ev.PhotoPath);
+
+        try
         {
-            try
-            {
-                int currentUserId = GetCurrentUserId(currentUser);
-
-                Event? ev = await _context.Events.FindAsync(id);
-                if (ev == null)
-                {
-                    _logger.Warning($"Попытка удалить несуществующее мероприятие {id}");
-                    return ServiceResult.NotFound("Мероприятие не найдено");
-                }
-
-                _context.Events.Remove(ev);
-                await _context.SaveChangesAsync();
-                _logger.Info($"Мероприятие '{ev.Title}' (ID: {id}) удалено пользователем {currentUserId}");
-                return ServiceResult.Ok("Мероприятие успешно удалено");
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"Ошибка удаления мероприятия {id}: {ex.Message}");
-                return ServiceResult.InternalError("Ошибка удаления мероприятия");
-            }
+            string prefix = $"{id}_";
+            ev.PhotoPath = await _fileStorage.SaveFileAsync(photo, eventsFolder, imageExtensions, prefix);
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new BadRequestException(ex.Message);
         }
 
-        public async Task<ServiceResult> UpdateEventPhotoAsync(int id, IFormFile photo, ClaimsPrincipal currentUser)
-        {
-            try
-            {
-                int currentUserId = GetCurrentUserId(currentUser);
+        await _context.SaveChangesAsync();
+        _logger.Info($"Фото мероприятия {id} обновлено пользователем {currentUserId}");
+    }
 
-                Event? ev = await _context.Events.FindAsync(id);
-                if (ev == null)
-                    return ServiceResult.NotFound("Мероприятие не найдено");
+    public async Task DeleteEventPhotoAsync(int id, ClaimsPrincipal currentUser)
+    {
+        int currentUserId = GetCurrentUserId(currentUser);
 
-                if (photo == null || photo.Length == 0)
-                    return ServiceResult.BadRequest("Файл не выбран");
+        Event? ev = await _context.Events
+            .Where(e => !e.IsDeleted)
+            .FirstOrDefaultAsync(e => e.Id == id);
 
-                _fileStorage.DeleteFile(ev.PhotoPath);
+        if (ev == null)
+            throw new NotFoundException("Мероприятие не найдено");
 
-                try
-                {
-                    string prefix = $"{id}_";
-                    ev.PhotoPath = await _fileStorage.SaveFileAsync(photo, eventsFolder, imageExtensions, prefix);
-                }
-                catch (InvalidOperationException ex)
-                {
-                    return ServiceResult.BadRequest(ex.Message);
-                }
+        _fileStorage.DeleteFile(ev.PhotoPath);
+        ev.PhotoPath = null;
+        await _context.SaveChangesAsync();
 
-                await _context.SaveChangesAsync();
-                _logger.Info($"Фото мероприятия {id} обновлено пользователем {currentUserId}");
-                return ServiceResult.Ok("Фото успешно загружено");
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"Ошибка загрузки фото мероприятия {id}: {ex.Message}");
-                return ServiceResult.InternalError("Ошибка загрузки фото");
-            }
-        }
-
-        public async Task<ServiceResult> DeleteEventPhotoAsync(int id, ClaimsPrincipal currentUser)
-        {
-            try
-            {
-                int currentUserId = GetCurrentUserId(currentUser);
-
-                Event? ev = await _context.Events.FindAsync(id);
-                if (ev == null)
-                    return ServiceResult.NotFound("Мероприятие не найдено");
-
-                _fileStorage.DeleteFile(ev.PhotoPath);
-                ev.PhotoPath = null;
-                await _context.SaveChangesAsync();
-
-                _logger.Info($"Фото мероприятия {id} удалено пользователем {currentUserId}");
-                return ServiceResult.Ok("Фото удалено");
-            }
-            catch (Exception ex)
-            {
-                _logger.Error($"Ошибка удаления фото мероприятия {id}: {ex.Message}");
-                return ServiceResult.InternalError("Ошибка удаления фото");
-            }
-        }
+        _logger.Info($"Фото мероприятия {id} удалено пользователем {currentUserId}");
     }
 }

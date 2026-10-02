@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentCouncil.Logic.DTOs;
-using StudentCouncil.Logic.Services;
 using StudentCouncil.Logic.Interfaces;
 
 namespace StudentCouncil.Web.Controllers;
@@ -21,40 +20,40 @@ public class EventController : BaseController
     [Authorize(Roles = "Admin,Leader")]
     public async Task<IActionResult> GetAllAsync()
     {
-        ServiceResult<EventListResponseDTO> result = await _eventService.GetAllEventsAsync();
-        return HandleServiceResult(result);
+        EventListResponseDTO result = await _eventService.GetAllEventsAsync();
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin,Leader")]
     public async Task<IActionResult> GetByIdAsync(int id)
     {
-        ServiceResult<EventResponseDTO> result = await _eventService.GetEventByIdAsync(id);
-        return HandleServiceResult(result);
+        EventResponseDTO result = await _eventService.GetEventByIdAsync(id);
+        return Ok(result);
     }
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateAsync([FromBody] CreateEventDTO dto)
     {
-        ServiceResult<EventResponseDTO> result = await _eventService.CreateEventAsync(dto, User);
-        return HandleServiceResult(result);
+        EventResponseDTO result = await _eventService.CreateEventAsync(dto, User);
+        return StatusCode(201, result);   
     }
 
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateAsync(int id, [FromBody] UpdateEventDTO dto)
     {
-        ServiceResult result = await _eventService.UpdateEventAsync(id, dto, User);
-        return HandleServiceResult(result);
+        await _eventService.UpdateEventAsync(id, dto, User);
+        return Ok(new { message = "Мероприятие успешно обновлено" });
     }
 
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteAsync(int id)
     {
-        ServiceResult result = await _eventService.DeleteEventAsync(id, User);
-        return HandleServiceResult(result);
+        await _eventService.DeleteEventAsync(id, User);
+        return Ok(new { message = "Мероприятие успешно удалено" });
     }
 
     [HttpPost("{id}/photo")]
@@ -62,15 +61,15 @@ public class EventController : BaseController
     [RequestSizeLimit(10_485_760)]
     public async Task<IActionResult> UploadPhotoAsync(int id, IFormFile photo)
     {
-        ServiceResult result = await _eventService.UpdateEventPhotoAsync(id, photo, User);
-        return HandleServiceResult(result);
+        await _eventService.UpdateEventPhotoAsync(id, photo, User);
+        return Ok(new { message = "Фото успешно загружено" });
     }
 
     [HttpDelete("{id}/photo")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeletePhotoAsync(int id)
     {
-        ServiceResult result = await _eventService.DeleteEventPhotoAsync(id, User);
-        return HandleServiceResult(result);
+        await _eventService.DeleteEventPhotoAsync(id, User);
+        return Ok(new { message = "Фото удалено" });
     }
 }
