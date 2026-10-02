@@ -330,7 +330,6 @@ flowchart LR
 ### Обработка ошибок
 
 ```mermaid
-mermaid
 flowchart TB
     Service[Service] -->|успех| Controller[Controller]
     Service -->|throw AppException| Middleware[ExceptionMiddleware]
