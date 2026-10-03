@@ -36,10 +36,10 @@
         });
     },
 
-    async setupTwoFactor(email, code) {
+    async setupTwoFactor(email, code, setupToken) {
         return this.request('/account/2fa/activation', {
             method: 'POST',
-            body: JSON.stringify({ email, code })
+            body: JSON.stringify({ email, code, setupToken })
         });
     },
 

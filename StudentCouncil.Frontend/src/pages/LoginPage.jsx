@@ -81,6 +81,7 @@ export default function LoginPage({ setUser }) {
     const [rememberDevice, setRememberDevice] = useState(false);
     const [code, setCode] = useState('');
     const [qrUri, setQrUri] = useState('');
+    const [setupToken, setSetupToken] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -107,6 +108,7 @@ export default function LoginPage({ setUser }) {
                 const { authenticatorUri } = result.data;
                 const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(authenticatorUri)}`;
                 setQrUri(qrUrl);
+                setSetupToken(setupToken ?? '');
                 setStep('setup');
             }
             else if (result.status === 403) {
@@ -128,11 +130,17 @@ export default function LoginPage({ setUser }) {
         setError('');
         setLoading(true);
         try {
-            const result = await API.setupTwoFactor(email, code);
+            const result = await API.setupTwoFactor(email, code, setupToken);
             if (result.ok) {
                 const fullUser = await API.getCurrentUser();
                 setUser(fullUser);
                 navigate('/');
+            } else if (result.status === 401) {
+                setStep('login');
+                setCode('');
+                setSetupToken('');
+                setQrUri('');
+                setError('Сессия настройки истекла. Войдите заново.');
             } else {
                 setError(result.data?.error || 'Неверный код. Попробуйте снова.');
             }

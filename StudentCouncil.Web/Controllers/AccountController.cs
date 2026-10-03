@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using StudentCouncil.Data.Models;
@@ -13,11 +14,19 @@ public class AccountController : BaseController
 {
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
+    private readonly ITimeLimitedDataProtector _setupTokenProtector;
 
-    public AccountController(SignInManager<User> signInManager, UserManager<User> userManager, ILoggerService logger) : base(logger)
+    private static readonly TimeSpan SetupTokenLifetime = TimeSpan.FromMinutes(10);
+
+    public AccountController(
+        SignInManager<User> signInManager,
+        UserManager<User> userManager,
+        IDataProtectionProvider dataProtectionProvider,
+        ILoggerService logger) : base(logger)
     {
         _signInManager = signInManager;
         _userManager = userManager;
+        _setupTokenProtector = dataProtectionProvider.CreateProtector("AccountController.TwoFactorSetup").ToTimeLimitedDataProtector();
     }
 
     [HttpPost("login")]
@@ -32,42 +41,51 @@ public class AccountController : BaseController
             return Unauthorized(new { error = "Неверный email или пароль" });
 
         bool isTwoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
+
         if (!isTwoFactorEnabled)
         {
-            var key = await _userManager.GetAuthenticatorKeyAsync(user);
+            string? key = await _userManager.GetAuthenticatorKeyAsync(user);
             if (string.IsNullOrEmpty(key))
             {
                 await _userManager.ResetAuthenticatorKeyAsync(user);
                 key = await _userManager.GetAuthenticatorKeyAsync(user);
             }
+
             string issuer = "Студсовет СГН";
-            string prefix = issuer; 
-            var uri = $"otpauth://totp/{Uri.EscapeDataString($"{prefix}:{user.Email}")}?secret={key}&issuer={Uri.EscapeDataString(issuer)}&digits=6";
-            return StatusCode(402, new TwoFactorSetupResponseDTO { SharedKey = key, AuthenticatorUri = uri });
+            string uri =
+                $"otpauth://totp/{Uri.EscapeDataString($"{issuer}:{user.Email}")}" +
+                $"?secret={key}&issuer={Uri.EscapeDataString(issuer)}&digits=6";
+
+            string setupToken = _setupTokenProtector.Protect(
+                user.Id.ToString(),
+                SetupTokenLifetime);
+
+            return StatusCode(402, new TwoFactorSetupResponseDTO
+            {
+                SharedKey = key,
+                AuthenticatorUri = uri,
+                SetupToken = setupToken
+            });
         }
-        else
+
+        var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, false);
+
+        if (result.Succeeded)
         {
-            var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, false);
-
-            if (result.Succeeded)
+            IList<string> roles = await _userManager.GetRolesAsync(user);
+            return Ok(new LoginResponseDTO
             {
-                var roles = await _userManager.GetRolesAsync(user);
-                return Ok(new LoginResponseDTO
-                {
-                    Id = user.Id,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Role = roles.FirstOrDefault() ?? "Member"
-                });
-            }
-
-            if (result.RequiresTwoFactor)
-            {
-                return StatusCode(403, new { requiresTwoFactorCode = true });
-            }
-
-            return Unauthorized(new { error = "Неверный email или пароль" });
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Role = roles.FirstOrDefault() ?? "Member"
+            });
         }
+
+        if (result.RequiresTwoFactor)
+            return StatusCode(403, new { requiresTwoFactorCode = true });
+
+        return Unauthorized(new { error = "Неверный email или пароль" });
     }
 
     [HttpPost("logout")]
@@ -83,6 +101,8 @@ public class AccountController : BaseController
     public async Task<ActionResult<CurrentUserDTO>> GetCurrentUserAsync()
     {
         User? user = await _signInManager.UserManager.GetUserAsync(User);
+        if (user == null)
+            return Unauthorized();
 
         IList<string> roles = await _signInManager.UserManager.GetRolesAsync(user);
 
@@ -101,26 +121,52 @@ public class AccountController : BaseController
     [HttpPost("2fa/activation")]
     public async Task<IActionResult> SetupAndEnableTwoFactor([FromBody] TwoFactorSetupConfirmDTO dto)
     {
-        User? user = await _userManager.FindByEmailAsync(dto.Email);
-        if (user == null) 
-            return Unauthorized();
-
-        var key = await _userManager.GetAuthenticatorKeyAsync(user);
-        if (string.IsNullOrEmpty(key))
+        if (string.IsNullOrWhiteSpace(dto.SetupToken))
         {
-            await _userManager.ResetAuthenticatorKeyAsync(user);
-            key = await _userManager.GetAuthenticatorKeyAsync(user);
+            _logger.Warning("Попытка активации 2FA без токена настройки");
+            return Unauthorized(new { error = "Начните вход заново" });
         }
 
-        var isValid = await _userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultAuthenticatorProvider, dto.Code);
+        int userId;
+        try
+        {
+            string userIdStr = _setupTokenProtector.Unprotect(dto.SetupToken);
+            userId = int.Parse(userIdStr);
+        }
+        catch
+        {
+            _logger.Warning("Попытка активации 2FA с недействительным/истёкшим токеном");
+            return Unauthorized(new { error = "Токен настройки недействителен или истёк. Войдите заново." });
+        }
+
+        User? user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null || !user.IsActive)
+            return Unauthorized(new { error = "Токен настройки недействителен" });
+
+        if (!string.Equals(user.Email, dto.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.Warning($"2FA setup: несовпадение email для user {userId}");
+            return Unauthorized(new { error = "Токен настройки недействителен" });
+        }
+
+        string? key = await _userManager.GetAuthenticatorKeyAsync(user);
+        if (string.IsNullOrEmpty(key))
+        {
+            _logger.Warning($"2FA setup: у user {userId} отсутствует ключ");
+            return BadRequest(new { error = "Начните настройку 2FA заново" });
+        }
+
+        bool isValid = await _userManager.VerifyTwoFactorTokenAsync(
+            user, TokenOptions.DefaultAuthenticatorProvider, dto.Code);
         if (!isValid)
             return BadRequest(new { error = "Неверный код" });
 
         await _userManager.SetTwoFactorEnabledAsync(user, true);
-
         await _signInManager.SignInAsync(user, isPersistent: false);
 
-        var roles = await _userManager.GetRolesAsync(user);
+        _logger.Info($"2FA включена для пользователя {user.Id}");
+
+        IList<string> roles = await _userManager.GetRolesAsync(user);
         return Ok(new LoginResponseDTO
         {
             Id = user.Id,
@@ -141,7 +187,7 @@ public class AccountController : BaseController
         var result = await _signInManager.TwoFactorAuthenticatorSignInAsync(dto.Code, false, dto.RememberDevice);
         if (result.Succeeded)
         {
-            var roles = await _userManager.GetRolesAsync(user);
+            IList<string> roles = await _userManager.GetRolesAsync(user);
             return Ok(new LoginResponseDTO
             {
                 Id = user.Id,
