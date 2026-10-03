@@ -37,8 +37,18 @@
 ```text
 StudentCouncil/
 ├── StudentCouncil.Data/      # DbContext, модели, миграции
-├── StudentCouncil.Logic/     # DTO, интерфейсы, сервисы
-├── StudentCouncil.WebApi/    # Контроллеры, Program.cs, wwwroot
+│   ├── Models/
+│   └── Migrations/
+├── StudentCouncil.Logic/     # DTO, интерфейсы, сервисы, мапперы
+│   ├── DTOs/
+│   ├── Exceptions/           # AppException + конкретные исключения
+│   ├── Interfaces/
+│   ├── Services/
+│   └── Mapper.cs
+├── StudentCouncil.Web/       # Контроллеры, Program.cs, wwwroot
+│   ├── Controllers/
+│   ├── Middlewares/          
+│   └── wwwroot/
 ├── StudentCouncil.Frontend/  # React SPA (Vite)
 ├── docker-compose.yml
 ├── Dockerfile
@@ -190,7 +200,7 @@ erDiagram
 ```mermaid
 flowchart TB
     subgraph Web["StudentCouncil.Web (ASP.NET Core 8)"]
-        BC[BaseController<br/>HandleServiceResult]
+        EM[ExceptionMiddleware<br/>ловит AppException → JSON]
         AC[AccountController<br/>/api/account]
         UC[UserController<br/>/api/users]
         EC[EventController<br/>/api/events]
@@ -198,7 +208,7 @@ flowchart TB
     end
 
     subgraph Logic["StudentCouncil.Logic"]
-        SR[ServiceResult / ServiceResult&lt;T&gt;]
+        EX[Exceptions<br/>AppException + NotFound, Forbidden, Conflict...]
         MAP[Mapper]
         subgraph Interfaces
             IUS[IUserService]
@@ -220,18 +230,27 @@ flowchart TB
         DB[AppDbContext<br/>IdentityDbContext]
         subgraph Models
             UM[User]
-            EM[Event]
+            EM2[Event]
             BM[Badge]
         end
     end
 
     PG[(PostgreSQL)]
 
+    EM -.перехватывает.-> AC
+    EM -.перехватывает.-> UC
+    EM -.перехватывает.-> EC
+    EM -.перехватывает.-> BDC
+
     AC --> IUS
     UC --> IUS
     EC --> IES
     BDC --> IBS
     BDC --> IFS
+
+    US -.кидает.-> EX
+    ES -.кидает.-> EX
+    BS -.кидает.-> EX
 
     IUS -.реализует.-> US
     IES -.реализует.-> ES
@@ -246,7 +265,7 @@ flowchart TB
     ES --> DB
     BS --> DB
     DB --> UM
-    DB --> EM
+    DB --> EM2
     DB --> BM
     DB --> PG
 
@@ -308,20 +327,33 @@ flowchart LR
     DI -->|Identity| IM[UserManager, SignInManager, RoleManager]
 ```
 
-### ServiceResult — паттерн ответа
+### Обработка ошибок
 
 ```mermaid
 flowchart TB
-    Service[Сервис] -->|Ok / Created| Success
-    Service -->|BadRequest / NotFound| ClientError
-    Service -->|Forbidden / Unauthorized| AuthError
-    Service -->|Conflict / InternalError| Other
+    Service[Service] -->|успех| Controller[Controller]
+    Service -->|throw AppException| Middleware[ExceptionMiddleware]
 
-    Success -->|200 / 201| JSON["{ data } или { message }"]
-    ClientError -->|400 / 404| JSONErr["{ error: message }"]
-    AuthError -->|401 / 403| JSONErr
-    Other -->|409 / 500| JSONErr
+    Controller -->|return Ok/Created| Client["200 / 201 + JSON"]
+    Middleware -->|NotFound| E404["404 { error }"]
+    Middleware -->|Forbidden| E403["403 { error }"]
+    Middleware -->|Conflict| E409["409 { error }"]
+    Middleware -->|BadRequest| E400["400 { error }"]
+    Middleware -->|любое исключение| E500["500 { error }"]
+
+    style Service fill:#0CBFA1,color:#04120e
+    style Middleware fill:#512BD4,color:#fff
 ```
+
+**Иерархия исключений** (`StudentCouncil.Logic/Exceptions/`):
+
+| Исключение | HTTP | Когда бросается |
+|------------|------|-----------------|
+| `BadRequestException` | 400 | Некорректные данные |
+| `UnauthorizedException` | 401 | Не аутентифицирован |
+| `ForbiddenException` | 403 | Нет прав на действие |
+| `NotFoundException` | 404 | Ресурс не найден |
+| `ConflictException` | 409 | Конфликт (дубликат, FK violation) |
 
 ### Аутентификация
 
@@ -351,6 +383,33 @@ flowchart TB
 ---
 
 ## Docker
+
+```bash
+# Создать .env с паролем БД
+echo "DB_PASSWORD=your_password" > .env
+
+# Поднять все сервисы
+docker compose up -d
+
+# Логи 
+docker logs studentcouncil_backend --tail 100
+```
+
+**Контейнеры:**
+
+| Сервис | Порт | Назначение |
+|--------|------|-----------|
+| `postgres` | 127.0.0.1:5432 | PostgreSQL 16 (только локально) |
+| `backend` | 8080 | ASP.NET Core 8 |
+| `frontend` | 8081 | Nginx со статикой React |
+
+**Volumes:**
+
+| Volume | Назначение |
+|--------|-----------|
+| `postgres_data` | Данные БД |
+| `backend_wwwroot` | Аватары, бейджи, фото мероприятий |
+| `backend_logs` | Логи приложения (`/app/Logs/`) |
 
 ---
 
