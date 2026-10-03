@@ -139,19 +139,35 @@ public class EventService : IEventService
         if (photo == null || photo.Length == 0)
             throw new BadRequestException("Файл не выбран");
 
-        _fileStorage.DeleteFile(ev.PhotoPath);
+        string? oldPhotoPath = ev.PhotoPath;
 
+        string newPhotoPath;
         try
         {
             string prefix = $"{id}_";
-            ev.PhotoPath = await _fileStorage.SaveFileAsync(photo, eventsFolder, imageExtensions, prefix);
+            newPhotoPath = await _fileStorage.SaveFileAsync(photo, eventsFolder, imageExtensions, prefix);
         }
         catch (InvalidOperationException ex)
         {
             throw new BadRequestException(ex.Message);
         }
 
-        await _context.SaveChangesAsync();
+        ev.PhotoPath = newPhotoPath;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch
+        {
+            _fileStorage.DeleteFile(newPhotoPath);
+            ev.PhotoPath = oldPhotoPath;
+            throw;
+        }
+
+        if (!string.IsNullOrEmpty(oldPhotoPath))
+            _fileStorage.DeleteFile(oldPhotoPath);
+
         _logger.Info($"Фото мероприятия {id} обновлено пользователем {currentUserId}");
     }
 

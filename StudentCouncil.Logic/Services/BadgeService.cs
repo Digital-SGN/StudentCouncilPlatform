@@ -177,19 +177,35 @@ public class BadgeService : IBadgeService
         if (badge == null)
             throw new NotFoundException("Бейдж не найден");
 
-        _fileStorage.DeleteFile(badge.FilePath);
+        string? oldPath = badge.FilePath;
 
+        string newPath;
         try
         {
             string prefix = $"{badge.UserId}_{badge.EventId}_";
-            badge.FilePath = await _fileStorage.SaveFileAsync(file, badgesFolder, pdfExtensions, prefix);
+            newPath = await _fileStorage.SaveFileAsync(file, badgesFolder, pdfExtensions, prefix);
         }
         catch (InvalidOperationException ex)
         {
             throw new BadRequestException(ex.Message);
         }
 
-        await _context.SaveChangesAsync();
+        badge.FilePath = newPath;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch
+        {
+            _fileStorage.DeleteFile(newPath);
+            badge.FilePath = oldPath;
+            throw;
+        }
+
+        if (!string.IsNullOrEmpty(oldPath))
+            _fileStorage.DeleteFile(oldPath);
+
         _logger.Info($"Файл бейджа {id} загружен пользователем {currentUserId}");
     }
 
