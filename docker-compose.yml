@@ -27,6 +27,7 @@ services:
     volumes:
       - backend_wwwroot:/app/wwwroot
       - backend_logs:/app/Logs
+      - backend_dp_keys:/app/DataProtection-Keys
     restart: unless-stopped
 
   frontend:
@@ -42,3 +43,4 @@ volumes:
   postgres_data:
   backend_wwwroot:
   backend_logs: 
+  backend_dp_keys:

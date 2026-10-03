@@ -8,6 +8,7 @@ using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.Interfaces;
 using StudentCouncil.Logic.Services;
 using StudentCouncil.Web.Middlewares;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,8 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
 }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+
+builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo("/app/DataProtection-Keys")).SetApplicationName("StudentCouncil");
 
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
