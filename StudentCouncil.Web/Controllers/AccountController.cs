@@ -30,70 +30,89 @@ public class AccountController : BaseController
     }
 
     [HttpPost("login")]
+    [AllowAnonymous]
     public async Task<IActionResult> LoginAsync([FromBody] LoginRequestDTO request)
     {
         User? user = await _userManager.FindByEmailAsync(request.Email);
+
         if (user == null || !user.IsActive)
-            return Unauthorized(new { error = "Неверный email или пароль" });
-
-        var passwordResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
-
-        if (passwordResult.IsLockedOut)
         {
-            _logger.Warning($"Аккаунт {user.Email} заблокирован после нескольких неудачных попыток");
-            return StatusCode(423, new { error = "Слишком много неудачных попыток, попробуйте позже" });
+            _logger.Warning($"Попытка входа с несуществующим/неактивным email: {request.Email}");
+            return Unauthorized(new { error = "Неверный email или пароль" });
         }
 
-        if (!passwordResult.Succeeded)
-            return Unauthorized(new { error = "Неверный email или пароль" });
+        var result = await _signInManager.PasswordSignInAsync(user, request.Password, isPersistent: false, lockoutOnFailure: true);
 
-        bool isTwoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
-
-        if (!isTwoFactorEnabled)
+        if (result.IsLockedOut)
         {
-            var key = await _userManager.GetAuthenticatorKeyAsync(user);
-            if (string.IsNullOrEmpty(key))
-            {
-                await _userManager.ResetAuthenticatorKeyAsync(user);
-                key = await _userManager.GetAuthenticatorKeyAsync(user);
-            }
-
-            string issuer = "Студсовет СГН";
-            string uri =
-                $"otpauth://totp/{Uri.EscapeDataString($"{issuer}:{user.Email}")}" +
-                $"?secret={key}&issuer={Uri.EscapeDataString(issuer)}&digits=6";
-
-            string setupToken = _setupTokenProtector.Protect(user.Id.ToString(), SetupTokenLifetime);
-
-            return StatusCode(402, new TwoFactorSetupResponseDTO
-            {
-                SharedKey = key,
-                AuthenticatorUri = uri,
-                SetupToken = setupToken
-            });
+            _logger.Warning($"Аккаунт {user.Email} заблокирован после неудачных попыток");
+            return Unauthorized(new { error = "Неверный email или пароль" });
         }
 
-        var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, lockoutOnFailure: true);
-
-        if (result.Succeeded)
+        if (result.IsNotAllowed)
         {
-            var roles = await _userManager.GetRolesAsync(user);
-            return Ok(new LoginResponseDTO
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Role = roles.FirstOrDefault() ?? "Member"
-            });
+            return Unauthorized(new { error = "Неверный email или пароль" });
         }
 
         if (result.RequiresTwoFactor)
-            return StatusCode(403, new { requiresTwoFactorCode = true });
+        {
+            return Ok(new LoginResultDTO { Status = "twoFactorRequired" });
+        }
 
-        if (result.IsLockedOut)
-            return StatusCode(423, new { error = "Слишком много неудачных попыток. Попробуйте через 15 минут." });
+        if (!result.Succeeded)
+        {
+            return Unauthorized(new { error = "Неверный email или пароль" });
+        }
 
-        return Unauthorized(new { error = "Неверный email или пароль" });
+        bool isTwoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
+
+        if (isTwoFactorEnabled)
+        {
+            IList<string> roles = await _userManager.GetRolesAsync(user);
+            return Ok(new LoginResultDTO
+            {
+                Status = "ok",
+                User = new LoginResponseDTO
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Role = roles.FirstOrDefault() ?? "Member"
+                }
+            });
+        }
+
+        await _signInManager.SignOutAsync();
+
+        string? key = await _userManager.GetAuthenticatorKeyAsync(user);
+        if (string.IsNullOrEmpty(key))
+        {
+            await _userManager.ResetAuthenticatorKeyAsync(user);
+            key = await _userManager.GetAuthenticatorKeyAsync(user);
+        }
+
+        if (string.IsNullOrEmpty(key))
+        {
+            _logger.Error($"Не удалось получить authenticator key для user {user.Id}");
+            return StatusCode(500, new { error = "Ошибка настройки 2FA" });
+        }
+
+        string issuer = "Студсовет СГН";
+        string uri =
+            $"otpauth://totp/{Uri.EscapeDataString($"{issuer}:{user.Email}")}" +
+            $"?secret={key}&issuer={Uri.EscapeDataString(issuer)}&digits=6";
+
+        string setupToken = _setupTokenProtector.Protect(user.Id.ToString(), SetupTokenLifetime);
+
+        _logger.Info($"Пользователь {user.Id} направлен на настройку 2FA");
+
+        return Ok(new LoginResultDTO
+        {
+            Status = "twoFactorSetupRequired",
+            SharedKey = key,
+            AuthenticatorUri = uri,
+            SetupToken = setupToken
+        });
     }
 
     [HttpPost("logout")]
