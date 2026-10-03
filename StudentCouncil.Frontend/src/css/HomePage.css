@@ -138,16 +138,32 @@
   gap: 20px;
   width: 100%;
   overflow: hidden;
+  height: 420px;
 }
 
 .carousel-card {
-  transition: all 0.5s ease;
-  flex-shrink: 0;
-  will-change: transform, opacity;
+  flex: 0 0 220px;        
+  height: 400px;        
   border-radius: 24px;
   overflow: hidden;
   background: #fff;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+
+  transition: transform 0.5s ease, opacity 0.5s ease;
+
+  will-change: transform, opacity;
+  transform-origin: center center;
+  backface-visibility: hidden;
+}
+
+.carousel-card.active {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.carousel-card.side {
+  transform: scale(0.75);        
+  opacity: 0.6;
 }
 
 .carousel-card .leadership-card {
@@ -159,6 +175,15 @@
   justify-content: center;
   padding: 1.5rem 1rem;
   box-sizing: border-box;
+}
+
+.carousel-card .leadership-card h3,
+.carousel-card .leadership-card p {
+  width: 100%;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .carousel-card .card-photo {
@@ -289,6 +314,15 @@
     width: 60px;
     height: 3px;
     bottom: -10px;
+  }
+
+  .carousel-container {
+    height: 360px;  
+    gap: 12px;
+  }
+  .carousel-card {
+    flex: 0 0 170px;  
+    height: 340px;
   }
 
   .carousel-card .card-photo {
