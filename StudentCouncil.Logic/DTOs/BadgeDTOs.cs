@@ -1,4 +1,6 @@
-﻿namespace StudentCouncil.Logic.DTOs;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace StudentCouncil.Logic.DTOs;
 
 public class BadgeResponseDTO
 {
@@ -13,14 +15,22 @@ public class BadgeResponseDTO
 }
 public class CreateBadgeDTO
 {
+    [Range(1, int.MaxValue)]
     public int UserId { get; set; }
+
+    [Range(1, int.MaxValue)]
     public int EventId { get; set; }
+
+    [Required, MaxLength(100)]
     public string Role { get; set; } = string.Empty;
 }
+
 public class UpdateBadgeDTO
 {
+    [Required, MaxLength(100)]
     public string Role { get; set; } = string.Empty;
 }
+
 public class BadgeListResponseDTO
 {
     public int Count { get; set; }
