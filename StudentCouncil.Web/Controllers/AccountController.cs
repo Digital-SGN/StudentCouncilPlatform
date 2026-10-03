@@ -36,15 +36,22 @@ public class AccountController : BaseController
         if (user == null || !user.IsActive)
             return Unauthorized(new { error = "Неверный email или пароль" });
 
-        bool passwordValid = await _userManager.CheckPasswordAsync(user, request.Password);
-        if (!passwordValid)
+        var passwordResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
+
+        if (passwordResult.IsLockedOut)
+        {
+            _logger.Warning($"Аккаунт {user.Email} заблокирован после нескольких неудачных попыток");
+            return StatusCode(423, new { error = "Слишком много неудачных попыток, попробуйте позже" });
+        }
+
+        if (!passwordResult.Succeeded)
             return Unauthorized(new { error = "Неверный email или пароль" });
 
         bool isTwoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
 
         if (!isTwoFactorEnabled)
         {
-            string? key = await _userManager.GetAuthenticatorKeyAsync(user);
+            var key = await _userManager.GetAuthenticatorKeyAsync(user);
             if (string.IsNullOrEmpty(key))
             {
                 await _userManager.ResetAuthenticatorKeyAsync(user);
@@ -56,9 +63,7 @@ public class AccountController : BaseController
                 $"otpauth://totp/{Uri.EscapeDataString($"{issuer}:{user.Email}")}" +
                 $"?secret={key}&issuer={Uri.EscapeDataString(issuer)}&digits=6";
 
-            string setupToken = _setupTokenProtector.Protect(
-                user.Id.ToString(),
-                SetupTokenLifetime);
+            string setupToken = _setupTokenProtector.Protect(user.Id.ToString(), SetupTokenLifetime);
 
             return StatusCode(402, new TwoFactorSetupResponseDTO
             {
@@ -68,11 +73,11 @@ public class AccountController : BaseController
             });
         }
 
-        var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, false);
+        var result = await _signInManager.PasswordSignInAsync(user, request.Password, false, lockoutOnFailure: true);
 
         if (result.Succeeded)
         {
-            IList<string> roles = await _userManager.GetRolesAsync(user);
+            var roles = await _userManager.GetRolesAsync(user);
             return Ok(new LoginResponseDTO
             {
                 Id = user.Id,
@@ -84,6 +89,9 @@ public class AccountController : BaseController
 
         if (result.RequiresTwoFactor)
             return StatusCode(403, new { requiresTwoFactorCode = true });
+
+        if (result.IsLockedOut)
+            return StatusCode(423, new { error = "Слишком много неудачных попыток. Попробуйте через 15 минут." });
 
         return Unauthorized(new { error = "Неверный email или пароль" });
     }
