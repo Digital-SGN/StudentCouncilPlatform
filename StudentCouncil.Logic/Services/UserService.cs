@@ -17,6 +17,7 @@ public class UserService : IUserService
 
     public const string avatarsFolder = "avatars";
     public static readonly string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
+    private static readonly HashSet<string> AllowedRoles = new(StringComparer.OrdinalIgnoreCase) { "Admin", "Leader", "Member" };
 
     public UserService(UserManager<User> userManager, IFileStorageService fileStorage, ILoggerService logger)
     {
@@ -70,26 +71,35 @@ public class UserService : IUserService
         if (existingUser != null)
             throw new ConflictException("Пользователь с таким email уже существует");
 
+        string role = string.IsNullOrWhiteSpace(dto.Role) ? "Member" : dto.Role.Trim();
+        if (!AllowedRoles.Contains(role))
+            throw new BadRequestException($"Недопустимая роль. Разрешены: {string.Join(", ", AllowedRoles)}");
+
         User user = Mapper.ToUserEntity(dto);
 
-        IdentityResult result = await _userManager.CreateAsync(user, password);
-        if (!result.Succeeded)
+        IdentityResult createResult = await _userManager.CreateAsync(user, password);
+        if (!createResult.Succeeded)
         {
-            string errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            string errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
             _logger.Warning($"Ошибка создания {dto.Email}: {errors}");
             throw new BadRequestException($"Ошибка создания: {errors}");
         }
 
-        await _userManager.AddToRoleAsync(user, dto.Role ?? "Member");
-        _logger.Info($"Создан пользователь {dto.Email}");
+        IdentityResult roleResult = await _userManager.AddToRoleAsync(user, role);
+        if (!roleResult.Succeeded)
+        {
+            await _userManager.DeleteAsync(user);
+            string errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+            _logger.Warning($"Ошибка назначения роли '{role}' для {dto.Email}: {errors}");
+            throw new BadRequestException($"Ошибка назначения роли: {errors}");
+        }
+
+        _logger.Info($"Создан пользователь {dto.Email} с ролью {role}");
     }
 
     public async Task UpdateUserAsync(int id, UpdateUserDTO dto, ClaimsPrincipal currentUser)
     {
         User? user = await _userManager.FindByIdAsync(id.ToString());
-
-        if (!currentUser.IsInRole("Admin"))
-            throw new ForbiddenException("Доступ запрещен");
 
         if (user == null)
             throw new NotFoundException("Пользователь не найден");
@@ -255,19 +265,32 @@ public class UserService : IUserService
         if (avatar == null || avatar.Length == 0)
             throw new BadRequestException("Файл не выбран");
 
-        _fileStorage.DeleteFile(user.AvatarPath);
+        string? oldAvatarPath = user.AvatarPath;
 
+        string newAvatarPath;
         try
         {
             string prefix = $"{userId}_";
-            user.AvatarPath = await _fileStorage.SaveFileAsync(avatar, avatarsFolder, imageExtensions, prefix);
+            newAvatarPath = await _fileStorage.SaveFileAsync(avatar, avatarsFolder, imageExtensions, prefix);
         }
         catch (InvalidOperationException ex)
         {
             throw new BadRequestException(ex.Message);
         }
 
-        await _userManager.UpdateAsync(user);
+        user.AvatarPath = newAvatarPath;
+        IdentityResult updateResult = await _userManager.UpdateAsync(user);
+
+        if (!updateResult.Succeeded)
+        {
+            _fileStorage.DeleteFile(newAvatarPath);
+            string errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
+            throw new BadRequestException($"Ошибка обновления аватара: {errors}");
+        }
+
+        if (!string.IsNullOrEmpty(oldAvatarPath))
+            _fileStorage.DeleteFile(oldAvatarPath);
+
         _logger.Info($"Пользователь {userId} обновил аватар");
     }
 
