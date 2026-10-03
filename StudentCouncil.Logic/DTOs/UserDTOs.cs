@@ -34,7 +34,7 @@ namespace StudentCouncil.Logic.DTOs
         [MaxLength(10)]
         public string? ClothingSize { get; set; }
 
-        public DateTime? BirthDate { get; set; }
+        public DateOnly? BirthDate { get; set; }
     }
 
     public class CurrentUserDTO
@@ -74,9 +74,9 @@ namespace StudentCouncil.Logic.DTOs
         [MaxLength(10)]
         public string? ClothingSize { get; set; }
 
-        public DateTime? BirthDate { get; set; }
+        public DateOnly? BirthDate { get; set; }
 
-        public DateTime JoinedAt { get; set; }
+        public DateOnly? JoinedAt { get; set; }
 
         [Range(0, int.MaxValue)]
         public int Balance { get; set; }
@@ -101,8 +101,8 @@ namespace StudentCouncil.Logic.DTOs
         public string? PhoneNumber { get; set; }
         public string? Telegram { get; set; }
         public string? ClothingSize { get; set; }
-        public DateTime? BirthDate { get; set; }
-        public DateTime JoinedAt { get; set; }
+        public DateOnly? BirthDate { get; set; }
+        public DateTimeOffset JoinedAt { get; set; }
         public bool IsActive { get; set; }
         public string? AvatarPath { get; set; }
         public int Balance { get; set; }

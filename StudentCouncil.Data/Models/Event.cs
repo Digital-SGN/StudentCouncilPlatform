@@ -20,7 +20,7 @@ public class Event
     [MaxLength(400)]
     public string Description { get; set; } = string.Empty;
     [Required]
-    public DateTime EventDate { get; set; }
+    public DateTimeOffset EventDate { get; set; }
     public decimal? Budget { get; set; }
     [Required]
     [MaxLength(100)]
@@ -34,7 +34,7 @@ public class Event
     public EventStatus Status { get; set; } = EventStatus.Upcoming;
     [Required]
     public int ResponsibleUserId { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     public bool IsDeleted { get; set; } = false;
 
     [ForeignKey(nameof(ResponsibleUserId))]

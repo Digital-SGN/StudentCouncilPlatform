@@ -21,7 +21,7 @@ public class Badge
     [MaxLength(500)]
     public string? FilePath { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     [ForeignKey(nameof(UserId))]
     public virtual User User { get; set; } = null!;

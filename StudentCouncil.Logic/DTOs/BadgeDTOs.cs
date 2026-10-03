@@ -11,7 +11,7 @@ public class BadgeResponseDTO
     public string EventTitle { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
     public string FilePath { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
 public class CreateBadgeDTO
 {

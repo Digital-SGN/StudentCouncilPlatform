@@ -17,7 +17,7 @@ public class User : IdentityUser<int>
     [MaxLength(10)]
     public string? Group { get; set; }
 
-    public DateTime? BirthDate { get; set; }
+    public DateOnly? BirthDate { get; set; }
 
     [MaxLength(20)]
     public string? Telegram { get; set; }
@@ -43,8 +43,8 @@ public class User : IdentityUser<int>
 
     public bool IsActive { get; set; } = true;
 
-    public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset JoinedAt { get; set; } = DateTimeOffset.UtcNow;
 
-    public DateTime LastActivityDate { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset LastActivityDate { get; set; } = DateTimeOffset.UtcNow;
 
 }

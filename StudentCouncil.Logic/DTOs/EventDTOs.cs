@@ -15,7 +15,9 @@ namespace StudentCouncil.Logic.DTOs
         public decimal? Budget { get; set; }
 
         [Required]
-        public DateTime EventDate { get; set; }
+        public DateTimeOffset EventDate { get; set; }
+        [Required]
+        public DateTimeOffset CreatedAt { get; set; }
 
         [Required, MaxLength(100)]
         public string Location { get; set; } = string.Empty;
@@ -45,7 +47,7 @@ namespace StudentCouncil.Logic.DTOs
         public decimal? Budget { get; set; }
 
         [Required]
-        public DateTime EventDate { get; set; }
+        public DateTimeOffset EventDate { get; set; }
 
         [Required, MaxLength(100)]
         public string Location { get; set; } = string.Empty;
@@ -71,7 +73,7 @@ namespace StudentCouncil.Logic.DTOs
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public decimal? Budget { get; set; }
-        public DateTime EventDate { get; set; }
+        public DateTimeOffset EventDate { get; set; }
         public string Location { get; set; } = string.Empty;
         public int RegisteredParticipants { get; set; }
         public int ActualParticipants { get; set; }
@@ -79,7 +81,7 @@ namespace StudentCouncil.Logic.DTOs
         public string RegistrationLink { get; set; } = string.Empty;
         public EventStatus Status { get; set; }
         public int ResponsibleUserId { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
     }
     public class EventListResponseDTO
     {

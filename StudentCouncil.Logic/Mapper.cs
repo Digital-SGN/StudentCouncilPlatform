@@ -45,8 +45,8 @@ public static class Mapper
             PhoneNumber = dto.PhoneNumber,
             Telegram = dto.Telegram,
             ClothingSize = dto.ClothingSize,
-            BirthDate = dto.BirthDate.HasValue ? DateTime.SpecifyKind(dto.BirthDate.Value, DateTimeKind.Utc) : null,
-            JoinedAt = DateTime.UtcNow,
+            BirthDate = dto.BirthDate,
+            JoinedAt = DateTimeOffset.UtcNow,
             IsActive = true,
             Balance = 0,
             ExperiencePoints = 0,
@@ -66,7 +66,7 @@ public static class Mapper
         user.PhoneNumber = dto.PhoneNumber;
         user.Telegram = dto.Telegram;
         user.ClothingSize = dto.ClothingSize;
-        user.BirthDate = dto.BirthDate.HasValue? DateTime.SpecifyKind(dto.BirthDate.Value, DateTimeKind.Utc) : null;
+        user.BirthDate = dto.BirthDate;
 
         if (!applyAdminFields)
             return;
@@ -80,7 +80,10 @@ public static class Mapper
         }
 
         user.IsActive = dto.IsActive;
-        user.JoinedAt = dto.JoinedAt.ToUniversalTime();
+        if (dto.JoinedAt.HasValue)
+        {
+            user.JoinedAt = new DateTimeOffset(dto.JoinedAt.Value.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+        }
         user.Balance = dto.Balance;
         user.ExperiencePoints = dto.ExperiencePoints;
         user.Level = (dto.ExperiencePoints / 250) + 1;
@@ -113,13 +116,13 @@ public static class Mapper
             Title = dto.Title,
             Description = dto.Description,
             Budget = dto.Budget,
-            EventDate = dto.EventDate.ToUniversalTime(),
+            EventDate = dto.EventDate,
             Location = dto.Location,
             RegisteredParticipants = dto.RegisteredParticipants,
             ActualParticipants = dto.ActualParticipants,
             RegistrationLink = dto.RegistrationLink,
             ResponsibleUserId = dto.ResponsibleUserId,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTimeOffset.UtcNow,
             IsDeleted = false,
             Status = EventStatus.Upcoming
         };
@@ -130,7 +133,7 @@ public static class Mapper
         ev.Title = dto.Title;
         ev.Description = dto.Description;
         ev.Budget = dto.Budget;
-        ev.EventDate = dto.EventDate.ToUniversalTime();
+        ev.EventDate = dto.EventDate;
         ev.Location = dto.Location;
         ev.RegisteredParticipants = dto.RegisteredParticipants;
         ev.ActualParticipants = dto.ActualParticipants;
@@ -163,7 +166,7 @@ public static class Mapper
             EventId = dto.EventId,
             Role = dto.Role,
             FilePath = filePath,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow
         };
     }
 
