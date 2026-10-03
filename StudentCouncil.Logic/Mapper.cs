@@ -57,7 +57,7 @@ public static class Mapper
         };
     }
 
-    public static void UpdateUserEntity(User user, UpdateUserDTO dto, bool isAdminOrLeader)
+    public static void UpdateUserEntity(User user, UpdateUserDTO dto, bool applyAdminFields)
     {
         user.FirstName = dto.FirstName;
         user.LastName = dto.LastName;
@@ -66,24 +66,24 @@ public static class Mapper
         user.PhoneNumber = dto.PhoneNumber;
         user.Telegram = dto.Telegram;
         user.ClothingSize = dto.ClothingSize;
-        user.BirthDate = dto.BirthDate.HasValue ? DateTime.SpecifyKind(dto.BirthDate.Value, DateTimeKind.Utc) : null;
+        user.BirthDate = dto.BirthDate.HasValue? DateTime.SpecifyKind(dto.BirthDate.Value, DateTimeKind.Utc) : null;
 
-        if (isAdminOrLeader)
+        if (!applyAdminFields)
+            return;
+
+        if (!string.IsNullOrEmpty(dto.Email))
         {
-            if (!string.IsNullOrEmpty(dto.Email))
-            {
-                user.Email = dto.Email;
-                user.UserName = dto.Email;  
-                user.NormalizedEmail = dto.Email.ToUpperInvariant();
-                user.NormalizedUserName = dto.Email.ToUpperInvariant();
-            }
-
-            user.IsActive = dto.IsActive;
-            user.JoinedAt = dto.JoinedAt.ToUniversalTime();
-            user.Balance = dto.Balance;
-            user.ExperiencePoints = dto.ExperiencePoints;
-            user.Level = (dto.ExperiencePoints / 250) + 1;
+            user.Email = dto.Email;
+            user.UserName = dto.Email;
+            user.NormalizedEmail = dto.Email.ToUpperInvariant();
+            user.NormalizedUserName = dto.Email.ToUpperInvariant();
         }
+
+        user.IsActive = dto.IsActive;
+        user.JoinedAt = dto.JoinedAt.ToUniversalTime();
+        user.Balance = dto.Balance;
+        user.ExperiencePoints = dto.ExperiencePoints;
+        user.Level = (dto.ExperiencePoints / 250) + 1;
     }
 
     public static EventResponseDTO ToEventDTO(Event ev)

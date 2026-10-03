@@ -87,6 +87,10 @@ public class UserService : IUserService
     public async Task UpdateUserAsync(int id, UpdateUserDTO dto, ClaimsPrincipal currentUser)
     {
         User? user = await _userManager.FindByIdAsync(id.ToString());
+
+        if (!currentUser.IsInRole("Admin"))
+            throw new ForbiddenException("Доступ запрещен");
+
         if (user == null)
             throw new NotFoundException("Пользователь не найден");
 
@@ -95,35 +99,30 @@ public class UserService : IUserService
             throw new UnauthorizedException("Не удалось определить пользователя");
 
         int currentUserId = int.Parse(userIdStr);
-        bool isAdminOrLeader = currentUser.IsInRole("Admin") || currentUser.IsInRole("Leader");
+        bool isAdmin = currentUser.IsInRole("Admin");
         bool isOwnProfile = currentUserId == user.Id;
 
-        if (!isOwnProfile && !isAdminOrLeader)
+        if (!isOwnProfile && !isAdmin)
         {
             _logger.Warning($"Пользователь {currentUserId} попытался редактировать чужой профиль {id}");
             throw new ForbiddenException("У вас нет прав на редактирование этого пользователя");
         }
 
-        if (isAdminOrLeader && !string.IsNullOrEmpty(dto.Email) && dto.Email != user.Email)
+        if (isAdmin && !isOwnProfile)
         {
-            User? existingUser = await _userManager.FindByEmailAsync(dto.Email);
-            if (existingUser != null && existingUser.Id != user.Id)
-                throw new ConflictException("Пользователь с таким email уже существует");
-        }
+            IList<string> currentRoles = await _userManager.GetRolesAsync(user);
+            string currentRole = currentRoles.FirstOrDefault() ?? "Member";
 
-        Mapper.UpdateUserEntity(user, dto, isAdminOrLeader);
-
-        if (isAdminOrLeader)
-        {
-            if (dto.Role != "Admin" && dto.Role != "Leader" && dto.Role != "Member")
+            if (!string.IsNullOrEmpty(dto.Role)
+                && dto.Role != "Admin" && dto.Role != "Leader" && dto.Role != "Member")
+            {
                 throw new BadRequestException("Недопустимая роль");
+            }
 
-            // Защита от блокировки последнего админа
-            if (dto.IsActive == false && await _userManager.IsInRoleAsync(user, "Admin"))
+            if (dto.IsActive == false && currentRole == "Admin")
             {
                 IList<User> admins = await _userManager.GetUsersInRoleAsync("Admin");
                 int activeAdmins = admins.Count(a => a.IsActive);
-
                 if (activeAdmins <= 1)
                 {
                     _logger.Warning($"Попытка заблокировать последнего активного администратора {user.Email}");
@@ -131,13 +130,10 @@ public class UserService : IUserService
                 }
             }
 
-            bool isCurrentlyAdmin = await _userManager.IsInRoleAsync(user, "Admin");
-
-            if (isCurrentlyAdmin && dto.Role != "Admin")
+            if (currentRole == "Admin" && !string.IsNullOrEmpty(dto.Role) && dto.Role != "Admin")
             {
                 IList<User> admins = await _userManager.GetUsersInRoleAsync("Admin");
                 int activeAdmins = admins.Count(a => a.IsActive);
-
                 if (activeAdmins <= 1)
                 {
                     _logger.Warning($"Попытка снять роль Admin у последнего администратора {user.Email}");
@@ -145,24 +141,32 @@ public class UserService : IUserService
                 }
             }
 
-            string? currentRole = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-            if (isOwnProfile && (dto.IsActive != user.IsActive || dto.Role != currentRole))
+            if (!string.IsNullOrEmpty(dto.Email) && dto.Email != user.Email)
             {
-                _logger.Warning($"Пользователь {currentUserId} попытался изменить свой статус или роль");
-                throw new ForbiddenException("Вы не можете изменить свой статус или роль");
+                User? existingUser = await _userManager.FindByEmailAsync(dto.Email);
+                if (existingUser != null && existingUser.Id != user.Id)
+                    throw new ConflictException("Пользователь с таким email уже существует");
             }
 
             bool wasActive = user.IsActive;
+
+            Mapper.UpdateUserEntity(user, dto, applyAdminFields: true);
+
+            if (!string.IsNullOrEmpty(dto.Role) && dto.Role != currentRole)
+            {
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                await _userManager.AddToRoleAsync(user, dto.Role);
+            }
 
             if (wasActive && !user.IsActive)
             {
                 await _userManager.UpdateSecurityStampAsync(user);
                 _logger.Info($"Пользователь {user.Email} заблокирован, все сессии аннулированы");
             }
-
-            IList<string> currentRoles = await _userManager.GetRolesAsync(user);
-            await _userManager.RemoveFromRolesAsync(user, currentRoles);
-            await _userManager.AddToRoleAsync(user, dto.Role);
+        }
+        else
+        {
+            Mapper.UpdateUserEntity(user, dto, applyAdminFields: false);
         }
 
         IdentityResult updateResult = await _userManager.UpdateAsync(user);
@@ -172,12 +176,16 @@ public class UserService : IUserService
             throw new BadRequestException($"Ошибка обновления: {errors}");
         }
 
-        _logger.Info($"Пользователь {currentUserId} изменил данные профиля");
+        _logger.Info($"Пользователь {currentUserId} изменил профиль {id}");
     }
 
     public async Task DeleteUserAsync(int id, ClaimsPrincipal currentUser)
     {
         string? userIdStr = _userManager.GetUserId(currentUser);
+
+        if (!currentUser.IsInRole("Admin"))
+            throw new ForbiddenException("Доступ запрещен");
+
         if (string.IsNullOrEmpty(userIdStr))
             throw new UnauthorizedException("Не удалось определить пользователя");
 
