@@ -99,23 +99,27 @@ export default function LoginPage({ setUser }) {
 
         try {
             const result = await API.login(email, password);
-            if (result.ok && result.status === 200) {
-                const user = await API.getCurrentUser();
-                setUser(user);
+
+            if (!result.ok) {
+                setError(result.data?.error || 'Неверный email или пароль');
+                return;
+            }
+
+            const { status, authenticatorUri, setupToken: token } = result.data;
+
+            if (status === 'ok') {
+                const fullUser = await API.getCurrentUser();
+                setUser(fullUser);
                 navigate('/');
-            } 
-            else if (result.status === 402) {
-                const { authenticatorUri } = result.data;
+            } else if (status === 'twoFactorRequired') {
+                setStep('verify');
+            } else if (status === 'twoFactorSetupRequired') {
                 const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(authenticatorUri)}`;
                 setQrUri(qrUrl);
-                setSetupToken(setupToken ?? '');
+                setSetupToken(token ?? '');
                 setStep('setup');
-            }
-            else if (result.status === 403) {
-                setStep('verify');
-            }
-            else {
-                setError(result.data?.error || 'Неверный email или пароль');
+            } else {
+                setError('Неожиданный ответ сервера');
             }
         } catch (err) {
             console.error('Login error:', err);
