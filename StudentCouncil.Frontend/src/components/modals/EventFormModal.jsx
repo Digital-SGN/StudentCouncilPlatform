@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { API } from '../../api';
+import { toLocalInputValue, localInputToISO } from '../../dateUtils'; 
 
 export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSuccess }) {
     const [formData, setFormData] = useState({
@@ -52,7 +53,7 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
                 title: event.title || '',
                 description: event.description || '',
                 budget: event.budget || '',
-                eventDate: event.eventDate ? event.eventDate.slice(0, 16) : '',
+                eventDate: toLocalInputValue(event.eventDate),
                 location: event.location || '',
                 registeredParticipants: event.registeredParticipants ?? 0,
                 actualParticipants: event.actualParticipants ?? 0,
@@ -118,7 +119,7 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
             title: formData.title,
             description: formData.description,
             budget: formData.budget ? parseFloat(formData.budget) : null,
-            eventDate: new Date(formData.eventDate).toISOString(),
+            eventDate: localInputToISO(formData.eventDate),
             location: formData.location,
             registeredParticipants: parseInt(formData.registeredParticipants) || 0,
             actualParticipants: parseInt(formData.actualParticipants) || 0,
