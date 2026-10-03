@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import logo from '../assets/logo.svg';
 import catImage from '../assets/cat.gif';
-import { quotes } from '../data/quotes';
 import MusicButton from './MusicButton';
 
 export default function Header({ onLogout }) { 
@@ -18,8 +16,10 @@ export default function Header({ onLogout }) {
     if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
 
     const closeMenu = () => {
-        if (collapseRef.current && collapseRef.current.classList.contains('show')) {
-            collapseRef.current.classList.remove('show');
+        if (!collapseRef.current) return;
+        const bsCollapse = window.bootstrap?.Collapse?.getInstance(collapseRef.current);
+        if (bsCollapse) {
+            bsCollapse.hide();
         }
     };
 
@@ -32,18 +32,12 @@ export default function Header({ onLogout }) {
 
     const displayEmail = user?.email && user.email.length > 25 ? user.email.substring(0, 17) + '...' : user?.email;
 
-    const [quote, setQuote] = useState('');
-    useEffect(() => {
-        const randomIndex = Math.floor(Math.random() * quotes.length);
-        setQuote(quotes[randomIndex]);
-    }, []);
-
     return (
         <header>
-            <nav className="navbar navbar-expand-sm navbar-light">
+            <nav className="navbar navbar-expand-md navbar-light">
                 <div className="container-fluid">
                     <Link className="navbar-brand" to="/" onClick={closeMenu}>
-                         Студсовет
+                        Студсовет
                     </Link>
                     <button 
                         className="navbar-toggler" 
@@ -54,12 +48,8 @@ export default function Header({ onLogout }) {
                         <span className="navbar-toggler-icon"></span>
                     </button>
 
-                    <div className="quote-of-day" style={{ fontSize: '16px', color: '#4a5568', marginLeft: 'auto', marginRight: '35px' }}>
-                        {quote}
-                    </div>
-
                     <div className="collapse navbar-collapse" id="navbarNav" ref={collapseRef}>
-                        <ul className="navbar-nav mx-auto">
+                        <ul className="navbar-nav">
                             {user && (
                                 <li className="nav-item">
                                     <span className="nav-text">

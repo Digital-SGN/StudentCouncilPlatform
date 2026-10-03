@@ -48,6 +48,15 @@ main {
     padding: 0.8rem 0;
 }
 
+.navbar-collapse {
+    justify-content: center;
+}
+
+.navbar-collapse.collapsing {
+    transition: height 0.35s ease;
+    overflow: hidden;
+}
+
 .navbar-brand {
     font-size: 1.5rem;
     font-weight: bold;
@@ -162,24 +171,23 @@ main {
 }
 
 @media (max-width: 768px) {
-    .navbar-collapse {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
+   .navbar-collapse {
         background: white;
-        padding: 15px 20px;
+        padding: 0 20px;     
         border-radius: 0 0 16px 16px;
         box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         z-index: 1000;
+        max-height: 80vh;
+    }
+
+    .navbar-collapse.collapse.show {
         max-height: 80vh;
         overflow-y: auto;
     }
 
     .navbar-nav {
-        flex-direction: column;
-        width: 100%;
-        gap: 8px;
+        flex-direction: column !important;
+        padding: 15px 0;   
     }
 
     .nav-item {
