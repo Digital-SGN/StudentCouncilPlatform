@@ -12,7 +12,7 @@ public class UserController : BaseController
 {
     private readonly IUserService _userService;
 
-    public UserController(IUserService userService, ILoggerService logger) : base(logger)
+    public UserController(IUserService userService)
     {
         _userService = userService;
     }
@@ -21,7 +21,7 @@ public class UserController : BaseController
     [Authorize(Roles = "Admin,Leader")]
     public async Task<IActionResult> GetAllAsync()
     {
-        UserListResponseDTO result = await _userService.GetAllUsersAsync();
+        UserListResponseDTO result = await _userService.GetAllUsersAsync(User);
         return Ok(result);
     }
 
@@ -38,7 +38,7 @@ public class UserController : BaseController
     public async Task<IActionResult> CreateAsync([FromBody] CreateUserDTO dto)
     {
         await _userService.CreateUserAsync(dto, dto.Password);
-        return StatusCode(201, new { message = "Пользователь успешно создан" });  // ← 201
+        return StatusCode(201, new { message = "Пользователь успешно создан" });
     }
 
     [HttpPut("{id}")]

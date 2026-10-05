@@ -6,7 +6,7 @@ namespace StudentCouncil.Logic.Interfaces;
 
 public interface IUserService
 {
-    Task<UserListResponseDTO> GetAllUsersAsync();
+    Task<UserListResponseDTO> GetAllUsersAsync(ClaimsPrincipal currentUser);
     Task<UserDTO> GetUserByIdAsync(int id, ClaimsPrincipal currentUser);
     Task CreateUserAsync(CreateUserDTO dto, string password);
     Task UpdateUserAsync(int id, UpdateUserDTO dto, ClaimsPrincipal currentUser);

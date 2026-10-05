@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using StudentCouncil.Logic.Exceptions;
-using StudentCouncil.Logic.Interfaces;
 using System.Text.Json;
 
 namespace StudentCouncil.Web.Middlewares;
@@ -8,9 +8,9 @@ namespace StudentCouncil.Web.Middlewares;
 public class ExceptionMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILoggerService _logger;
+    private readonly ILogger<ExceptionMiddleware> _logger;
 
-    public ExceptionMiddleware(RequestDelegate next, ILoggerService logger)
+    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
     {
         _next = next;
         _logger = logger;
@@ -24,12 +24,12 @@ public class ExceptionMiddleware
         }
         catch (AppException ex)
         {
-            _logger.Warning($"[{ex.StatusCode}] {ex.Message}");
+            _logger.LogWarning("[{StatusCode}] {Message}", ex.StatusCode, ex.Message);
             await WriteResponseAsync(context, ex.StatusCode, ex.Message);
         }
         catch (Exception ex)
         {
-            _logger.Error($"Необработанная ошибка: {ex}");
+            _logger.LogError(ex, "Необработанная ошибка");
             await WriteResponseAsync(context, 500, "Внутренняя ошибка сервера");
         }
     }

@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.DTOs;
-using StudentCouncil.Logic.Interfaces;
 
 namespace StudentCouncil.Web.Controllers;
 
@@ -15,6 +15,7 @@ public class AccountController : BaseController
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
     private readonly ITimeLimitedDataProtector _setupTokenProtector;
+    private readonly ILogger<AccountController> _logger;
 
     private static readonly TimeSpan SetupTokenLifetime = TimeSpan.FromMinutes(10);
 
@@ -22,11 +23,12 @@ public class AccountController : BaseController
         SignInManager<User> signInManager,
         UserManager<User> userManager,
         IDataProtectionProvider dataProtectionProvider,
-        ILoggerService logger) : base(logger)
+        ILogger<AccountController> logger)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _setupTokenProtector = dataProtectionProvider.CreateProtector("AccountController.TwoFactorSetup").ToTimeLimitedDataProtector();
+        _logger = logger;
     }
 
     [HttpPost("login")]
@@ -37,7 +39,7 @@ public class AccountController : BaseController
 
         if (user == null || !user.IsActive)
         {
-            _logger.Warning($"Попытка входа с несуществующим/неактивным email: {request.Email}");
+            _logger.LogWarning("Попытка входа с несуществующим/неактивным email: {Email}", request.Email);
             return Unauthorized(new { error = "Неверный email или пароль" });
         }
 
@@ -45,7 +47,7 @@ public class AccountController : BaseController
 
         if (result.IsLockedOut)
         {
-            _logger.Warning($"Аккаунт {user.Email} заблокирован после неудачных попыток");
+            _logger.LogWarning("Аккаунт {Email} заблокирован после неудачных попыток", user.Email);
             return Unauthorized(new { error = "Неверный email или пароль" });
         }
 
@@ -93,7 +95,7 @@ public class AccountController : BaseController
 
         if (string.IsNullOrEmpty(key))
         {
-            _logger.Error($"Не удалось получить authenticator key для user {user.Id}");
+            _logger.LogError("Не удалось получить authenticator key для user {UserId}", user.Id);
             return StatusCode(500, new { error = "Ошибка настройки 2FA" });
         }
 
@@ -104,7 +106,7 @@ public class AccountController : BaseController
 
         string setupToken = _setupTokenProtector.Protect(user.Id.ToString(), SetupTokenLifetime);
 
-        _logger.Info($"Пользователь {user.Id} направлен на настройку 2FA");
+        _logger.LogInformation("Пользователь {UserId} направлен на настройку 2FA", user.Id);
 
         return Ok(new LoginResultDTO
         {
@@ -150,7 +152,7 @@ public class AccountController : BaseController
     {
         if (string.IsNullOrWhiteSpace(dto.SetupToken))
         {
-            _logger.Warning("Попытка активации 2FA без токена настройки");
+            _logger.LogWarning("Попытка активации 2FA без токена настройки");
             return Unauthorized(new { error = "Начните вход заново" });
         }
 
@@ -162,7 +164,7 @@ public class AccountController : BaseController
         }
         catch
         {
-            _logger.Warning("Попытка активации 2FA с недействительным/истёкшим токеном");
+            _logger.LogWarning("Попытка активации 2FA с недействительным/истёкшим токеном");
             return Unauthorized(new { error = "Токен настройки недействителен или истёк. Войдите заново." });
         }
 
@@ -172,14 +174,14 @@ public class AccountController : BaseController
 
         if (!string.Equals(user.Email, dto.Email, StringComparison.OrdinalIgnoreCase))
         {
-            _logger.Warning($"2FA setup: несовпадение email для user {userId}");
+            _logger.LogWarning("2FA setup: несовпадение email для user {UserId}", userId);
             return Unauthorized(new { error = "Токен настройки недействителен" });
         }
 
         string? key = await _userManager.GetAuthenticatorKeyAsync(user);
         if (string.IsNullOrEmpty(key))
         {
-            _logger.Warning($"2FA setup: у user {userId} отсутствует ключ");
+            _logger.LogWarning("2FA setup: у user {UserId} отсутствует ключ", userId);
             return BadRequest(new { error = "Начните настройку 2FA заново" });
         }
 
@@ -191,7 +193,7 @@ public class AccountController : BaseController
         await _userManager.SetTwoFactorEnabledAsync(user, true);
         await _signInManager.SignInAsync(user, isPersistent: false);
 
-        _logger.Info($"2FA включена для пользователя {user.Id}");
+        _logger.LogInformation("2FA включена для пользователя {UserId}", user.Id);
 
         IList<string> roles = await _userManager.GetRolesAsync(user);
         return Ok(new LoginResponseDTO

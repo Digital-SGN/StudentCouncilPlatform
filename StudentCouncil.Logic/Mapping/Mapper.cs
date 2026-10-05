@@ -1,7 +1,7 @@
 ﻿using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.DTOs;
 
-namespace StudentCouncil.Logic;
+namespace StudentCouncil.Logic.Mapping;
 
 public static class Mapper
 {

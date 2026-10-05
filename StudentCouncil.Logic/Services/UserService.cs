@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.DTOs;
 using StudentCouncil.Logic.Exceptions;
+using StudentCouncil.Logic.Extensions;
 using StudentCouncil.Logic.Interfaces;
+using StudentCouncil.Logic.Mapping;
 using System.Security.Claims;
 
 namespace StudentCouncil.Logic.Services;
@@ -13,21 +16,27 @@ public class UserService : IUserService
 {
     private readonly UserManager<User> _userManager;
     private readonly IFileStorageService _fileStorage;
-    private readonly ILoggerService _logger;
+    private readonly ILogger<UserService> _logger;
 
     public const string avatarsFolder = "avatars";
     public static readonly string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
     private static readonly HashSet<string> AllowedRoles = new(StringComparer.OrdinalIgnoreCase) { "Admin", "Leader", "Member" };
 
-    public UserService(UserManager<User> userManager, IFileStorageService fileStorage, ILoggerService logger)
+    public UserService(
+        UserManager<User> userManager,
+        IFileStorageService fileStorage,
+        ILogger<UserService> logger)
     {
         _userManager = userManager;
         _fileStorage = fileStorage;
         _logger = logger;
     }
 
-    public async Task<UserListResponseDTO> GetAllUsersAsync()
+    public async Task<UserListResponseDTO> GetAllUsersAsync(ClaimsPrincipal currentUser)
     {
+        if (!currentUser.IsAdminOrLeader())
+            throw new ForbiddenException("У вас нет прав на просмотр списка пользователей");
+
         List<User> users = await _userManager.Users.ToListAsync();
         List<UserDTO> result = new List<UserDTO>();
 
@@ -46,19 +55,15 @@ public class UserService : IUserService
 
     public async Task<UserDTO> GetUserByIdAsync(int id, ClaimsPrincipal currentUser)
     {
+        int currentUserId = currentUser.GetUserId();
+
         User? user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null)
             throw new NotFoundException("Пользователь не найден");
 
-        string? userIdStr = _userManager.GetUserId(currentUser);
-        if (string.IsNullOrEmpty(userIdStr))
-            throw new UnauthorizedException("Не удалось определить пользователя");
-
-        int currentUserId = int.Parse(userIdStr);
-        bool isAdminOrLeader = currentUser.IsInRole("Admin") || currentUser.IsInRole("Leader");
         bool isOwnProfile = currentUserId == user.Id;
 
-        if (!isOwnProfile && !isAdminOrLeader)
+        if (!isOwnProfile && !currentUser.IsAdminOrLeader())
             throw new ForbiddenException("У вас нет прав на просмотр этого профиля");
 
         IList<string> roles = await _userManager.GetRolesAsync(user);
@@ -81,7 +86,7 @@ public class UserService : IUserService
         if (!createResult.Succeeded)
         {
             string errors = string.Join(", ", createResult.Errors.Select(e => e.Description));
-            _logger.Warning($"Ошибка создания {dto.Email}: {errors}");
+            _logger.LogWarning("Ошибка создания {Email}: {Errors}", dto.Email, errors);
             throw new BadRequestException($"Ошибка создания: {errors}");
         }
 
@@ -90,31 +95,28 @@ public class UserService : IUserService
         {
             await _userManager.DeleteAsync(user);
             string errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
-            _logger.Warning($"Ошибка назначения роли '{role}' для {dto.Email}: {errors}");
+            _logger.LogWarning("Ошибка назначения роли {Role} для {Email}: {Errors}", role, dto.Email, errors);
             throw new BadRequestException($"Ошибка назначения роли: {errors}");
         }
 
-        _logger.Info($"Создан пользователь {dto.Email} с ролью {role}");
+        _logger.LogInformation("Создан пользователь {Email} с ролью {Role}", dto.Email, role);
     }
 
     public async Task UpdateUserAsync(int id, UpdateUserDTO dto, ClaimsPrincipal currentUser)
     {
-        User? user = await _userManager.FindByIdAsync(id.ToString());
+        int currentUserId = currentUser.GetUserId();
+        bool isAdmin = currentUser.IsAdmin();
 
+        User? user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null)
             throw new NotFoundException("Пользователь не найден");
 
-        string? userIdStr = _userManager.GetUserId(currentUser);
-        if (string.IsNullOrEmpty(userIdStr))
-            throw new UnauthorizedException("Не удалось определить пользователя");
-
-        int currentUserId = int.Parse(userIdStr);
-        bool isAdmin = currentUser.IsInRole("Admin");
         bool isOwnProfile = currentUserId == user.Id;
 
         if (!isOwnProfile && !isAdmin)
         {
-            _logger.Warning($"Пользователь {currentUserId} попытался редактировать чужой профиль {id}");
+            _logger.LogWarning("Пользователь {CurrentUserId} попытался редактировать чужой профиль {TargetId}",
+                currentUserId, id);
             throw new ForbiddenException("У вас нет прав на редактирование этого пользователя");
         }
 
@@ -135,7 +137,7 @@ public class UserService : IUserService
                 int activeAdmins = admins.Count(a => a.IsActive);
                 if (activeAdmins <= 1)
                 {
-                    _logger.Warning($"Попытка заблокировать последнего активного администратора {user.Email}");
+                    _logger.LogWarning("Попытка заблокировать последнего активного администратора {Email}", user.Email);
                     throw new ConflictException("Нельзя заблокировать последнего активного администратора");
                 }
             }
@@ -146,7 +148,7 @@ public class UserService : IUserService
                 int activeAdmins = admins.Count(a => a.IsActive);
                 if (activeAdmins <= 1)
                 {
-                    _logger.Warning($"Попытка снять роль Admin у последнего администратора {user.Email}");
+                    _logger.LogWarning("Попытка снять роль Admin у последнего администратора {Email}", user.Email);
                     throw new BadRequestException("Нельзя снять роль администратора у последнего активного админа");
                 }
             }
@@ -171,7 +173,7 @@ public class UserService : IUserService
             if (wasActive && !user.IsActive)
             {
                 await _userManager.UpdateSecurityStampAsync(user);
-                _logger.Info($"Пользователь {user.Email} заблокирован, все сессии аннулированы");
+                _logger.LogInformation("Пользователь {Email} заблокирован, все сессии аннулированы", user.Email);
             }
         }
         else
@@ -186,20 +188,16 @@ public class UserService : IUserService
             throw new BadRequestException($"Ошибка обновления: {errors}");
         }
 
-        _logger.Info($"Пользователь {currentUserId} изменил профиль {id}");
+        _logger.LogInformation("Пользователь {CurrentUserId} изменил профиль {TargetId}", currentUserId, id);
     }
 
     public async Task DeleteUserAsync(int id, ClaimsPrincipal currentUser)
     {
-        string? userIdStr = _userManager.GetUserId(currentUser);
+        int currentUserId = currentUser.GetUserId();
 
-        if (!currentUser.IsInRole("Admin"))
+        if (!currentUser.IsAdmin())
             throw new ForbiddenException("Доступ запрещен");
 
-        if (string.IsNullOrEmpty(userIdStr))
-            throw new UnauthorizedException("Не удалось определить пользователя");
-
-        int currentUserId = int.Parse(userIdStr);
         if (currentUserId == id)
             throw new ForbiddenException("Вы не можете удалить самого себя");
 
@@ -234,32 +232,31 @@ public class UserService : IUserService
             {
                 if (pgEx.ConstraintName == "FK_Events_AspNetUsers_ResponsibleUserId")
                 {
-                    _logger.Warning($"Пользователь {id} не удалён: ответственный за мероприятия");
+                    _logger.LogWarning("Пользователь {UserId} не удалён: ответственный за мероприятия", id);
                     throw new ConflictException("Нельзя удалить пользователя: он назначен ответственным за мероприятия");
                 }
 
-                _logger.Warning($"Пользователь {id} не удалён: FK violation. Constraint: {pgEx.ConstraintName}");
+                _logger.LogWarning("Пользователь {UserId} не удалён: FK violation. Constraint: {ConstraintName}",
+                    id, pgEx.ConstraintName);
                 throw new ConflictException("Нельзя удалить: с пользователем связаны другие данные.");
             }
 
             throw;
         }
 
-        _logger.Info($"Пользователь {user.Email} удалён");
+        _logger.LogInformation("Пользователь {Email} удалён", user.Email);
     }
 
     public async Task UpdateAvatarAsync(int userId, IFormFile avatar, ClaimsPrincipal currentUser)
     {
+        int currentUserId = currentUser.GetUserId();
+        bool isAdmin = currentUser.IsAdmin();
+
         User? user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
             throw new NotFoundException("Пользователь не найден");
 
-        string? userIdStr = _userManager.GetUserId(currentUser);
-        if (string.IsNullOrEmpty(userIdStr))
-            throw new UnauthorizedException("Не удалось определить пользователя");
-
-        int currentUserId = int.Parse(userIdStr);
-        if (currentUserId != userId && !currentUser.IsInRole("Admin"))
+        if (currentUserId != userId && !isAdmin)
             throw new ForbiddenException("У вас нет прав на изменение аватара этого пользователя");
 
         if (avatar == null || avatar.Length == 0)
@@ -291,33 +288,32 @@ public class UserService : IUserService
         if (!string.IsNullOrEmpty(oldAvatarPath))
             _fileStorage.DeleteFile(oldAvatarPath);
 
-        _logger.Info($"Пользователь {userId} обновил аватар");
+        _logger.LogInformation("Пользователь {UserId} обновил аватар", userId);
     }
 
     public async Task DeleteAvatarAsync(int userId, ClaimsPrincipal currentUser)
     {
+        int currentUserId = currentUser.GetUserId();
+
         User? user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
             throw new NotFoundException("Пользователь не найден");
 
-        string? userIdStr = _userManager.GetUserId(currentUser);
-        if (string.IsNullOrEmpty(userIdStr))
-            throw new UnauthorizedException("Не удалось определить пользователя");
-
-        int currentUserId = int.Parse(userIdStr);
-        if (currentUserId != userId && !currentUser.IsInRole("Admin") && !currentUser.IsInRole("Leader"))
+        if (currentUserId != userId && !currentUser.IsAdminOrLeader())
             throw new ForbiddenException("У вас нет прав на удаление аватара этого пользователя");
 
         _fileStorage.DeleteFile(user.AvatarPath);
         user.AvatarPath = null;
         await _userManager.UpdateAsync(user);
 
-        _logger.Info($"Пользователь {userId} удалил аватар");
+        _logger.LogInformation("Пользователь {UserId} удалил аватар", userId);
     }
 
     public async Task ResetPasswordAsync(int userId, string newPassword, ClaimsPrincipal currentUser)
     {
-        if (!currentUser.IsInRole("Admin"))
+        int currentUserId = currentUser.GetUserId();
+
+        if (!currentUser.IsAdmin())
             throw new ForbiddenException("Только администратор может сбросить пароль");
 
         User? user = await _userManager.FindByIdAsync(userId.ToString());
@@ -329,10 +325,10 @@ public class UserService : IUserService
         if (!result.Succeeded)
         {
             string errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            _logger.Warning($"Ошибка сброса пароля для {userId}: {errors}");
+            _logger.LogWarning("Ошибка сброса пароля для {UserId}: {Errors}", userId, errors);
             throw new BadRequestException($"Ошибка: {errors}");
         }
 
-        _logger.Info($"Пароль сброшен для {userId} администратором {_userManager.GetUserId(currentUser)}");
+        _logger.LogInformation("Пароль сброшен для {UserId} администратором {AdminId}", userId, currentUserId);
     }
 }

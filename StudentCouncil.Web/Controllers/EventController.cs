@@ -11,7 +11,7 @@ public class EventController : BaseController
 {
     private readonly IEventService _eventService;
 
-    public EventController(IEventService eventService, ILoggerService logger) : base(logger)
+    public EventController(IEventService eventService)
     {
         _eventService = eventService;
     }
@@ -37,7 +37,7 @@ public class EventController : BaseController
     public async Task<IActionResult> CreateAsync([FromBody] CreateEventDTO dto)
     {
         EventResponseDTO result = await _eventService.CreateEventAsync(dto, User);
-        return StatusCode(201, result);   
+        return StatusCode(201, result);
     }
 
     [HttpPut("{id}")]
