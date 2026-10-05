@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using StudentCouncil.Data;
 using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.DTOs;
 using StudentCouncil.Logic.Exceptions;
+using StudentCouncil.Logic.Extensions;
 using StudentCouncil.Logic.Interfaces;
+using StudentCouncil.Logic.Mapping;
 using System.Security.Claims;
 
 namespace StudentCouncil.Logic.Services;
@@ -13,32 +16,23 @@ public class BadgeService : IBadgeService
 {
     private readonly AppDbContext _context;
     private readonly IFileStorageService _fileStorage;
-    private readonly ILoggerService _logger;
+    private readonly ILogger<BadgeService> _logger;
 
     public const string badgesFolder = "badges";
     public static readonly string[] pdfExtensions = { ".pdf" };
 
-    public BadgeService(AppDbContext context, IFileStorageService fileStorage, ILoggerService logger)
+    public BadgeService(AppDbContext context, IFileStorageService fileStorage, ILogger<BadgeService> logger)
     {
         _context = context;
         _fileStorage = fileStorage;
         _logger = logger;
     }
 
-    private (int userId, bool isAdmin, bool isLeader, bool isAdminOrLeader) GetUserInfo(ClaimsPrincipal user)
-    {
-        var userIdStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0";
-        int userId = int.Parse(userIdStr);
-        bool isAdmin = user.IsInRole("Admin");
-        bool isLeader = user.IsInRole("Leader");
-        return (userId, isAdmin, isLeader, isAdmin || isLeader);
-    }
-
     public async Task<BadgeListResponseDTO> GetBadgesByUserAsync(int userId, ClaimsPrincipal currentUser)
     {
-        var (currentUserId, _, _, isAdminOrLeader) = GetUserInfo(currentUser);
+        int currentUserId = currentUser.GetUserId();
 
-        if (userId != currentUserId && !isAdminOrLeader)
+        if (userId != currentUserId && !currentUser.IsAdminOrLeader())
             throw new ForbiddenException("У вас нет прав на просмотр бейджей этого пользователя");
 
         List<Badge> badges = await _context.Badges
@@ -57,9 +51,7 @@ public class BadgeService : IBadgeService
 
     public async Task<BadgeListResponseDTO> GetBadgesByEventAsync(int eventId, ClaimsPrincipal currentUser)
     {
-        var (_, _, _, isAdminOrLeader) = GetUserInfo(currentUser);
-
-        if (!isAdminOrLeader)
+        if (!currentUser.IsAdminOrLeader())
             throw new ForbiddenException("У вас нет прав на просмотр бейджей мероприятия");
 
         Event? eventEntity = await _context.Events
@@ -85,7 +77,7 @@ public class BadgeService : IBadgeService
 
     public async Task<BadgeResponseDTO> GetBadgeByIdAsync(int id, ClaimsPrincipal currentUser)
     {
-        var (currentUserId, _, _, isAdminOrLeader) = GetUserInfo(currentUser);
+        int currentUserId = currentUser.GetUserId();
 
         Badge? badge = await _context.Badges
             .Include(b => b.User)
@@ -95,7 +87,7 @@ public class BadgeService : IBadgeService
         if (badge == null)
             throw new NotFoundException("Бейдж не найден");
 
-        if (badge.UserId != currentUserId && !isAdminOrLeader)
+        if (badge.UserId != currentUserId && !currentUser.IsAdminOrLeader())
             throw new ForbiddenException("У вас нет прав на просмотр этого бейджа");
 
         return Mapper.ToBadgeDTO(badge);
@@ -103,7 +95,10 @@ public class BadgeService : IBadgeService
 
     public async Task CreateBadgeAsync(CreateBadgeDTO dto, IFormFile? file, ClaimsPrincipal currentUser)
     {
-        var (currentUserId, _, _, _) = GetUserInfo(currentUser);
+        if (!currentUser.IsAdmin())
+            throw new ForbiddenException("Только администратор может создавать бейджи");
+
+        int currentUserId = currentUser.GetUserId();
 
         User? user = await _context.Users.FindAsync(dto.UserId);
         if (user == null)
@@ -133,15 +128,16 @@ public class BadgeService : IBadgeService
         _context.Badges.Add(badge);
         await _context.SaveChangesAsync();
 
-        _logger.Info($"Бейдж создан пользователем {currentUserId}: UserId={dto.UserId}, EventId={dto.EventId}");
+        _logger.LogInformation("Бейдж создан пользователем {CurrentUserId}: UserId={UserId}, EventId={EventId}",
+            currentUserId, dto.UserId, dto.EventId);
     }
 
     public async Task UpdateBadgeAsync(int id, UpdateBadgeDTO dto, ClaimsPrincipal currentUser)
     {
-        var (currentUserId, isAdmin, _, _) = GetUserInfo(currentUser);
-
-        if (!isAdmin)
+        if (!currentUser.IsAdmin())
             throw new ForbiddenException("Только администратор может обновлять бейджи");
+
+        int currentUserId = currentUser.GetUserId();
 
         Badge? badge = await _context.Badges.FindAsync(id);
         if (badge == null)
@@ -150,12 +146,15 @@ public class BadgeService : IBadgeService
         Mapper.UpdateBadgeEntity(badge, dto);
         await _context.SaveChangesAsync();
 
-        _logger.Info($"Бейдж {id} обновлён пользователем {currentUserId}");
+        _logger.LogInformation("Бейдж {BadgeId} обновлён пользователем {CurrentUserId}", id, currentUserId);
     }
 
     public async Task DeleteBadgeAsync(int id, ClaimsPrincipal currentUser)
     {
-        var (currentUserId, _, _, _) = GetUserInfo(currentUser);
+        if (!currentUser.IsAdmin())
+            throw new ForbiddenException("Только администратор может удалять бейджи");
+
+        int currentUserId = currentUser.GetUserId();
 
         Badge? badge = await _context.Badges.FindAsync(id);
         if (badge == null)
@@ -166,12 +165,15 @@ public class BadgeService : IBadgeService
         _context.Badges.Remove(badge);
         await _context.SaveChangesAsync();
 
-        _logger.Info($"Бейдж {id} удалён пользователем {currentUserId}");
+        _logger.LogInformation("Бейдж {BadgeId} удалён пользователем {CurrentUserId}", id, currentUserId);
     }
 
     public async Task UploadBadgeFileAsync(int id, IFormFile file, ClaimsPrincipal currentUser)
     {
-        var (currentUserId, _, _, _) = GetUserInfo(currentUser);
+        if (!currentUser.IsAdmin())
+            throw new ForbiddenException("Только администратор может загружать файлы бейджей");
+
+        int currentUserId = currentUser.GetUserId();
 
         Badge? badge = await _context.Badges.FindAsync(id);
         if (badge == null)
@@ -206,15 +208,15 @@ public class BadgeService : IBadgeService
         if (!string.IsNullOrEmpty(oldPath))
             _fileStorage.DeleteFile(oldPath);
 
-        _logger.Info($"Файл бейджа {id} загружен пользователем {currentUserId}");
+        _logger.LogInformation("Файл бейджа {BadgeId} загружен пользователем {CurrentUserId}", id, currentUserId);
     }
 
     public async Task DeleteBadgeFileAsync(int id, ClaimsPrincipal currentUser)
     {
-        var (currentUserId, isAdmin, _, _) = GetUserInfo(currentUser);
-
-        if (!isAdmin)
+        if (!currentUser.IsAdmin())
             throw new ForbiddenException("Только администратор может удалять файлы бейджей");
+
+        int currentUserId = currentUser.GetUserId();
 
         Badge? badge = await _context.Badges.FindAsync(id);
         if (badge == null)
@@ -227,20 +229,21 @@ public class BadgeService : IBadgeService
         badge.FilePath = null;
         await _context.SaveChangesAsync();
 
-        _logger.Info($"Файл бейджа {id} удалён пользователем {currentUserId}");
+        _logger.LogInformation("Файл бейджа {BadgeId} удалён пользователем {CurrentUserId}", id, currentUserId);
     }
 
     public async Task<(byte[] FileContent, string ContentType, string FileName)> DownloadBadgeAsync(int id, ClaimsPrincipal currentUser)
     {
-        var (currentUserId, _, _, isAdminOrLeader) = GetUserInfo(currentUser);
+        int currentUserId = currentUser.GetUserId();
 
         Badge? badge = await _context.Badges.FindAsync(id);
         if (badge == null)
             throw new NotFoundException("Бейдж не найден");
 
-        if (badge.UserId != currentUserId && !isAdminOrLeader)
+        if (badge.UserId != currentUserId && !currentUser.IsAdminOrLeader())
         {
-            _logger.Warning($"Пользователь {currentUserId} попытался скачать чужой бейдж {id}");
+            _logger.LogWarning("Пользователь {CurrentUserId} попытался скачать чужой бейдж {BadgeId}",
+                currentUserId, id);
             throw new ForbiddenException("У вас нет прав на скачивание этого бейджа");
         }
 
