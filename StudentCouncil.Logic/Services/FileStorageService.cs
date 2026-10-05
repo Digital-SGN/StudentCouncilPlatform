@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using StudentCouncil.Logic.Interfaces;
 
 namespace StudentCouncil.Logic.Services;
@@ -7,14 +8,14 @@ namespace StudentCouncil.Logic.Services;
 public class FileStorageService : IFileStorageService
 {
     private readonly IWebHostEnvironment _environment;
-    private readonly ILoggerService _logger;
+    private readonly ILogger<FileStorageService> _logger;
 
     private static readonly byte[] PdfSignature = { 0x25, 0x50, 0x44, 0x46 };
     private static readonly byte[] JpegSignature = { 0xFF, 0xD8, 0xFF };
     private static readonly byte[] PngSignature = { 0x89, 0x50, 0x4E, 0x47 };
     private static readonly byte[] GifSignature = { 0x47, 0x49, 0x46, 0x38 };
 
-    public FileStorageService(IWebHostEnvironment environment, ILoggerService logger)
+    public FileStorageService(IWebHostEnvironment environment, ILogger<FileStorageService> logger)
     {
         _environment = environment;
         _logger = logger;
@@ -56,7 +57,7 @@ public class FileStorageService : IFileStorageService
 
         string relativePath = "/" + Path.Combine(subFolder, fileName).Replace("\\", "/");
 
-        _logger.Info($"Файл сохранён: {relativePath}");
+        _logger.LogInformation("Файл сохранён: {RelativePath}", relativePath);
         return relativePath;
     }
 
@@ -73,12 +74,12 @@ public class FileStorageService : IFileStorageService
             if (File.Exists(fullPath))
             {
                 File.Delete(fullPath);
-                _logger.Info($"Файл удалён: {path}");
+                _logger.LogInformation("Файл удалён: {Path}", path);
             }
         }
         catch (Exception ex)
         {
-            _logger.Error($"Ошибка удаления файла {path}: {ex.Message}");
+            _logger.LogError(ex, "Ошибка удаления файла {Path}", path);
         }
     }
 

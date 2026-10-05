@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using StudentCouncil.Logic.Interfaces;
 
 namespace StudentCouncil.Web.Controllers;
 
@@ -7,10 +6,5 @@ namespace StudentCouncil.Web.Controllers;
 [Produces("application/json")]
 public abstract class BaseController : ControllerBase
 {
-    protected readonly ILoggerService _logger;
 
-    public BaseController(ILoggerService logger)
-    {
-        _logger = logger;
-    }
 }

@@ -12,7 +12,7 @@ public class BadgeController : BaseController
 {
     private readonly IBadgeService _badgeService;
 
-    public BadgeController(IBadgeService badgeService, ILoggerService logger) : base(logger)
+    public BadgeController(IBadgeService badgeService)
     {
         _badgeService = badgeService;
     }
