@@ -5,7 +5,6 @@ import { API } from '../api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import logo from '../assets/logo.svg';
-import Bubbles from '../components/Bubbles';
 import Alert from '../components/Alert';
 import '../css/LoginPage.css';
 import '../css/Bubbles.css';
@@ -290,12 +289,6 @@ export default function LoginPage({ setUser }) {
                     {step === 'login' && renderLoginForm()}
                     {step === 'setup' && renderSetupForm()}
                     {step === 'verify' && renderVerifyForm()}
-
-                    <div className="help-row">
-                        <div className="help-link">
-                            <a href="/help">Помощь</a>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
