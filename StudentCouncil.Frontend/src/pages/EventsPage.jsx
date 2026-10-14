@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -26,8 +26,11 @@ export default function EventsPage() {
     const [usersMap, setUsersMap] = useState(new Map());
 
     const [searchTerm, setSearchTerm] = useState('');
+
     const [sortField, setSortField] = useState('eventDate');
     const [sortOrder, setSortOrder] = useState('desc');
+    const [sortOpen, setSortOpen] = useState(false);
+    const sortRef = useRef(null);
 
     const [modalState, setModalState] = useState({ isOpen: false, eventId: null });
     const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, eventId: null });
@@ -39,6 +42,24 @@ export default function EventsPage() {
             setLoading(false);
         }
     }, []);
+
+    useEffect(() => {
+        if (!sortOpen) return;
+        const handleClick = (e) => {
+            if (sortRef.current && !sortRef.current.contains(e.target)) {
+                setSortOpen(false);
+            }
+        };
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') setSortOpen(false);
+        };
+        document.addEventListener('mousedown', handleClick);
+        document.addEventListener('keydown', handleEsc);
+        return () => {
+            document.removeEventListener('mousedown', handleClick);
+            document.removeEventListener('keydown', handleEsc);
+        };
+    }, [sortOpen]);
 
     const loadEvents = async () => {
         try {
@@ -101,6 +122,15 @@ export default function EventsPage() {
         } else {
             setSortField(field);
             setSortOrder('asc');
+        }
+    };
+
+    const getSortLabel = (field) => {
+        switch (field) {
+            case 'eventDate': return 'Дата';
+            case 'budget': return 'Бюджет';
+            case 'status': return 'Статус';
+            default: return 'Сортировка';
         }
     };
 
@@ -194,23 +224,59 @@ export default function EventsPage() {
                                 className="search-input"
                             />
                         </div>
-                        <div className="sort-buttons">
-                            <button onClick={() => handleSort('eventDate')} className="sort-btn">
-                                Дата {renderSortIcon('eventDate')}
+
+                        <div className="sort-dropdown" ref={sortRef}>
+                            <button
+                                type="button"
+                                className="sort-dropdown-toggle"
+                                onClick={() => setSortOpen(v => !v)}
+                                aria-expanded={sortOpen}
+                            >
+                                <FontAwesomeIcon icon={faSort} />
+                                <span className="sort-dropdown-label">
+                                    {getSortLabel(sortField)}
+                                </span>
+                                <FontAwesomeIcon
+                                    icon={sortOrder === 'asc' ? faSortUp : faSortDown}
+                                    className="sort-direction-icon"
+                                />
                             </button>
-                            <button onClick={() => handleSort('budget')} className="sort-btn">
-                                Бюджет {renderSortIcon('budget')}
-                            </button>
-                            <button onClick={() => handleSort('status')} className="sort-btn">
-                                Статус {renderSortIcon('status')}
-                            </button>
+
+                            {sortOpen && (
+                                <div className="sort-menu">
+                                    {[
+                                        { field: 'eventDate', label: 'Дата' },
+                                        { field: 'budget', label: 'Бюджет' },
+                                        { field: 'status', label: 'Статус' },
+                                    ].map(({ field, label }) => (
+                                        <button
+                                            key={field}
+                                            type="button"
+                                            className={`sort-menu-item ${sortField === field ? 'active' : ''}`}
+                                            onClick={() => {
+                                                handleSort(field);
+                                                setSortOpen(false);
+                                            }}
+                                        >
+                                            <span>{label}</span>
+                                            {sortField === field && (
+                                                <FontAwesomeIcon
+                                                    icon={sortOrder === 'asc' ? faSortUp : faSortDown}
+                                                />
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </div>
+
                         <button onClick={exportEventsToCSV} className="export-btn">
                             <FontAwesomeIcon icon={faFileExport} /> Экспорт CSV
                         </button>
+
                         {isAdmin && (
                             <button onClick={openCreateModal} className="create-event-btn">
-                                <FontAwesomeIcon icon={faPlus} /> Создать мероприятие
+                                <FontAwesomeIcon icon={faPlus} /> Создать
                             </button>
                         )}
                     </div>
@@ -293,14 +359,14 @@ export default function EventsPage() {
                                     )}
                                 </div>
                                 <div className="event-card-footer">
-                                    <Link to={`/events/${event.id}`} className="event-btn view"><FontAwesomeIcon icon={faEye} /> Подробнее</Link>
+                                    <Link to={`/events/${event.id}`} className="event-btn view"><FontAwesomeIcon icon={faEye} /> </Link>
                                     {isAdmin && (
                                         <>
                                             <button onClick={() => openEditModal(event.id)} className="event-btn edit">
-                                                <FontAwesomeIcon icon={faEdit} /> Редактировать
+                                                <FontAwesomeIcon icon={faEdit} /> Ред.
                                             </button>
                                             <button onClick={() => handleDeleteClick(event.id)} className="event-btn delete">
-                                                <FontAwesomeIcon icon={faTrashAlt} /> Удалить
+                                                <FontAwesomeIcon icon={faTrashAlt} />
                                             </button>
                                         </>
                                     )}
