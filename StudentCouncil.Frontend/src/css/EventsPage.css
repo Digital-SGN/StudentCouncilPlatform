@@ -264,44 +264,6 @@
     margin-bottom: 20px;
 }
 
-@media (max-width: 640px) {
-    .events-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 12px;
-    }
-
-    .header-actions {
-        width: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 0;
-    }
-
-    .search-box {
-        flex: 1 1 100%;
-        min-width: 0;
-    }
-
-    .export-btn,
-    .create-event-btn {
-        flex: 1 1 auto;
-        justify-content: center;
-        padding: 0 14px;
-        font-size: 13px;
-    }
-
-    .events-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .event-card-footer {
-        flex-wrap: wrap;
-    }
-}
-
-
 .modal {
     display: flex;
     position: fixed;
@@ -689,13 +651,11 @@
         margin-bottom: 0;
     }
 
-    /* Поиск — на всю ширину */
     .search-box {
         flex: 1 1 100%;
         min-width: 0;
     }
 
-    /* Три кнопки в ряд, растянутые поровну */
     .sort-dropdown {
         flex: 1 1 calc(33% - 6px);
         min-width: 0;
@@ -714,7 +674,6 @@
         white-space: nowrap;
     }
 
-    /* На мобилке меню — на всю ширину кнопки */
     .sort-menu {
         left: 0;
         right: 0;
