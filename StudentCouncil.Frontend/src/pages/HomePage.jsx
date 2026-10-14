@@ -30,6 +30,7 @@ export default function HomePage() {
   const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + total) % total);
   const goToSlide = (index) => setCurrentIndex(index);
 
+
   useEffect(() => {
     autoPlayRef.current = setInterval(nextSlide, 5000);
     return () => clearInterval(autoPlayRef.current);
