@@ -142,10 +142,57 @@
     border-top: 1px solid #e2e8f0;
 }
 
-.event-team-section h3 {
+.event-team-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.event-team-header h3 {
     font-size: 20px;
     color: black;
-    margin-bottom: 16px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.team-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 26px;
+    padding: 0 8px;
+    background: #e6fffa;
+    color: #0CBFA1;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.add-member-btn {
+    background: linear-gradient(135deg, #0CBFA1 0%, #148C9C 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 22px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.add-member-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(12, 191, 161, 0.4);
 }
 
 .no-team-message {
@@ -156,186 +203,145 @@
     border-radius: 12px;
 }
 
-.team-cards {
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); 
+    gap: 10px;
+}
+
+.team-member-card {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-}
-
-.team-card {
-    background: white;
+    gap: 8px;                       
+    background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 20px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: all 0.2s;
+    border-radius: 12px;
+    padding: 10px;                  
+    transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
-.team-card:hover {
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+.team-member-card:hover {
+    background: #ffffff;
+    border-color: #cbd5e0;
+    box-shadow: 0 4px 14px rgba(12, 191, 161, 0.08);
 }
 
-.team-card-row {
+.team-member-header {
     display: flex;
-    align-items: flex-start;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px dashed #edf2f7;
-}
-
-.team-card-row:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.team-card-label {
-    font-weight: 600;
-    color: black;
-    min-width: 100px;
-    flex-shrink: 0;
-    font-size: 18px;
-}
-
-.team-card-value {
-    flex: 1;
-    color: black;
-    font-size: 14px;
-    display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 10px;                    
+    min-width: 0;
 }
 
-.team-member-link {
-    font-size: 18px;
+.team-member-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0CBFA1, #148C9C);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    user-select: none;
+    overflow: hidden;
+}
+
+.team-member-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.team-member-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+    flex: 1;
+}
+
+.team-member-name {
+    font-size: 15px;
     font-weight: 600;
+    color: #2d3748;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.team-member-name:hover {
     color: #0CBFA1;
     text-decoration: none;
 }
 
-.team-member-link:hover {
-    text-decoration: underline;
-}
-
 .team-role-badge {
     display: inline-block;
-    padding: 4px 12px;
-    border-radius: 30px;
-    font-size: 18px;
-    font-weight: bold;
-    background: #e2e8f0;
-    color: #2d3748;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
     white-space: nowrap;
+    width: fit-content;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.badge-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
+.team-member-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;                       
 }
 
-.team-actions-cell {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-}
-
-.team-badge-btn,
-.team-action-btn {
+.team-icon-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 30px;
-    font-size: 16px;
-    font-weight: 500;
+    justify-content: center;
+    height: 26px;                  
+    padding: 0;
+    border-radius: 6px;            
+    font-size: 12px;
     border: none;
     cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
+    transition: transform 0.15s, filter 0.15s, box-shadow 0.15s;
+    min-width: 0;
 }
 
-.team-badge-btn.view {
-    background: #dbeafe;
-    color: #1e40af;
+.team-icon-btn svg {
+    font-size: 12px;              
 }
 
-.team-badge-btn.view:hover {
-    background: #bfdbfe;
+.team-icon-btn.view     { background: #dbeafe; color: #1e40af; }
+.team-icon-btn.download { background: #e2e8f0; color: #2d3748; }
+.team-icon-btn.upload   { background: #fef3c7; color: #92400e; }
+.team-icon-btn.edit     { background: #e0e7ff; color: #4338ca; }
+.team-icon-btn.delete   { background: #fee2e2; color: #dc2626; }
+
+.team-icon-btn:hover {
     transform: translateY(-1px);
+    filter: brightness(0.95);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
-.team-badge-btn.download {
-    background: #e2e8f0;
-    color: #2d3748;
-}
-
-.team-badge-btn.download:hover {
-    background: #cbd5e0;
-    transform: translateY(-1px);
-}
-
-.team-badge-btn.upload {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.team-badge-btn.upload:hover {
-    background: #fde68a;
-    transform: translateY(-1px);
-}
-
-.team-action-btn.edit {
-    background: #e2e8f0;
-    color: #2d3748;
-}
-
-.team-action-btn.edit:hover {
-    background: #cbd5e0;
-    transform: translateY(-1px);
-}
-
-.team-action-btn.delete {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-.team-action-btn.delete:hover {
-    background: #fecaca;
-    transform: translateY(-1px);
+.team-icon-btn svg {
+    font-size: 13px;
 }
 
 .no-badge {
+    grid-column: 1 / -1;
     color: #94a3b8;
-    font-size: 0.8rem;
+    font-size: 12px;
     font-style: italic;
-}
-
-.add-member-section {
-    margin-top: 100px;
-    text-align: right;
-}
-
-.add-member-btn {
-    background: linear-gradient(135deg, #0CBFA1 0%, #148C9C 100%);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    transition: all 0.2s;
-    margin-top: 15px;         
-    display: inline-block;  
-}
-
-.add-member-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(12, 191, 161, 0.4);
+    text-align: center;
+    padding: 4px 0;
 }
 
 .event-actions {
@@ -348,63 +354,144 @@
 
 .event-edit-btn,
 .event-delete-btn {
-    padding: 10px 24px;
-    border-radius: 30px;
-    font-size: 14px;
-    font-weight: bold;
-    text-decoration: none;
-    transition: all 0.2s;
-    text-align: center;
-    cursor: pointer;
-    border: none;
     flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
     white-space: nowrap;
-    display: inline-block;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
 .event-edit-btn {
     background: linear-gradient(135deg, #0CBFA1 0%, #148C9C 100%);
-    color: white;
+    color: #fff;
 }
 
 .event-edit-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(12, 191, 161, 0.3);
-    color: white;
-    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(12, 191, 161, 0.35);
 }
 
 .event-delete-btn {
     background: #fee2e2;
-    font-weight: bold;
     color: #dc2626;
-    border: none;
-    cursor: pointer;
-    padding: 6px 16px;
-    font-size: 13px;
 }
 
 .event-delete-btn:hover {
     background: #fecaca;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.2);
 }
 
-@media (max-width: 768px) {
-    .team-card-row {
-        flex-direction: column;
+@media (max-width: 640px) {
+    .event-detail-page {
+        padding: 16px 12px;
+    }
+    .event-detail-body {
+        padding: 16px;
+    }
+    .event-info-grid {
+        padding: 8px 14px;
+        border-radius: 14px;
+    }
+    .event-info-row {
+        display: grid;
+        grid-template-columns: 32px 1fr;
+        grid-template-rows: auto auto;
+        column-gap: 10px;
+        row-gap: 2px;
+        align-items: start;
+        padding: 10px 0;
+    }
+    .event-info-icon {
+        grid-row: 1 / span 2;
+        font-size: 18px;
+        padding-top: 1px;
+    }
+    .event-info-label {
+        width: auto;
+        font-size: 13px;
+        color: #718096;
+        font-weight: 500;
+    }
+    .event-info-value {
+        font-size: 15px;
+        line-height: 1.35;
+    }
+
+    .event-team-header {
+        gap: 8px;
+    }
+    .event-team-header h3 {
+        font-size: 17px;
+    }
+    .add-member-btn {
+        padding: 7px 14px;
+        font-size: 13px;
+    }
+
+    .team-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .team-member-card {
+        padding: 12px;
+        gap: 10px;
+    }
+    .team-member-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+    }
+    .team-member-name {
+        font-size: 14px;
+    }
+
+    .team-member-actions {
         gap: 6px;
     }
-    .team-card-label {
-        min-width: auto;
+    .team-icon-btn {
+        height: 34px;
+        border-radius: 8px;
     }
-    .badge-buttons,
-    .team-actions-cell {
+    .team-icon-btn svg {
+        font-size: 14px;
+    }
+
+    .event-actions {
         flex-direction: column;
-        width: 100%;
+        gap: 10px;
     }
-    .team-badge-btn,
-    .team-action-btn {
+    .event-edit-btn,
+    .event-delete-btn {
         width: 100%;
-        justify-content: center;
+        padding: 12px 20px;
+        font-size: 15px;
+    }
+
+    .event-team-section h3,
+    .event-description-section h3 {
+        font-size: 17px;
+    }
+    .event-description-section p {
+        font-size: 15px;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 900px) {
+    .team-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    .event-detail-body {
+        padding: 24px;
     }
 }
 
@@ -655,7 +742,6 @@
         font-size: 20px;
         line-height: 1.25;
         display: -webkit-box;
-        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }

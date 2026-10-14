@@ -35,6 +35,7 @@ export default function EventDetailPage() {
     const [event, setEvent] = useState(null);
     const [badges, setBadges] = useState([]);
     const [usersMap, setUsersMap] = useState(new Map());
+    const [avatarsMap, setAvatarsMap] = useState(new Map());   
     const [usersList, setUsersList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -52,19 +53,17 @@ export default function EventDetailPage() {
 
     useEffect(() => {
         const loadUsers = async () => {
-            const result = await API.getUsers();
-            if (result.ok) {
-                const users = result.data.users || [];
-
-                users.sort((a, b) => {
-                    const lastNameA = a.lastName.toLowerCase();
-                    const lastNameB = b.lastName.toLowerCase();
-                    if (lastNameA < lastNameB) return -1;
-                    if (lastNameA > lastNameB) return 1;
-                    return 0;
-                });
-                setUsersList(users);
-            }
+            const usersResult = await API.getUsers();
+                if (usersResult.ok) {
+                    const map = new Map();
+                    const avatars = new Map();
+                    usersResult.data.users.forEach(u => {
+                        map.set(u.id, `${u.lastName} ${u.firstName} ${u.patronymic || ''}`.trim());
+                        if (u.avatarPath) avatars.set(u.id, u.avatarPath); 
+                    });
+                    setUsersMap(map);
+                    setAvatarsMap(avatars);                                 
+                }
         };
         loadUsers();
     }, []);
@@ -291,68 +290,89 @@ export default function EventDetailPage() {
                         )}
 
                         <div className="event-team-section">
-                            <h3><FontAwesomeIcon icon={faUsers} /> Организаторский состав</h3>
+                            <div className="event-team-header">
+                                <h3>
+                                    <FontAwesomeIcon icon={faUsers} /> Организаторский состав
+                                    {badges.length > 0 && <span className="team-count">{badges.length}</span>}
+                                </h3>
+                                {isAdmin && (
+                                    <button
+                                        onClick={() => setShowAddMemberModal(true)}
+                                        className="add-member-btn"
+                                        title="Добавить участника"
+                                    >
+                                        + Добавить
+                                    </button>
+                                )}
+                            </div>
+
                             {badges.length === 0 ? (
                                 <p className="no-team-message">Пока нет участников</p>
                             ) : (
-                                <div className="team-cards">
-                                    {badges.map(badge => (
-                                        <div key={badge.id} className="team-card">
-                                            <div className="team-card-row">
-                                                <span className="team-card-label">
-                                                    <Link to={`/users/${badge.userId}`} className="team-member-link">
-                                                        {badge.userName}
-                                                    </Link>
-                                                </span>
-                                            </div>
-                                            <div className="team-card-row">
-                                                <span className="team-card-label">Роль</span>
-                                                <span className="team-card-value">
-                                                    <span className="team-role-badge" style={roleStyles[badge.role] || { background: '#e2e8f0', color: '#2d3748' }}>
-                                                        {badge.role}
-                                                    </span>
-                                                </span>
-                                            </div>
-                                            <div className="team-card-row">
-                                                <span className="team-card-label">Бейдж</span>
-                                                <div className="team-card-value badge-buttons">
+                                <div className="team-grid">
+                                    {badges.map(badge => {
+                                        const avatar = avatarsMap.get(badge.userId);
+                                        return (
+                                            <div key={badge.id} className="team-member-card">
+                                                <div className="team-member-header">
+                                                    <div className="team-member-avatar">
+                                                        {avatar ? (
+                                                            <img src={avatar} alt={badge.userName} />
+                                                        ) : (
+                                                            getInitials(badge.userName)
+                                                        )}
+                                                    </div>
+                                                    <div className="team-member-info">
+                                                        <Link to={`/users/${badge.userId}`} className="team-member-name">
+                                                            {badge.userName}
+                                                        </Link>
+                                                        <span
+                                                            className="team-role-badge"
+                                                            style={roleStyles[badge.role] || { background: '#e2e8f0', color: '#2d3748' }}
+                                                        >
+                                                            {badge.role}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="team-member-actions">
                                                     {badge.filePath && (
                                                         <>
-                                                            <button onClick={() => viewBadge(badge.id)} className="team-badge-btn view">
-                                                                <FontAwesomeIcon icon={faEye} /> Просмотр
+                                                            <button onClick={() => viewBadge(badge.id)} className="team-icon-btn view" title="Просмотр">
+                                                                <FontAwesomeIcon icon={faEye} />
                                                             </button>
-                                                            <button onClick={() => downloadBadge(badge.id, badge.eventTitle, badge.userName, badge.role)} className="team-badge-btn download">
-                                                                <FontAwesomeIcon icon={faDownload} /> Скачать
+                                                            <button onClick={() => downloadBadge(badge.id, badge.eventTitle, badge.userName, badge.role)} className="team-icon-btn download" title="Скачать">
+                                                                <FontAwesomeIcon icon={faDownload} />
                                                             </button>
                                                         </>
                                                     )}
                                                     {isAdmin && (
-                                                        <button onClick={() => uploadBadgeFile(badge.id)} className="team-badge-btn upload">
-                                                            <FontAwesomeIcon icon={faUpload} /> {badge.filePath ? 'Заменить' : 'Загрузить'}
+                                                        <button
+                                                            onClick={() => uploadBadgeFile(badge.id)}
+                                                            className="team-icon-btn upload"
+                                                            title={badge.filePath ? 'Заменить бейдж' : 'Загрузить бейдж'}
+                                                        >
+                                                            <FontAwesomeIcon icon={faUpload} />
                                                         </button>
                                                     )}
-                                                    {!badge.filePath && !isAdmin && <span className="no-badge">—</span>}
+                                                    {isAdmin && (
+                                                        <>
+                                                            <button onClick={() => openEditRoleModal(badge.id, badge.userId, badge.role)} className="team-icon-btn edit" title="Изменить">
+                                                                <FontAwesomeIcon icon={faEdit} />
+                                                            </button>
+                                                            <button onClick={() => handleDeleteBadgeClick(badge.id)} className="team-icon-btn delete" title="Удалить">
+                                                                <FontAwesomeIcon icon={faTrashAlt} />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    {!badge.filePath && !isAdmin && (
+                                                        <span className="no-badge">Бейдж не загружен</span>
+                                                    )}
                                                 </div>
                                             </div>
-                                            {isAdmin && (
-                                                <div className="team-card-row">
-                                                    <span className="team-card-label">Действия</span>
-                                                    <div className="team-card-value team-actions-cell">
-                                                        <button onClick={() => openEditRoleModal(badge.id, badge.userId, badge.role)} className="team-action-btn edit">
-                                                            <FontAwesomeIcon icon={faEdit} /> Изменить
-                                                        </button>
-                                                        <button onClick={() => handleDeleteBadgeClick(badge.id)} className="team-action-btn delete">
-                                                            <FontAwesomeIcon icon={faTrashAlt} /> Удалить
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
-                            )}
-                            {isAdmin && (
-                                <button onClick={() => setShowAddMemberModal(true)} className="add-member-btn">+ Добавить участника</button>
                             )}
                         </div>
 
@@ -481,6 +501,13 @@ function getStatusText(status) {
         case 'Cancelled': return 'Отменено';
         default: return status;
     }
+}
+
+function getInitials(name) {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0][0]?.toUpperCase() || '?';
+    return ((parts[0][0] || '') + (parts[1][0] || '')).toUpperCase();
 }
 
 function getStatusClass(status) {
