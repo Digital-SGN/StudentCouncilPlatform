@@ -22,25 +22,23 @@ export default function HomePage() {
   const prevIndex = (currentIndex - 1 + total) % total;
   const nextIndex = (currentIndex + 1) % total;
 
-  const goToSlide = (index) => {
-    setCurrentIndex(index);
-  };
-
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % total);
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + total) % total);
-  };
+  const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % total);
+  const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + total) % total);
 
   useEffect(() => {
     autoPlayRef.current = setInterval(nextSlide, 5000);
     return () => clearInterval(autoPlayRef.current);
   }, []);
 
-  const pauseAutoPlay = () => clearInterval(autoPlayRef.current);
+  const pauseAutoPlay = () => {
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current);
+      autoPlayRef.current = null;
+    }
+  };
+
   const resumeAutoPlay = () => {
+    pauseAutoPlay();
     autoPlayRef.current = setInterval(nextSlide, 5000);
   };
 
