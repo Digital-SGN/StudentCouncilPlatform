@@ -33,7 +33,7 @@ export default function UsersPage() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [viewMode, setViewMode] = useState('table');
+    const [viewMode, setViewMode] = useState('cards');
 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortField, setSortField] = useState('lastName');
@@ -270,17 +270,24 @@ export default function UsersPage() {
                                             {isAdmin && (
                                                 <>
                                                     <button onClick={() => openEditModal(user.id)} className="action-btn edit">
-                                                        <FontAwesomeIcon icon={faEdit} /> Ред.
+                                                        <FontAwesomeIcon icon={faEdit} />
                                                     </button>
-                                                    <button onClick={() => openResetPasswordModal(user.id)} className="action-btn reset-pwd">
-                                                        <FontAwesomeIcon icon={faKey} /> Сброс пароля
-                                                    </button>
-                                                    <button onClick={() => openReset2FAModal(user.id)} className="action-btn reset-2fa">
-                                                        <FontAwesomeIcon icon={faShieldAlt} /> 2FA
-                                                    </button>
-                                                    <button onClick={() => handleDeleteClick(user.id)} className="action-btn delete">
-                                                        <FontAwesomeIcon icon={faTrashAlt} /> Удалить
-                                                    </button>
+                                                    <details className="dropdown">
+                                                        <summary className="action-btn more">
+                                                            <FontAwesomeIcon icon={faEllipsisV} />
+                                                        </summary>
+                                                        <div className="dropdown-menu">
+                                                            <button onClick={() => openResetPasswordModal(user.id)} className="dropdown-item">
+                                                                <FontAwesomeIcon icon={faKey} /> Сброс пароля
+                                                            </button>
+                                                            <button onClick={() => openReset2FAModal(user.id)} className="dropdown-item">
+                                                                <FontAwesomeIcon icon={faShieldAlt} /> Сбросить 2FA
+                                                            </button>
+                                                            <button onClick={() => handleDeleteClick(user.id)} className="dropdown-item delete">
+                                                                <FontAwesomeIcon icon={faTrashAlt} /> Удалить
+                                                            </button>
+                                                        </div>
+                                                    </details>
                                                 </>
                                             )}
                                         </div>

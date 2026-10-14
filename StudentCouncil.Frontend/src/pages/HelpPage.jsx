@@ -54,19 +54,16 @@ export default function HelpPage() {
           <p>Всё, что нужно знать о платформе студсовета СГН</p>
         </div>
         <div className="help-content">
-          <div  className="help-block"  ref={el => blocksRef.current[0] = el}>
-            <div className="help-icon">
-              <FontAwesomeIcon icon={faLock} />
-            </div>
+          <div className="help-block" ref={el => blocksRef.current[0] = el}>
+            <div className="help-icon"><FontAwesomeIcon icon={faLock} /></div>
             <div className="help-text">
               <h3>Доступ к платформе</h3>
               <p>Платформа предназначена <strong>только для участников студенческого совета СГН</strong>. Данные для входа выдаются при вступлении в совет.</p>
             </div>
           </div>
-          <div className="help-block"  ref={el => blocksRef.current[1] = el}>
-            <div className="help-icon">
-              <FontAwesomeIcon icon={faFileAlt} />
-            </div>
+
+          <div className="help-block" ref={el => blocksRef.current[1] = el}>
+            <div className="help-icon"><FontAwesomeIcon icon={faFileAlt} /></div>
             <div className="help-text">
               <h3>Политика использования</h3>
               <ul>
@@ -77,24 +74,23 @@ export default function HelpPage() {
               </ul>
             </div>
           </div>
-          <div className="help-block" ref={el => blocksRef.current[3] = el}>
-            <div className="help-icon">
-                <FontAwesomeIcon icon={faBug} />
-            </div>
+
+          <div className="help-block" ref={el => blocksRef.current[2] = el}>
+            <div className="help-icon"><FontAwesomeIcon icon={faBug} /></div>
             <div className="help-text">
-                <h3>Сообщить об ошибке</h3>
-                <p>
-                    Нашли баг или есть предложение? Напишите нам:{' '}
-                    <a href="https://t.me/skebob_gg" target="_blank" rel="noopener noreferrer">
-                        <strong>@skebob_gg</strong>
-                    </a>{' '}
-                    или на почту:{' '}
-                    <a href="https://demonrux201@gmail.com">
-                        <strong>demonrux201@gmail.com</strong>
-                    </a>
-                </p>
+              <h3>Сообщить об ошибке</h3>
+              <p>
+                Нашли баг или есть предложение? Напишите нам:{' '}
+                <a href="https://t.me/skebob_gg" target="_blank" rel="noopener noreferrer">
+                  <strong>@skebob_gg</strong>
+                </a>{' '}
+                или на почту:{' '}
+                <a href="mailto:demonrux201@gmail.com">
+                  <strong>demonrux201@gmail.com</strong>
+                </a>
+              </p>
             </div>
-        </div>
+          </div>
         </div>
       </div>
     </div>

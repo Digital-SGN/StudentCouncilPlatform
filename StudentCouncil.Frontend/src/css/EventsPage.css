@@ -265,17 +265,42 @@
 }
 
 @media (max-width: 640px) {
-    .events-grid {
-        grid-template-columns: 1fr;
-    }
     .events-header {
         flex-direction: column;
         text-align: center;
+        gap: 12px;
     }
+
+    .header-actions {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 0;
+    }
+
+    .search-box {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+
+    .export-btn,
+    .create-event-btn {
+        flex: 1 1 auto;
+        justify-content: center;
+        padding: 0 14px;
+        font-size: 13px;
+    }
+
+    .events-grid {
+        grid-template-columns: 1fr;
+    }
+
     .event-card-footer {
         flex-wrap: wrap;
     }
 }
+
 
 .modal {
     display: flex;
@@ -477,34 +502,92 @@
     box-shadow: 0 0 0 2px rgba(12,191,161,0.2);
 }
 
-.sort-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    height: 40px;
+.sort-dropdown {
+    position: relative;
+    flex-shrink: 0;
 }
 
-.sort-btn {
+.sort-dropdown-toggle {
     height: 40px;
     padding: 0 16px;
-    font-size: 13px;
-    font-weight: 500;
+    border-radius: 40px;
     background: white;
     color: #0CBFA1;
     border: none;
-    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
 }
 
-    .sort-btn:hover {
-        background: #f8fafc;
-        transform: translateY(-1px);
-    }
+.sort-dropdown-toggle:hover {
+    background: #f8fafc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
+}
 
-.sort-icon {
+.sort-direction-icon {
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.sort-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 180px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    padding: 6px;
+    z-index: 100;
+    animation: sortMenuIn 0.15s ease;
+}
+
+@keyframes sortMenuIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sort-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: #2d3748;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+    gap: 12px;
+}
+
+.sort-menu-item:hover {
+    background: #f8fafc;
+}
+
+.sort-menu-item.active {
+    background: #e6fffa;
+    color: #0CBFA1;
+    font-weight: 700;
+}
+
+.sort-menu-item svg {
     font-size: 11px;
     opacity: 0.7;
 }
@@ -537,7 +620,7 @@
 }
 
 .attendance-stats {
-    font-size: ;
+    font-size: 10px;
     width: 80%;
 }
 
@@ -589,4 +672,69 @@
     display: block;
     margin: 0;               
     border-radius: 0;        
+}
+
+@media (max-width: 640px) {
+    .events-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .header-actions {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 0;
+    }
+
+    /* Поиск — на всю ширину */
+    .search-box {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+
+    /* Три кнопки в ряд, растянутые поровну */
+    .sort-dropdown {
+        flex: 1 1 calc(33% - 6px);
+        min-width: 0;
+    }
+
+    .sort-dropdown-toggle {
+        width: 100%;
+        justify-content: center;
+        padding: 0 10px;
+        font-size: 13px;
+    }
+
+    .sort-dropdown-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* На мобилке меню — на всю ширину кнопки */
+    .sort-menu {
+        left: 0;
+        right: 0;
+        min-width: 0;
+    }
+
+    .export-btn,
+    .create-event-btn {
+        flex: 1 1 calc(33% - 6px);
+        justify-content: center;
+        padding: 0 10px;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+    .events-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .event-card-footer {
+        flex-wrap: wrap;
+    }
 }
