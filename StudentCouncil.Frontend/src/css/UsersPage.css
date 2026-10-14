@@ -205,7 +205,8 @@ th:hover .sort-icon {
     transform: translateY(-1px);
 }
 
-.export-btn, .create-btn {
+.export-btn,
+.create-btn {
     height: 40px;
     padding: 0 20px;
     font-size: 14px;
@@ -213,124 +214,198 @@ th:hover .sort-icon {
     border-radius: 40px;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     cursor: pointer;
     background: white;
     color: #0CBFA1;
     border: none;
+    min-width: 0;
+    white-space: nowrap;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
-.create-btn { padding: 0 24px; }
-.export-btn:hover, .create-btn:hover {
+.export-btn:hover,
+.create-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     background: #f8fafc;
 }
+
 .users-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
     padding: 20px;
 }
+
 .user-card {
-    background: white;
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 5px 10px rgba(0,0,0,0.08);
-    border: 1px solid #e2e8f0;
-}
-.user-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-.user-name { font-size: 18px; font-weight: 700; color: #1e293b; }
-.user-card-body {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-    font-size: 14px;
-    color: #475569;
+    min-width: 0;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid #04b194;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 0.2s, border-color 0.2s;
 }
-.user-card-body div { display: flex; align-items: center; gap: 10px; }
-.user-card-footer {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: flex-end;
-    border-top: 1px solid #e2e8f0;
-    padding-top: 15px;
-}
-.user-card-footer .action-btn { flex: 1; text-align: center; padding: 8px 0; }
-@media (max-width: 480px) {
-    .user-card-footer { flex-direction: column; }
-    .user-card-footer .action-btn { width: 100%; }
-}
-@media (max-width: 768px) {
-    .users-card-body { overflow-x: auto; }
-    .users-table { min-width: 700px; }
-    .action-btn, .dropdown summary { height: 32px; padding: 4px 8px; }
-    .action-buttons { overflow-x: auto; white-space: nowrap; }
-    .action-buttons .action-btn,
-    .action-buttons .dropdown { flex-shrink: 0; }
-    .header-actions { flex-wrap: wrap; justify-content: flex-end; }
-}
-@media (max-width: 900px) {
-    .users-table th:nth-child(1), .users-table td:nth-child(1) { display: none; }
-    .users-table th:nth-child(4), .users-table td:nth-child(4) { display: none; }
-}
-@media (max-width: 700px) {
-    .users-table th:nth-child(5), .users-table td:nth-child(5) { display: none; }
+
+.user-card:hover {
+    border-color: #148C9C;
+    box-shadow: 0 6px 16px rgba(20, 140, 156, 0.2);
 }
 
 .user-card-header {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 15px;
+    margin-bottom: 14px;
+    min-width: 0;
 }
+
 .user-avatar-wrapper {
     flex-shrink: 0;
 }
-.user-avatar-img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #e2e8f0;
-}
+
+.user-avatar-img,
 .user-avatar-placeholder {
-    width: 80px;
-    height: 80px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
+    border: 2px solid #e2e8f0;
+    object-fit: cover;
+}
+
+.user-avatar-placeholder {
     background: linear-gradient(135deg, #0CBFA1, #148C9C);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 600;
     text-transform: uppercase;
-    border: 2px solid #e2e8f0;
-}
-.user-card-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-.user-name {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1e293b;
 }
 
-.user-card-header {
+.user-card-info {
+    flex: 1;
+    min-width: 0;
     display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 15px;
-    flex-wrap: nowrap; 
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+}
+
+.user-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.user-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #475569;
+}
+
+.user-card-body > div {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.user-card-body > div svg {
+    flex-shrink: 0;
+    color: #0CBFA1;
+    width: 14px;
+    margin-top: 3px;
+}
+
+.user-card-footer {
+    display: flex;
+    gap: 8px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 12px;
+    margin-top: auto;
+}
+
+.user-card-footer .action-btn.view {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-card-footer .action-btn.edit,
+.user-card-footer .dropdown {
+    flex: 0 0 auto;
+}
+
+.user-card-footer .dropdown summary.action-btn.more {
+    padding: 8px;
+    min-width: 40px;
+}
+
+@media (max-width: 768px) {
+    .users-wrapper {
+        padding: 20px 12px;
+    }
+
+    .users-header {
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .users-header h1 {
+        font-size: 24px;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+
+    .search-box {
+        flex: 1 1 100%;
+        margin-right: 0;
+    }
+
+    .search-input {
+        width: 100%;
+    }
+
+    .export-btn,
+    .create-btn {
+        flex: 1 1 auto;
+        padding: 0 12px;
+        font-size: 13px;
+    }
+
+    .users-cards {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .user-card {
+        padding: 14px;
+    }
+
+    .users-card-body { overflow-x: auto; }
+    .users-table { min-width: 700px; }
+    .action-btn,
+    .dropdown summary { height: 32px; padding: 4px 8px; }
+    .action-buttons { overflow-x: auto; white-space: nowrap; }
+    .action-buttons .action-btn,
+    .action-buttons .dropdown { flex-shrink: 0; }
 }
