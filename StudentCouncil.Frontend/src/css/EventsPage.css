@@ -543,35 +543,6 @@
     background: #f8fafc;
 }
 
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.sort-menu-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 8px;
-    background: transparent;
-    border: none;
-    color: #2d3748;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    text-align: left;
-    transition: background 0.15s;
-    gap: 12px;
-}
-
-.sort-menu-item:hover {
-    background: #f8fafc;
-}
-
 .sort-menu-item.active {
     background: #e6fffa;
     color: #0CBFA1;
