@@ -1,23 +1,19 @@
 ﻿.help-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #0CBFA1 0%, #148C9C 50%, #09707C 100%);
     padding: 60px 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.help-page {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+    background: transparent;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 .help-page.visible {
-  opacity: 1;
-  transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
 }
-
 .help-block {
   opacity: 0;
   transform: translateY(30px);
