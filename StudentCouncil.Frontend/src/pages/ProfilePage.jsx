@@ -264,8 +264,13 @@ export default function ProfilePage() {
                                         <FontAwesomeIcon icon={faTrashAlt} /><span>Удалить</span>
                                     </button>
                                 )}
+                                {canEdit && (
+                                    <button className="avatar-small-btn edit" onClick={handleEditProfile}>
+                                        <FontAwesomeIcon icon={faEdit} /><span>Редактировать</span>
+                                    </button>
+                                )}
                             </div>
-                            <form id="avatarUploadForm" style={{ display: 'none' }}>
+                                <form id="avatarUploadForm" style={{ display: 'none' }}>
                                 <input type="file" id="avatarUpload" name="avatar" accept="image/*" onChange={(e) => uploadAvatar(e.target.files[0])} />
                             </form>
                         </div>
@@ -311,15 +316,27 @@ export default function ProfilePage() {
                                     <div className="timeline-vertical">
                                         {timelineEvents.map((event, idx) => (
                                             <div key={idx} className="timeline-item">
-                                                <div className="timeline-date">{event.date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
                                                 <div className="timeline-marker">
-                                                    <div className="timeline-dot" style={{ backgroundColor: event.color, boxShadow: `0 0 0 2px ${event.color}` }}></div>
-                                                    {idx !== timelineEvents.length - 1 && <div className="timeline-line"></div>}
+                                                    <div
+                                                        className="timeline-dot"
+                                                        style={{ backgroundColor: event.color }}
+                                                    />
                                                 </div>
-                                                <div className="timeline-content">
+                                                <div className="timeline-body">
+                                                    <div className="timeline-date">
+                                                        {event.date.toLocaleDateString('ru-RU', {
+                                                            day: 'numeric', month: 'long', year: 'numeric'
+                                                        })}
+                                                    </div>
                                                     <div className="timeline-title">{event.title}</div>
-                                                    {event.type === 'event' && <div className="timeline-role" style={{ color: event.color }}>Роль: {event.role}</div>}
-                                                    {event.type === 'join' && <div className="timeline-role join-text">Начало пути</div>}
+                                                    {event.type === 'event' && (
+                                                        <div className="timeline-role" style={{ color: event.color }}>
+                                                            Роль: {event.role}
+                                                        </div>
+                                                    )}
+                                                    {event.type === 'join' && (
+                                                        <div className="timeline-role join-text">Начало пути</div>
+                                                    )}
                                                 </div>
                                             </div>
                                         ))}
@@ -340,14 +357,6 @@ export default function ProfilePage() {
                                         )
                                     ))}
                                 </div>
-                            </div>
-                        )}
-
-                        {canEdit && (
-                            <div className="profile-actions">
-                                <button onClick={handleEditProfile} className="btn-edit">
-                                    <FontAwesomeIcon icon={faEdit} /> Редактировать профиль
-                                </button>
                             </div>
                         )}
                     </div>

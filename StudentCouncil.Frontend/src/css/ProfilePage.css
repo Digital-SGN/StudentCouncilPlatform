@@ -203,10 +203,22 @@
 
 .avatar-small-btn.delete {
     color: #dc2626;
+    border: 1px solid #dc2626;
 }
 
 .avatar-small-btn.delete:hover {
     background: #fee2e2;
+}
+
+.avatar-small-btn.edit {
+    background: white;
+    color: #148C9C;
+    border: 1px solid #0CBFA1;
+}
+
+.avatar-small-btn.edit:hover {
+    background: #0CBFA1;
+    color: white;
 }
 
 @media (max-width: 480px) {
@@ -224,60 +236,66 @@
 
 .info-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px 30px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
     margin-bottom: 30px;
 }
 
 .info-item {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px dashed #e2e8f0;
-    transition: all 0.2s;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    transition: background 0.2s, border-color 0.2s;
+    min-width: 0;
 }
 
-    .info-item:hover {
-        border-bottom-color: #0CBFA1;
-        transform: translateX(5px);
-    }
+.info-item:hover {
+    background: #ffffff;
+    border-color: #0CBFA1;
+}
 
 .info-icon {
-    font-size: 20px;
-    min-width: 32px;
-    text-align: center;
+    font-size: 16px;
+    min-width: 20px;
     color: #0CBFA1;
+    padding-top: 2px;
+    flex-shrink: 0;
 }
 
 .info-content {
     flex: 1;
+    min-width: 0;
 }
 
 .info-label {
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 11px;
+    font-weight: 700;
     color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .info-value {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: 500;
     color: #1e293b;
     word-break: break-word;
+    line-height: 1.35;
 }
 
-    .info-value a {
-        color: #0CBFA1;
-        text-decoration: none;
-    }
+.info-value a {
+    color: #0CBFA1;
+    text-decoration: none;
+}
 
-        .info-value a:hover {
-            text-decoration: underline;
-        }
+.info-value a:hover {
+    text-decoration: underline;
+}
 
 .stats-section {
     margin: 24px 0;
@@ -561,42 +579,74 @@
 }
 
 .timeline-vertical {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    padding-left: 10px;
-}
-
-.timeline-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-}
-
-.timeline-date {
-    flex: 0 0 160px;          
-    font-weight: 500;
-    color: #2d3748;
-    white-space: nowrap;
-    overflow-x: auto;
-}
-
-
-.timeline-marker {
-    flex-shrink: 0;
-    width: 24px;
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: center;
+}
+
+.timeline-item {
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 14px;
+    position: relative;
+    padding-bottom: 22px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 9px;                 
+    top: 10px;                
+    bottom: 0;
+    width: 2px;
+    background: #e2e8f0;
+    border-radius: 2px;
+}
+
+.timeline-marker {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    padding-top: 3px;
 }
 
 .timeline-dot {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    border: 2px solid white;
-    z-index: 2;
+    border: 2px solid #fff;
+    flex-shrink: 0;
+    box-sizing: content-box;
+    box-shadow: 0 0 0 2px currentColor;
+}
+
+.timeline-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.timeline-date {
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 3px;
+}
+
+.timeline-title {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 15px;
+    line-height: 1.3;
+    word-break: break-word;
 }
 
 .timeline-line {
@@ -607,26 +657,14 @@
     margin-top: 6px;
 }
 
-.timeline-content {
-    flex: 1;
-    padding-bottom: 24px;
-}
-
-.timeline-title {
-    font-weight: 600;
-    color: black;
-    font-size: 18px;
-}
-
 .timeline-role {
     font-size: 13px;
-    color: #64748b;
-    margin-top: 4px;
+    font-weight: 500;
+    margin-top: 2px;
 }
 
 .timeline-role.join-text {
     color: #f59e0b;
-    font-weight: 500;
 }
 
 .no-timeline {
@@ -637,55 +675,73 @@
     border-radius: 16px;
 }
 
-@media (max-width: 640px) {
-    .timeline-item {
+@media (max-width: 768px) {
+    .profile-wrapper {
+        padding: 20px 12px;
+    }
+    .profile-container {
+        padding: 20px 16px;
+    }
+    .profile-fullname {
+        font-size: 22px;
+    }
+    .avatar-img,
+    .avatar-placeholder {
+        width: 140px;
+        height: 140px;
+        font-size: 56px;
+    }
+    .profile-stats-row {
         flex-direction: column;
-        gap: 8px;
     }
-    .timeline-date {
-        min-width: auto;
+    .level-card {
+        padding: 14px;
+        gap: 12px;
     }
-    .timeline-marker {
-        flex-direction: row;
-        width: auto;
-        margin-left: 0;
+    .level-icon {
+        font-size: 38px;
     }
-    .timeline-line {
-        display: none;
-    }
-    .timeline-dot {
-        margin-right: 10px;
-    }
-}
 
-@media (max-width: 640px) {
-    .timeline-item {
-        flex-direction: column;
+    .info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
-        margin-bottom: 16px;
+    }
+    .info-item {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    .info-icon {
+        font-size: 14px;
+        min-width: 18px;
+    }
+    .info-label {
+        font-size: 10px;
+        letter-spacing: 0.3px;
+    }
+    .info-value {
+        font-size: 13px;
+    }
+
+    .timeline-item {
+        gap: 12px;
+        padding-bottom: 18px;
     }
     .timeline-date {
-        flex: none;
-        width: 100%;
-        white-space: normal;
-        font-size: 14px;
-        overflow-x: visible;
-        margin-bottom: 4px;
+        font-size: 11px;
     }
-    .timeline-marker {
-        flex-direction: row;
-        width: auto;
-        margin-left: 0;
+    .timeline-title {
+        font-size: 14px;
+    }
+
+    .stats-numbers {
+        flex-direction: column;
         align-items: center;
         gap: 10px;
     }
-    .timeline-line {
-        display: none;
-    }
-    .timeline-dot {
-        margin-right: 0;
-    }
-    .timeline-content {
-        padding-bottom: 16px;
+}
+
+@media (max-width: 380px) {
+    .info-grid {
+        grid-template-columns: 1fr;
     }
 }
