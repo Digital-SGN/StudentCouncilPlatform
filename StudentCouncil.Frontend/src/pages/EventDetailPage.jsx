@@ -3,7 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faCalendar, faMapMarkerAlt, faUser, faLink,
-    faEdit, faTrashAlt, faEye, faDownload, faUpload, faFileAlt, faUsers, faMoneyBillWave
+    faEdit, faTrashAlt, faEye, faDownload, faUpload, faFileAlt, faUsers, faMoneyBillWave,
+    faArrowLeft
 } from '@fortawesome/free-solid-svg-icons';
 import { API } from '../api';
 import { ROLES, ROLE_STYLES, roleOrder } from '../constants/roles';
@@ -26,7 +27,6 @@ export default function EventDetailPage() {
 
     const [event, setEvent] = useState(null);
     const [badges, setBadges] = useState([]);
-    const [usersMap, setUsersMap] = useState(new Map());
     const [avatarsMap, setAvatarsMap] = useState(new Map());   
     const [usersList, setUsersList] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -87,7 +87,6 @@ export default function EventDetailPage() {
                 });
 
                 setUsersList(users);
-                setUsersMap(map);
                 setAvatarsMap(avatars);
             }
         } catch (err) {
@@ -202,22 +201,32 @@ export default function EventDetailPage() {
             <Bubbles />
             <div className="event-detail-container">
                 <div className={`event-detail-card ${event.photoPath ? 'has-photo' : ''}`}>
-                    <div className="event-detail-header">
-                        <Link to="/events" className="back-link">← Назад к списку</Link>
-                    </div>
                     {event.photoPath ? (
                         <div className="event-detail-hero">
                             <img src={event.photoPath} alt={event.title} className="event-detail-hero-img" />
                             <div className="event-detail-hero-overlay" />
+
+                            <Link to="/events" className="event-back-floating" aria-label="Назад к списку">
+                                <FontAwesomeIcon icon={faArrowLeft} />
+                                <span>Назад</span>
+                            </Link>
+
                             <div className="event-detail-hero-content">
                                 <h1>{event.title}</h1>
                                 <span className={`event-status-badge ${statusClass}`}>{statusText}</span>
                             </div>
                         </div>
                     ) : (
-                        <div className="event-detail-title-plain">
-                            <h1>{event.title}</h1>
-                            <span className={`event-status-badge ${statusClass}`}>{statusText}</span>
+                        <div className="event-detail-plain">
+                            <Link to="/events" className="event-back-floating-plain">
+                                <FontAwesomeIcon icon={faArrowLeft} />
+                                <span>Назад к списку</span>
+                            </Link>
+
+                            <div className="event-detail-title-plain">
+                                <h1>{event.title}</h1>
+                                <span className={`event-status-badge ${statusClass}`}>{statusText}</span>
+                            </div>
                         </div>
                     )}
 
@@ -237,19 +246,23 @@ export default function EventDetailPage() {
                                 <span className="event-info-icon"><FontAwesomeIcon icon={faUsers} /></span>
                                 <span className="event-info-label">Посещаемость:</span>
                                 <span className="event-info-value">
-                                    {event.actualParticipants}  / {event.registeredParticipants}
-                                    ({event.registeredParticipants > 0
-                                        ? Math.round(event.actualParticipants / event.registeredParticipants * 100)
-                                        : 0}%)
+                                    {event.registeredParticipants > 0
+                                        ? `${event.actualParticipants} / ${event.registeredParticipants} (${Math.round(event.actualParticipants / event.registeredParticipants * 100)}%)`
+                                        : <span className="event-info-empty">н/д</span>
+                                    }
                                 </span>
                             </div>
                             <div className="event-info-row">
                                 <span className="event-info-icon"><FontAwesomeIcon icon={faUser} /></span>
                                 <span className="event-info-label">Ответственный:</span>
                                 <span className="event-info-value">
+                                  {event.responsibleUserName ? (
                                     <Link to={`/users/${event.responsibleUserId}`}>
-                                        {usersMap.get(event.responsibleUserId) || 'Загрузка...'}
+                                        {event.responsibleUserName}
                                     </Link>
+                                ) : (
+                                    <span className="event-info-empty">н/д</span>
+                                )}
                                 </span>
                             </div>
                             {event.budget != null && (

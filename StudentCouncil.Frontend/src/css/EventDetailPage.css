@@ -20,23 +20,63 @@
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
-.event-detail-header {
-    background: linear-gradient(135deg, #0CBFA1 0%, #148C9C 100%);
-    padding: 4px 16px;
+.event-back-floating {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 30px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background 0.2s, transform 0.2s;
+    white-space: nowrap;
 }
 
-.back-link {
-    color: white;
+.event-back-floating:hover {
+    background: rgba(0, 0, 0, 0.78);
+    color: #fff;
     text-decoration: none;
-    font-size: 18px;
-    font-weight: bold;
-    display: inline-block;
+    transform: translateY(-1px);
+}
+
+.event-back-floating svg {
+    font-size: 12px;
+}
+
+.event-detail-plain {
+    padding: 20px 32px 0;
+}
+
+.event-back-floating-plain {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #0CBFA1;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
     margin-bottom: 16px;
+    transition: color 0.2s, transform 0.2s;
 }
 
-.back-link:hover {
-    color: white;
+.event-back-floating-plain:hover {
+    color: #148C9C;
     text-decoration: none;
+    transform: translateX(-3px);
+}
+
+.event-back-floating-plain svg {
+    font-size: 12px;
 }
 
 .event-detail-title {
@@ -701,7 +741,17 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 12px;
-    padding: 0 24px 12px;
+    padding: 0 0 16px;
+}
+
+.event-detail-title-plain h1 {
+    margin: 0;
+    color: #1e293b;
+    font-weight: 700;
+    font-size: 28px;
+    flex: 1 1 auto;
+    line-height: 1.25;
+    word-break: break-word;
 }
 
 .event-detail-card.has-photo .event-detail-body {
@@ -729,8 +779,29 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
+    
     .event-detail-hero-content .event-status-badge {
         font-size: 12px;
         padding: 4px 10px;
+    }
+
+        .event-back-floating {
+        top: 12px;
+        left: 12px;
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    .event-detail-plain {
+        padding: 16px 16px 0;
+    }
+
+    .event-back-floating-plain {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .event-detail-title-plain h1 {
+        font-size: 22px;
     }
 }
