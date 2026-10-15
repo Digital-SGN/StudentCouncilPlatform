@@ -134,6 +134,18 @@
     margin-bottom: 16px;
 }
 
+.event-responsible-link {
+    color: #0CBFA1;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.15s;
+}
+
+.event-responsible-link:hover {
+    color: #148C9C;
+    text-decoration: underline;
+}
+
 .event-info-item {
     display: flex;
     align-items: center;

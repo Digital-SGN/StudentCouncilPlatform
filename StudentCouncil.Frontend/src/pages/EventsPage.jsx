@@ -23,7 +23,6 @@ export default function EventsPage() {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [usersMap, setUsersMap] = useState(new Map());
 
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -66,21 +65,7 @@ export default function EventsPage() {
             setLoading(true);
             const result = await API.getEvents();
             if (result.ok) {
-                const eventsList = result.data.events || [];
-                setEvents(eventsList);
-
-                const responsibleIds = [...new Set(eventsList.map(e => e.responsibleUserId).filter(id => id))];
-                const map = new Map();
-                await Promise.all(
-                    responsibleIds.map(async (userId) => {
-                        const userResult = await API.getUser(userId);
-                        if (userResult.ok) {
-                            const u = userResult.data;
-                            map.set(userId, `${u.lastName} ${u.firstName} ${u.patronymic || ''}`.trim());
-                        }
-                    })
-                );
-                setUsersMap(map);
+                setEvents(result.data.events || []);
             } else {
                 setError(result.data?.error || 'Ошибка загрузки');
             }
@@ -132,13 +117,6 @@ export default function EventsPage() {
             case 'status': return 'Статус';
             default: return 'Сортировка';
         }
-    };
-
-    const renderSortIcon = (field) => {
-        if (sortField !== field) return <FontAwesomeIcon icon={faSort} className="sort-icon" />;
-        return sortOrder === 'asc'
-            ? <FontAwesomeIcon icon={faSortUp} className="sort-icon" />
-            : <FontAwesomeIcon icon={faSortDown} className="sort-icon" />;
     };
 
     const openCreateModal = () => setModalState({ isOpen: true, eventId: null });
@@ -327,22 +305,38 @@ export default function EventsPage() {
                                         </div>
                                         <div className="event-info-item">
                                             <FontAwesomeIcon icon={faUsers} className="event-info-icon" />
-                                            <div className="attendance-stats">
-                                                <div className="attendance-numbers">
-                                                    {event.actualParticipants} / {event.registeredParticipants} ({event.registeredParticipants > 0 ? Math.round(event.actualParticipants / event.registeredParticipants * 100) : 0}%)
+                                            {event.registeredParticipants > 0 ? (
+                                                <div className="attendance-stats">
+                                                    <div className="attendance-numbers">
+                                                        {event.actualParticipants} / {event.registeredParticipants}
+                                                        {' '}
+                                                        ({Math.round(event.actualParticipants / event.registeredParticipants * 100)}%)
+                                                    </div>
+                                                    <div className="progress-bar">
+                                                        <div
+                                                            className="progress-fill"
+                                                            style={{ width: `${(event.actualParticipants / event.registeredParticipants * 100)}%` }}
+                                                        />
+                                                    </div>
                                                 </div>
-                                                <div className="progress-bar">
-                                                    <div
-                                                        className="progress-fill"
-                                                        style={{ width: `${event.registeredParticipants > 0 ? (event.actualParticipants / event.registeredParticipants * 100) : 0}%` }}
-                                                    />
-                                                </div>
-                                            </div>
+                                            ) : (
+                                                <span className="event-info-text event-info-empty">н/д</span>
+                                            )}
                                         </div>
                                         <div className="event-info-item">
                                             <span className="event-info-icon"><FontAwesomeIcon icon={faUser} /></span>
                                             <span className="event-info-text">
-                                                Ответственный: {usersMap.get(event.responsibleUserId) || '—'}
+                                                Ответственный:{' '}
+                                                {event.responsibleUserName ? (
+                                                    <Link
+                                                        to={`/users/${event.responsibleUserId}`}
+                                                        className="event-responsible-link"
+                                                    >
+                                                        {event.responsibleUserName}
+                                                    </Link>
+                                                ) : (
+                                                    <span className="event-info-empty">н/д</span>
+                                                )}
                                             </span>
                                         </div>
                                         {event.registrationLink && (
