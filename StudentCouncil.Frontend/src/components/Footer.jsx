@@ -6,9 +6,8 @@ export default function Footer() {
     return (
         <footer>
             <div className="container">
-                <p>&copy; {new Date().getFullYear()} Студенческий совет СГН МГТУ им. Н.Э. Баумана</p>
+                <p>&copy; {new Date().getFullYear()} ССФ СГН МГТУ им. Н.Э. Баумана</p>
                 <div className="footer-links">
-                    <span className="social-label">Наши соцсети</span>
                     <div className="social-icons">
                         <a 
                             href="https://vk.ru/studsovetsgn" 

@@ -3,7 +3,10 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API } from '../api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import {
+    faEye, faEyeSlash, faTriangleExclamation, faArrowRight,
+    faCalendarAlt, faUsers, faTrophy, faRocket, faLightbulb
+} from '@fortawesome/free-solid-svg-icons';
 import logo from '../assets/logo.svg';
 import Alert from '../components/Alert';
 import '../css/LoginPage.css';
@@ -20,7 +23,7 @@ function OtpInput({ value, onChange, disabled }) {
     }, [value]);
 
     const handleChange = (index, val) => {
-        if (val.length > 1) return; 
+        if (val.length > 1) return;
         const newOtp = [...otp];
         newOtp[index] = val;
         setOtp(newOtp);
@@ -59,6 +62,7 @@ function OtpInput({ value, onChange, disabled }) {
                     ref={(el) => (inputRefs.current[idx] = el)}
                     type="text"
                     inputMode="numeric"
+                    autoComplete={idx === 0 ? 'one-time-code' : 'off'}
                     maxLength={1}
                     value={digit}
                     onChange={(e) => handleChange(idx, e.target.value.replace(/\D/g, ''))}
@@ -82,14 +86,14 @@ export default function LoginPage({ setUser }) {
     const [qrUri, setQrUri] = useState('');
     const [setupToken, setSetupToken] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [capsLock, setCapsLock] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-     if (user) {
+    if (user) {
         return <Navigate to="/" replace />;
     }
-    
 
     const handleLoginSubmit = async (event) => {
         event.preventDefault();
@@ -177,9 +181,11 @@ export default function LoginPage({ setUser }) {
     const renderLoginForm = () => (
         <form onSubmit={handleLoginSubmit}>
             <div className="form-group">
-                <label>Email</label>
+                <label htmlFor="login-email">Email</label>
                 <input
+                    id="login-email"
                     type="email"
+                    autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -187,13 +193,19 @@ export default function LoginPage({ setUser }) {
                     disabled={loading}
                 />
             </div>
+
             <div className="form-group">
-                <label>Пароль</label>
+                <label htmlFor="login-password">Пароль</label>
                 <div className="password-wrapper">
                     <input
+                        id="login-password"
                         type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        onKeyUp={(e) => setCapsLock(e.getModifierState('CapsLock'))}
+                        onKeyDown={(e) => setCapsLock(e.getModifierState('CapsLock'))}
+                        onBlur={() => setCapsLock(false)}
                         required
                         disabled={loading}
                     />
@@ -202,14 +214,29 @@ export default function LoginPage({ setUser }) {
                         className="password-toggle"
                         onClick={() => setShowPassword(!showPassword)}
                         tabIndex={-1}
+                        aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
                     >
                         <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                     </button>
                 </div>
+                {capsLock && (
+                    <div className="caps-lock-warning" role="alert">
+                        <FontAwesomeIcon icon={faTriangleExclamation} />
+                        <span>Caps Lock включён</span>
+                    </div>
+                )}
             </div>
+
             {error && <Alert type="danger" message={error} />}
             <button type="submit" disabled={loading}>
-                {loading ? 'Вход...' : 'Войти'}
+                {loading ? (
+                    'Вход...'
+                ) : (
+                    <>
+                        Войти
+                        <FontAwesomeIcon icon={faArrowRight} className="btn-arrow" />
+                    </>
+                )}
             </button>
         </form>
     );
@@ -230,7 +257,14 @@ export default function LoginPage({ setUser }) {
                 </div>
                 {error && <Alert type="danger" message={error} />}
                 <button type="submit" disabled={loading}>
-                    {loading ? 'Проверка...' : 'Подтвердить и войти'}
+                    {loading ? (
+                        'Проверка...'
+                    ) : (
+                        <>
+                            Подтвердить и войти
+                            <FontAwesomeIcon icon={faArrowRight} className="btn-arrow" />
+                        </>
+                    )}
                 </button>
             </form>
         </div>
@@ -246,6 +280,7 @@ export default function LoginPage({ setUser }) {
                 <label>
                     <input
                         type="checkbox"
+                        autoComplete="off"
                         checked={rememberDevice}
                         onChange={(e) => setRememberDevice(e.target.checked)}
                         disabled={loading}
@@ -255,21 +290,36 @@ export default function LoginPage({ setUser }) {
             </div>
             {error && <Alert type="danger" message={error} />}
             <button type="submit" disabled={loading}>
-                {loading ? 'Вход...' : 'Войти'}
+                {loading ? (
+                    'Вход...'
+                ) : (
+                    <>
+                        Войти
+                        <FontAwesomeIcon icon={faArrowRight} className="btn-arrow" />
+                    </>
+                )}
             </button>
         </form>
     );
 
- return (
+    return (
         <div className="login-page fade-in">
-            <div className="login-bg-circles">
-                <ul className="login-bg-list">
-                    <li></li>
-                    <li></li>
-                    <li></li>
-                    <li></li>
-                    <li></li>
-                </ul>
+            <div className="login-bg-circles" aria-hidden="true">
+                <span className="bg-circle bg-circle-1">
+                    <FontAwesomeIcon icon={faCalendarAlt} />
+                </span>
+                <span className="bg-circle bg-circle-2">
+                    <FontAwesomeIcon icon={faUsers} />
+                </span>
+                <span className="bg-circle bg-circle-3">
+                    <FontAwesomeIcon icon={faTrophy} />
+                </span>
+                <span className="bg-circle bg-circle-4">
+                    <FontAwesomeIcon icon={faRocket} />
+                </span>
+                <span className="bg-circle bg-circle-5">
+                    <FontAwesomeIcon icon={faLightbulb} />
+                </span>
             </div>
 
             <div className="login-layout">
