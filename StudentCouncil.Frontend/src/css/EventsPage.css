@@ -521,24 +521,6 @@
     }
 }
 
-.sort-menu-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 8px;
-    background: transparent;
-    border: none;
-    color: #2d3748;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    text-align: left;
-    transition: background 0.15s;
-    gap: 12px;
-}
-
 .sort-menu-item:hover {
     background: #f8fafc;
 }
@@ -696,4 +678,3 @@
     .event-card-footer {
         flex-wrap: wrap;
     }
-}
