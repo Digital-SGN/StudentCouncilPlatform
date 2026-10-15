@@ -3,7 +3,10 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { API } from '../api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import {
+    faEye, faEyeSlash, faTriangleExclamation, faArrowRight,
+    faCalendarAlt, faUsers, faTrophy, faRocket, faLightbulb
+} from '@fortawesome/free-solid-svg-icons';
 import logo from '../assets/logo.svg';
 import Alert from '../components/Alert';
 import '../css/LoginPage.css';
@@ -226,7 +229,14 @@ export default function LoginPage({ setUser }) {
 
             {error && <Alert type="danger" message={error} />}
             <button type="submit" disabled={loading}>
-                {loading ? 'Вход...' : 'Войти'}
+                {loading ? (
+                    'Вход...'
+                ) : (
+                    <>
+                        Войти
+                        <FontAwesomeIcon icon={faArrowRight} className="btn-arrow" />
+                    </>
+                )}
             </button>
         </form>
     );
@@ -247,7 +257,14 @@ export default function LoginPage({ setUser }) {
                 </div>
                 {error && <Alert type="danger" message={error} />}
                 <button type="submit" disabled={loading}>
-                    {loading ? 'Проверка...' : 'Подтвердить и войти'}
+                    {loading ? (
+                        'Проверка...'
+                    ) : (
+                        <>
+                            Подтвердить и войти
+                            <FontAwesomeIcon icon={faArrowRight} className="btn-arrow" />
+                        </>
+                    )}
                 </button>
             </form>
         </div>
@@ -273,21 +290,36 @@ export default function LoginPage({ setUser }) {
             </div>
             {error && <Alert type="danger" message={error} />}
             <button type="submit" disabled={loading}>
-                {loading ? 'Вход...' : 'Войти'}
+                {loading ? (
+                    'Вход...'
+                ) : (
+                    <>
+                        Войти
+                        <FontAwesomeIcon icon={faArrowRight} className="btn-arrow" />
+                    </>
+                )}
             </button>
         </form>
     );
 
     return (
         <div className="login-page fade-in">
-            <div className="login-bg-circles">
-                <ul className="login-bg-list">
-                    <li></li>
-                    <li></li>
-                    <li></li>
-                    <li></li>
-                    <li></li>
-                </ul>
+            <div className="login-bg-circles" aria-hidden="true">
+                <span className="bg-circle bg-circle-1">
+                    <FontAwesomeIcon icon={faCalendarAlt} />
+                </span>
+                <span className="bg-circle bg-circle-2">
+                    <FontAwesomeIcon icon={faUsers} />
+                </span>
+                <span className="bg-circle bg-circle-3">
+                    <FontAwesomeIcon icon={faTrophy} />
+                </span>
+                <span className="bg-circle bg-circle-4">
+                    <FontAwesomeIcon icon={faRocket} />
+                </span>
+                <span className="bg-circle bg-circle-5">
+                    <FontAwesomeIcon icon={faLightbulb} />
+                </span>
             </div>
 
             <div className="login-layout">
