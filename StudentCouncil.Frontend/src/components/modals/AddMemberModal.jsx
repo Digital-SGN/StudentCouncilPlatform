@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { API } from '../../api';
-
-const ROLES = ['Главный организатор', 'Организатор', 'Медиа', 'Техпод', 'Волонтёр'];
+import { ROLES } from '../../constants/roles';
 
 export default function AddMemberModal({ isOpen, onClose, eventId, usersList, onSuccess }) {
     const [userId, setUserId] = useState('');
@@ -30,7 +29,7 @@ export default function AddMemberModal({ isOpen, onClose, eventId, usersList, on
 
         const result = await API.createBadge(formData);
         if (result.ok) {
-            onSuccess(); 
+            onSuccess();
             onClose();
         } else {
             setError(result.error || 'Ошибка добавления участника');
@@ -64,10 +63,7 @@ export default function AddMemberModal({ isOpen, onClose, eventId, usersList, on
                         </div>
                         <div className="form-group">
                             <label>Роль *</label>
-                            <select
-                                value={role}
-                                onChange={(e) => setRole(e.target.value)}
-                            >
+                            <select value={role} onChange={(e) => setRole(e.target.value)}>
                                 {ROLES.map((r) => (
                                     <option key={r} value={r}>{r}</option>
                                 ))}

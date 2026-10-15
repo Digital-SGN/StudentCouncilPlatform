@@ -20,8 +20,8 @@ import {
     BarElement,
     Title
 } from 'chart.js';
-import { Radar, Bar } from 'react-chartjs-2';
 import { API } from '../api';
+import { ROLE_STYLES } from '../constants/roles';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
 import Alert from '../components/Alert';
@@ -33,14 +33,6 @@ ChartJS.register(
     RadialLinearScale, PointElement, Filler, Tooltip, Legend,
     CategoryScale, LinearScale, BarElement, Title
 );
-
-const roleColors = {
-    'Главный организатор': '#0CBFA1',
-    'Организатор': '#148C9C',
-    'Медиа': '#FF6B6B',
-    'Техпод': '#4ECDC4',
-    'Волонтёр': '#FFE66D',
-};
 
 export default function ProfilePage() {
     const { id } = useParams();
@@ -204,7 +196,7 @@ export default function ProfilePage() {
                     title: event.title,
                     role: badge.role,
                     type: 'event',
-                    color: roleColors[badge.role] || '#94a3b8',
+                    color: ROLE_STYLES[badge.role]?.background || '#94a3b8',
                 });
             }
         });
