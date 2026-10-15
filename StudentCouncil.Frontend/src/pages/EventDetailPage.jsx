@@ -6,23 +6,15 @@ import {
     faEdit, faTrashAlt, faEye, faDownload, faUpload, faFileAlt, faUsers, faMoneyBillWave
 } from '@fortawesome/free-solid-svg-icons';
 import { API } from '../api';
+import { ROLES, ROLE_STYLES, roleOrder } from '../constants/roles';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
 import Alert from '../components/Alert';
 import EventFormModal from '../components/modals/EventFormModal';
 import ConfirmModal from '../components/modals/ConfirmDialogModal';
 import AddMemberModal from '../components/modals/AddMemberModal';
-import '../css/EventDetailPage.css';
 
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-    });
-}
+import '../css/EventDetailPage.css';
 
 export default function EventDetailPage() {
     const { id } = useParams();
@@ -52,23 +44,6 @@ export default function EventDetailPage() {
     const [confirmDeleteBadge, setConfirmDeleteBadge] = useState({ isOpen: false, badgeId: null });
 
     useEffect(() => {
-        const loadUsers = async () => {
-            const usersResult = await API.getUsers();
-                if (usersResult.ok) {
-                    const map = new Map();
-                    const avatars = new Map();
-                    usersResult.data.users.forEach(u => {
-                        map.set(u.id, `${u.lastName} ${u.firstName} ${u.patronymic || ''}`.trim());
-                        if (u.avatarPath) avatars.set(u.id, u.avatarPath); 
-                    });
-                    setUsersMap(map);
-                    setAvatarsMap(avatars);                                 
-                }
-        };
-        loadUsers();
-    }, []);
-
-    useEffect(() => {
         if (canView && id) {
             loadData();
         } else {
@@ -94,11 +69,26 @@ export default function EventDetailPage() {
 
             const usersResult = await API.getUsers();
             if (usersResult.ok) {
-                const map = new Map();
-                usersResult.data.users.forEach(u => {
-                    map.set(u.id, `${u.lastName} ${u.firstName} ${u.patronymic || ''}`.trim());
+                const users = usersResult.data.users || [];
+
+                users.sort((a, b) => {
+                    const aLast = (a.lastName || '').toLowerCase();
+                    const bLast = (b.lastName || '').toLowerCase();
+                    if (aLast < bLast) return -1;
+                    if (aLast > bLast) return 1;
+                    return 0;
                 });
+
+                const map = new Map();
+                const avatars = new Map();
+                users.forEach(u => {
+                    map.set(u.id, `${u.lastName} ${u.firstName} ${u.patronymic || ''}`.trim());
+                    if (u.avatarPath) avatars.set(u.id, u.avatarPath);
+                });
+
+                setUsersList(users);
                 setUsersMap(map);
+                setAvatarsMap(avatars);
             }
         } catch (err) {
             setError('Ошибка загрузки');
@@ -199,13 +189,13 @@ export default function EventDetailPage() {
     const statusText = getStatusText(event.status);
     const statusClass = getStatusClass(event.status);
 
-    const roleStyles = {
-        'Главный организатор': { background: '#0CBFA1', color: 'white' },
-        'Организатор': { background: '#148C9C', color: 'white' },
-        'Медиа': { background: '#FF6B6B', color: 'white' },
-        'Техпод': { background: '#4ECDC4', color: 'white' },
-        'Волонтёр': { background: '#FFE66D', color: '#2d3748' },
-    };
+    const sortedBadges = [...badges].sort((a, b) => {
+        const ra = roleOrder(a.role);
+        const rb = roleOrder(b.role);
+        if (ra !== rb) return ra - rb;
+        return (a.userName || '').localeCompare(b.userName || '', 'ru');
+    });
+
 
     return (
         <div className="event-detail-page fade-in">
@@ -328,7 +318,7 @@ export default function EventDetailPage() {
                                                         </Link>
                                                         <span
                                                             className="team-role-badge"
-                                                            style={roleStyles[badge.role] || { background: '#e2e8f0', color: '#2d3748' }}
+                                                            style={ROLE_STYLES[badge.role] || { background: '#e2e8f0', color: '#2d3748' }}
                                                         >
                                                             {badge.role}
                                                         </span>
@@ -447,15 +437,8 @@ export default function EventDetailPage() {
                             </div>
                             <div className="form-group">
                                 <label>Роль</label>
-                                <select
-                                    value={selectedRole}
-                                    onChange={(e) => setSelectedRole(e.target.value)}
-                                >
-                                    <option value="Главный организатор">Главный организатор</option>
-                                    <option value="Организатор">Организатор</option>
-                                    <option value="Медиа">Медиа</option>
-                                    <option value="Техпод">Техпод</option>
-                                    <option value="Волонтёр">Волонтёр</option>
+                                <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)} >
+                                    {ROLES.map(r => (<option key={r} value={r}>{r}</option> ))}
                                 </select>
                             </div>
                             <div className="form-actions">
