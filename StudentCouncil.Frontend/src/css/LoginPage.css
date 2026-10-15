@@ -373,6 +373,26 @@ button:disabled {
     cursor: not-allowed;
 }
 
+.caps-lock-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    color: #92400e;
+    font-size: 13px;
+    font-weight: 500;
+    animation: slideIn 0.2s ease;
+}
+
+.caps-lock-warning svg {
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
 @media (max-width: 992px) {
     .login-layout {
         grid-template-columns: 1fr;

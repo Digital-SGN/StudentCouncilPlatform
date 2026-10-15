@@ -412,7 +412,7 @@ input, textarea, select, [contenteditable="true"] {
 }
 
 .social-label {
-    font-size: 1.1rem;
+    font-size: 1.0rem;
     color: #718096;
     font-weight: 500;
     letter-spacing: 0.5px;
@@ -424,7 +424,7 @@ input, textarea, select, [contenteditable="true"] {
 
 .social-icons a {
     color: #0CBFA1;
-    font-size: 2.5rem;      
+    font-size: 2rem;      
     transition: color 0.2s, transform 0.2s;
     display: inline-flex;      
     align-items: center;
