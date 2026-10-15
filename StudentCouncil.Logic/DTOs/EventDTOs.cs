@@ -81,6 +81,7 @@ namespace StudentCouncil.Logic.DTOs
         public string RegistrationLink { get; set; } = string.Empty;
         public EventStatus Status { get; set; }
         public int ResponsibleUserId { get; set; }
+        public string? ResponsibleUserName { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
     public class EventListResponseDTO

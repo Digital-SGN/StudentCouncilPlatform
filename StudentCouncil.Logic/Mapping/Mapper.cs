@@ -105,6 +105,7 @@ public static class Mapper
             RegistrationLink = ev.RegistrationLink,
             Status = ev.Status,
             ResponsibleUserId = ev.ResponsibleUserId,
+            ResponsibleUserName = ev.ResponsibleUser != null? $"{ev.ResponsibleUser.LastName} {ev.ResponsibleUser.FirstName} {ev.ResponsibleUser.Patronymic}".Trim() : null,
             CreatedAt = ev.CreatedAt
         };
     }
