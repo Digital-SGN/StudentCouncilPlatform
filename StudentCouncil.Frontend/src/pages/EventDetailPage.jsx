@@ -300,7 +300,7 @@ export default function EventDetailPage() {
                                 <p className="no-team-message">Пока нет участников</p>
                             ) : (
                                 <div className="team-grid">
-                                    {badges.map(badge => {
+                                    {sortedBadges.map(badge => {
                                         const avatar = avatarsMap.get(badge.userId);
                                         return (
                                             <div key={badge.id} className="team-member-card">
