@@ -32,6 +32,8 @@ public class EventService : IEventService
     {
         List<Event> events = await _context.Events
             .Where(e => !e.IsDeleted)
+            .Include(e => e.ResponsibleUser)     
+            .AsNoTracking()                      
             .ToListAsync();
 
         List<EventResponseDTO> eventDtos = [.. events.Select(Mapper.ToEventDTO)];
@@ -47,6 +49,8 @@ public class EventService : IEventService
     {
         Event? ev = await _context.Events
             .Where(e => !e.IsDeleted)
+            .Include(e => e.ResponsibleUser)      
+            .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id == id);
 
         if (ev == null)
