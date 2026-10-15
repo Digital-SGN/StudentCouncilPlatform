@@ -149,13 +149,35 @@ main {
 }
 
 .spinner {
-  width: 64px;
-  height: 64px;
-  border: 6px solid rgba(12, 191, 161, 0.15);
-  border-top: 6px solid #0CBFA1;
+  --spinner-color: #0CBFA1;
+  --spinner-track: rgba(12, 191, 161, 0.2);
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--spinner-track);
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 20px;
+  display: inline-block;
+  position: relative;
+  box-sizing: border-box;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+.spinner::after {
+  content: '';
+  box-sizing: border-box;
+  position: absolute;
+  left: 50%;
+  top: -3px;
+  background: var(--spinner-color);
+  width: 4px;
+  height: 22px;
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .loading-container p {

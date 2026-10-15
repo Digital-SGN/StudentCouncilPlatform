@@ -271,7 +271,7 @@ export default function EventsPage() {
                         </div>
 
                         <button onClick={exportEventsToCSV} className="export-btn">
-                            <FontAwesomeIcon icon={faFileExport} /> Экспорт CSV
+                            <FontAwesomeIcon icon={faFileExport} /> Экспорт
                         </button>
 
                         {isAdmin && (
