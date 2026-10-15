@@ -20,6 +20,7 @@ import {
     BarElement,
     Title
 } from 'chart.js';
+import { Bar } from 'react-chartjs-2';  
 import { API } from '../api';
 import { ROLE_STYLES } from '../constants/roles';
 import { useAuth } from '../context/AuthContext';
