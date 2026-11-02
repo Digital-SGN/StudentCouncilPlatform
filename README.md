@@ -66,20 +66,19 @@ flowchart TD
         
         subgraph Docker ["Docker Network"]
             Frontend["React SPA\n(Frontend)"]
-            Backend["ASP.NET Core 8\n(Backend API)"]
-            DB[("PostgreSQL 16\n(Database)")]
-            Storage[("Docker Volume\n(Файлы: аватары, PDF)")]
+            Backend["ASP.NET Core 8\n(Backend)"]
+            DB[("PostgreSQL")]
+            Storage[("Docker Volume")]
         end
     end
 
     User -->|HTTPS| Nginx
-    Nginx -->|Раздаёт статику| Frontend
-    Nginx <-->|Proxy /api| Backend
+    Nginx -->|Frontend
+    Nginx <-->|/api| Backend
     
     Backend <-->|EF Core| DB
     Backend <-->|Чтение/Запись| Storage
 
-    %% Стили (пастельные цвета)
     classDef user fill:#ffffff,stroke:#cbd5e1,stroke-width:2px,color:#475569;
     classDef frontend fill:#f0f9ff,stroke:#38bdf8,stroke-width:2px,color:#0c4a6e;
     classDef backend fill:#f0fdf9,stroke:#0CBFA1,stroke-width:2px,color:#115e59;
