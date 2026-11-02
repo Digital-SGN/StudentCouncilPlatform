@@ -70,7 +70,7 @@ flowchart TD
             
             subgraph Storage ["Хранилище данных"]
                 DB[("PostgreSQL")]
-                Vol[("Docker Volume<br/>(Файлы)")]
+                Vol[("Docker Volume")]
             end
         end
     end
