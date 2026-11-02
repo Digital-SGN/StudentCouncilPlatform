@@ -23,11 +23,11 @@
 
 **Основные возможности:**
 
-- <img src="https://cdn.simpleicons.org/dotnet/0CBFA1" width="16" /> **Пользователи:** учёт участников, роли (Admin / Leader / Member), система уровней и баллов.
+- <img src="https://cdn.simpleicons.org/dotnet/0CBFA1" width="16" /> **Пользователи:** учёт участников, роли, система уровней и баллов.
 - <img src="https://cdn.simpleicons.org/googlecalendar/0CBFA1" width="16" /> **Мероприятия:** создание, регистрация, учёт явки, бюджетирование.
 - <img src="https://cdn.simpleicons.org/openbadges/0CBFA1" width="16" /> **Бейджи:** выдача цифровых подтверждений с возможностью загрузки PDF.
 - <img src="https://cdn.simpleicons.org/chartdotjs/0CBFA1" width="16" /> **Аналитика:** дашборды со статистикой, топами и динамикой по месяцам.
-- <img src="https://cdn.simpleicons.org/letsencrypt/0CBFA1" width="16" /> **Безопасность:** Cookie-аутентификация, поддержка 2FA (TOTP), защита от удаления последнего админа.
+- <img src="https://cdn.simpleicons.org/letsencrypt/0CBFA1" width="16" /> **Безопасность:** Cookie-аутентификация, поддержка 2FA (TOTP).
 
 ---
 
@@ -55,7 +55,7 @@
 - **`StudentCouncil.Data`** — модели, `AppDbContext`, миграции EF Core.
 - **`StudentCouncil.Logic`** — DTO, бизнес-логика (сервисы), интерфейсы, кастомные исключения.
 - **`StudentCouncil.Web`** — REST API контроллеры, middleware для обработки ошибок, настройка DI.
-- **`StudentCouncil.Frontend`** — SPA на React (Vite), взаимодействует с API.
+- **`StudentCouncil.Frontend`** — SPA на React, взаимодействует с API.
 
 ```mermaid
 flowchart TD
