@@ -164,6 +164,32 @@ docker logs studentcouncil_backend --tail 50
 
 ---
 
+## Деплой
+
+```mermaid
+flowchart LR
+    Dev([Разработчик]) -->|git push| GitHub[(GitHub)]
+    GitHub -->|SSH| VPS[VPS Сервер]
+    
+    subgraph Script ["Скрипт deploy.sh"]
+        direction LR
+        Step1[1. git pull] --> Step2[2. Docker build] --> Step3[3. Docker up] --> Step4[4. Reload Nginx]
+    end
+    
+    VPS --> Script
+
+    %% Стили
+    classDef dev fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f;
+    classDef git fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef vps fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0c4a6e;
+    classDef step fill:#ccfbf1,stroke:#0d9488,stroke-width:2px,color:#115e59;
+
+    class Dev dev;
+    class GitHub git;
+    class VPS vps;
+    class Step1,Step2,Step3,Step4 step;
+```
+
 ## Документация API
 
 - <img src="https://cdn.simpleicons.org/swagger/0CBFA1" width="16" /> [Swagger UI (GitHub Pages)](https://digital-sgn.github.io/StudentCouncilPlatform-API)
