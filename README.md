@@ -68,7 +68,7 @@ flowchart TD
             Frontend["React SPA<br/>(Frontend)"]
             Backend["ASP.NET Core 8<br/>(Backend)"]
             
-            subgraph Storage ["Хранилище данных"]
+            subgraph Storage ["Хранилище"]
                 DB[("PostgreSQL")]
                 Vol[("Docker Volume")]
             end
@@ -82,17 +82,19 @@ flowchart TD
     Backend <-->|EF Core| DB
     Backend <-->|Чтение/Запись| Vol
 
-    classDef user fill:#ffffff,stroke:#cbd5e1,stroke-width:2px,color:#475569;
-    classDef frontend fill:#f0f9ff,stroke:#38bdf8,stroke-width:2px,color:#0c4a6e;
-    classDef backend fill:#f0fdf9,stroke:#0CBFA1,stroke-width:2px,color:#115e59;
-    classDef database fill:#faf5ff,stroke:#c084fc,stroke-width:2px,color:#4c1d95;
-    classDef infra fill:#f8fafc,stroke:#94a3b8,stroke-width:2px,color:#334155;
+    classDef user fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f;
+    classDef infra fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef frontend fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0c4a6e;
+    classDef backend fill:#ccfbf1,stroke:#0d9488,stroke-width:2px,color:#115e59;
+    classDef db fill:#e0e7ff,stroke:#6366f1,stroke-width:2px,color:#312e81;
+    classDef vol fill:#ffe4e6,stroke:#f43f5e,stroke-width:2px,color:#881337;
 
     class User user;
     class Nginx infra;
     class Frontend frontend;
     class Backend backend;
-    class DB,Vol database;
+    class DB db;
+    class Vol vol;
 ```
 
 ---
