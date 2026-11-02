@@ -62,19 +62,19 @@ flowchart TD
     User([Пользователь])
     
     subgraph VPS ["VPS (Ubuntu 22.04)"]
-        Nginx["Nginx\n(Reverse Proxy)"]
+        Nginx["Nginx<br/>(Reverse Proxy)"]
         
         subgraph Docker ["Docker Network"]
-            Frontend["React SPA\n(Frontend)"]
-            Backend["ASP.NET Core 8\n(Backend)"]
+            Frontend["React SPA<br/>(Frontend)"]
+            Backend["ASP.NET Core 8<br/>(Backend)"]
             DB[("PostgreSQL")]
             Storage[("Docker Volume")]
         end
     end
 
     User -->|HTTPS| Nginx
-    Nginx -->|Frontend
-    Nginx <-->|/api| Backend
+    Nginx -->|Раздаёт статику| Frontend
+    Nginx <-->|Проксирует /api| Backend
     
     Backend <-->|EF Core| DB
     Backend <-->|Чтение/Запись| Storage
