@@ -62,11 +62,11 @@ flowchart TD
     User([Пользователь])
     
     subgraph VPS ["VPS (Ubuntu 22.04)"]
-        Nginx["Nginx<br/>(Reverse Proxy)"]
+        Nginx["Nginx"]
         
         subgraph Docker ["Docker Network"]
             Frontend["React SPA<br/>(Frontend)"]
-            Backend["ASP.NET Core 8<br/>(Backend)"]
+            Backend["ASP.NET Core<br/>(Backend)"]
             
             subgraph Storage ["Хранилище"]
                 DB[("PostgreSQL")]
