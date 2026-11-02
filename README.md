@@ -73,8 +73,8 @@ flowchart TD
     end
 
     User -->|HTTPS| Nginx
-    Nginx -->|Раздаёт статику| Frontend
-    Nginx <-->|Проксирует /api| Backend
+    Nginx -->|Frontend| Frontend
+    Nginx <-->|/api| Backend
     
     Backend <-->|EF Core| DB
     Backend <-->|Чтение/Запись| Storage
