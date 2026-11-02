@@ -16,7 +16,6 @@
   <img src="https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square" />
 </p>
 
----
 
 ## О проекте
 
