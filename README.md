@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="StudentCouncil.Frontend/public/favicon.svg" width="100" alt="Логотип" />
+  <img src="StudentCouncil.Frontend/public/favicon.svg" width="130" alt="Логотип" />
 </p>
 
 <h1 align="center">Платформа студенческого совета СГН</h1>
