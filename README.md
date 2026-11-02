@@ -59,27 +59,39 @@
 
 ```mermaid
 flowchart TD
-    Client([Браузер / React SPA])
-
-    subgraph VPS [VPS Ubuntu 22.04]
-        Nginx[Nginx :443]
-        Static[Раздача статики]
-
-        subgraph Docker [Docker Network]
-            API[ASP.NET Core :8080]
-            DB[(PostgreSQL :5432)]
+    User([Пользователь])
+    
+    subgraph VPS ["VPS (Ubuntu 22.04)"]
+        Nginx["Nginx\n(Reverse Proxy)"]
+        
+        subgraph Docker ["Docker Network"]
+            Frontend["React SPA\n(Frontend)"]
+            Backend["ASP.NET Core 8\n(Backend API)"]
+            DB[("PostgreSQL 16\n(Database)")]
+            Storage[("Docker Volume\n(Файлы: аватары, PDF)")]
         end
     end
 
-    Client <-->|HTTPS| Nginx
-    Nginx --> Static
-    Nginx <-->|HTTP| API
-    API <--> DB
+    User -->|HTTPS| Nginx
+    Nginx -->|Раздаёт статику| Frontend
+    Nginx <-->|Proxy /api| Backend
+    
+    Backend <-->|EF Core| DB
+    Backend <-->|Чтение/Запись| Storage
 
-    style Client fill:#61DAFB,color:#000
-    style Nginx fill:#009639,color:#fff
-    style API fill:#512BD4,color:#fff
-    style DB fill:#4169E1,color:#fff
+    %% Стили (пастельные цвета)
+    classDef user fill:#ffffff,stroke:#cbd5e1,stroke-width:2px,color:#475569;
+    classDef frontend fill:#f0f9ff,stroke:#38bdf8,stroke-width:2px,color:#0c4a6e;
+    classDef backend fill:#f0fdf9,stroke:#0CBFA1,stroke-width:2px,color:#115e59;
+    classDef database fill:#faf5ff,stroke:#c084fc,stroke-width:2px,color:#4c1d95;
+    classDef infra fill:#f8fafc,stroke:#94a3b8,stroke-width:2px,color:#334155;
+
+    class User user;
+    class Nginx infra;
+    class Frontend frontend;
+    class Backend backend;
+    class DB database;
+    class Storage database;
 ```
 
 ---
