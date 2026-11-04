@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/Digital-SGN/Handbook/blob/main/assets/logo_council_platform.png" width="140" alt="Логотип" />
+  <img src="https://github.com/Digital-SGN/Handbook/blob/main/assets/logo_council_platform.png" width="160" alt="Логотип" />
 </p>
 
 <h1 align="center">Платформа студенческого совета СГН</h1>
