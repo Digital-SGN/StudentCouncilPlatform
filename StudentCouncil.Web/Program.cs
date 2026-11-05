@@ -20,8 +20,7 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .Enrich.WithMachineName()
     .Enrich.WithThreadId()
-    .WriteTo.Console(
-        outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
+    .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
     .WriteTo.File(
         path: "Logs/log_.txt",
         rollingInterval: RollingInterval.Day,
@@ -37,8 +36,7 @@ try
 
     builder.Host.UseSerilog();
 
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
     builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
     {
@@ -55,7 +53,12 @@ try
         options.SignIn.RequireConfirmedEmail = false;
     }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 
-    builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo("/app/DataProtection-Keys")).SetApplicationName("StudentCouncil");
+    string keysPath = builder.Configuration["DataProtection:KeysPath"] ?? Path.Combine(builder.Environment.ContentRootPath, "DataProtection-Keys");
+    Directory.CreateDirectory(keysPath);
+
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+        .SetApplicationName("StudentCouncil");
 
     builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
     {
@@ -66,7 +69,9 @@ try
     {
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;
-        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
         options.ExpireTimeSpan = TimeSpan.FromDays(1);
         options.SlidingExpiration = false;
         options.LoginPath = null;
@@ -85,7 +90,9 @@ try
 
     builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorUserIdScheme, options =>
     {
-        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
     });
 
     builder.Services.Configure<FormOptions>(options =>
@@ -99,19 +106,36 @@ try
         options.ValidationInterval = TimeSpan.FromMinutes(30);
     });
 
+    string[] allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(policy =>
+        {
+            if (allowedOrigins.Length > 0)
+            {
+                policy.WithOrigins(allowedOrigins)
+                      .AllowAnyMethod()
+                      .AllowAnyHeader()
+                      .AllowCredentials();
+            }
+        });
+    });
+
     builder.Services.AddControllers().AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+        options.JsonSerializerOptions.Converters.Add(new StudentCouncil.Web.Json.NullableStringConverter());
     });
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
-    builder.Services.AddTransient<IUserService, UserService>();
-    builder.Services.AddTransient<IEventService, EventService>();
-    builder.Services.AddTransient<IBadgeService, BadgeService>();
-    builder.Services.AddTransient<IFileStorageService, FileStorageService>();
+    builder.Services.AddScoped<IUserService, UserService>();
+    builder.Services.AddScoped<IEventService, EventService>();
+    builder.Services.AddScoped<IBadgeService, BadgeService>();
+    builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 
     WebApplication app = builder.Build();
 
@@ -147,7 +171,7 @@ try
 
     app.UseRouting();
 
-    app.UseCors(builder => builder.WithOrigins("http://localhost:5173").AllowAnyMethod().AllowAnyHeader().AllowCredentials());
+    app.UseCors();
 
     app.UseAuthentication();
     app.UseAuthorization();

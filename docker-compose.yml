@@ -22,6 +22,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=studsovet;Username=studsovet_admin;Password=${DB_PASSWORD}
+      - DataProtection__KeysPath=/app/DataProtection-Keys
     depends_on:
       - postgres
     volumes:
@@ -34,7 +35,7 @@ services:
     build: ./StudentCouncil.Frontend
     container_name: studentcouncil_frontend
     ports:
-      - "8081:80"   
+      - "8081:80"
     depends_on:
       - backend
     restart: unless-stopped
@@ -42,5 +43,5 @@ services:
 volumes:
   postgres_data:
   backend_wwwroot:
-  backend_logs: 
+  backend_logs:
   backend_dp_keys:
