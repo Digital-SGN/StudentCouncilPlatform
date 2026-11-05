@@ -71,14 +71,6 @@ public static class Mapper
         if (!applyAdminFields)
             return;
 
-        if (!string.IsNullOrEmpty(dto.Email))
-        {
-            user.Email = dto.Email;
-            user.UserName = dto.Email;
-            user.NormalizedEmail = dto.Email.ToUpperInvariant();
-            user.NormalizedUserName = dto.Email.ToUpperInvariant();
-        }
-
         user.IsActive = dto.IsActive;
         if (dto.JoinedAt.HasValue)
         {
@@ -105,7 +97,9 @@ public static class Mapper
             RegistrationLink = ev.RegistrationLink,
             Status = ev.Status,
             ResponsibleUserId = ev.ResponsibleUserId,
-            ResponsibleUserName = ev.ResponsibleUser != null? $"{ev.ResponsibleUser.LastName} {ev.ResponsibleUser.FirstName} {ev.ResponsibleUser.Patronymic}".Trim() : null,
+            ResponsibleUserName = ev.ResponsibleUser != null
+                ? $"{ev.ResponsibleUser.LastName} {ev.ResponsibleUser.FirstName} {ev.ResponsibleUser.Patronymic}".Trim()
+                : null,
             CreatedAt = ev.CreatedAt
         };
     }
@@ -142,7 +136,6 @@ public static class Mapper
         ev.Status = dto.Status;
         ev.ResponsibleUserId = dto.ResponsibleUserId;
     }
-
 
     public static BadgeResponseDTO ToBadgeDTO(Badge badge)
     {

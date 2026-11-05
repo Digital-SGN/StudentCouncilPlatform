@@ -88,3 +88,5 @@ get-docker.sh
 .env
 
 .vite/
+
+StudentCouncil.Web/DataProtection-Keys/

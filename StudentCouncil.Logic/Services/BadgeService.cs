@@ -108,6 +108,11 @@ public class BadgeService : IBadgeService
         if (eventEntity == null)
             throw new NotFoundException("Мероприятие не найдено");
 
+        bool duplicate = await _context.Badges
+            .AnyAsync(b => b.UserId == dto.UserId && b.EventId == dto.EventId);
+        if (duplicate)
+            throw new ConflictException("Бейдж для этого пользователя и мероприятия уже существует");
+
         string? filePath = null;
 
         if (file != null && file.Length > 0)

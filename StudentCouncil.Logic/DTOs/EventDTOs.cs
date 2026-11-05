@@ -16,8 +16,6 @@ namespace StudentCouncil.Logic.DTOs
 
         [Required]
         public DateTimeOffset EventDate { get; set; }
-        [Required]
-        public DateTimeOffset CreatedAt { get; set; }
 
         [Required, MaxLength(100)]
         public string Location { get; set; } = string.Empty;
@@ -67,6 +65,7 @@ namespace StudentCouncil.Logic.DTOs
         [Required]
         public EventStatus Status { get; set; }
     }
+
     public class EventResponseDTO
     {
         public int Id { get; set; }
@@ -84,6 +83,7 @@ namespace StudentCouncil.Logic.DTOs
         public string? ResponsibleUserName { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
+
     public class EventListResponseDTO
     {
         public int Count { get; set; }

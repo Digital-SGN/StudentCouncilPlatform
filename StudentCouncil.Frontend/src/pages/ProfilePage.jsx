@@ -249,18 +249,20 @@ export default function ProfilePage() {
                             </div>
                             <h2 className="profile-fullname">{user.lastName} {user.firstName} {user.patronymic || ''}</h2>
                             <div className="avatar-actions-compact">
-                                <button className="avatar-small-btn upload" onClick={() => document.getElementById('avatarUpload').click()}>
-                                    <FontAwesomeIcon icon={faCamera} /><span>Загрузить</span>
-                                </button>
-                                {user.avatarPath && (
-                                    <button className="avatar-small-btn delete" onClick={deleteAvatar}>
-                                        <FontAwesomeIcon icon={faTrashAlt} /><span>Удалить</span>
-                                    </button>
-                                )}
                                 {canEdit && (
-                                    <button className="avatar-small-btn edit" onClick={handleEditProfile}>
-                                        <FontAwesomeIcon icon={faEdit} /><span>Редактировать</span>
-                                    </button>
+                                    <>
+                                        <button className="avatar-small-btn upload" onClick={() => document.getElementById('avatarUpload').click()}>
+                                            <FontAwesomeIcon icon={faCamera} /><span>Загрузить</span>
+                                        </button>
+                                        {user.avatarPath && (
+                                            <button className="avatar-small-btn delete" onClick={deleteAvatar}>
+                                                <FontAwesomeIcon icon={faTrashAlt} /><span>Удалить</span>
+                                            </button>
+                                        )}
+                                        <button className="avatar-small-btn edit" onClick={handleEditProfile}>
+                                            <FontAwesomeIcon icon={faEdit} /><span>Редактировать</span>
+                                        </button>
+                                    </>
                                 )}
                             </div>
                                 <form id="avatarUploadForm" style={{ display: 'none' }}>

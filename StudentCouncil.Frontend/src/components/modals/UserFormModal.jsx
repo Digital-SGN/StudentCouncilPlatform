@@ -75,12 +75,12 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
         const data = {
             firstName: formData.firstName,
             lastName: formData.lastName,
-            patronymic: formData.patronymic,
+            patronymic: formData.patronymic || null,  
             email: formData.email,
-            group: formData.group,
-            phoneNumber: formData.phoneNumber,
-            telegram: formData.telegram,
-            clothingSize: formData.clothingSize,
+            group: formData.group || null,   
+            phoneNumber: formData.phoneNumber || null,   
+            telegram: formData.telegram || null,  
+            clothingSize: formData.clothingSize || null,  
             birthDate: formData.birthDate || null,
         };
 

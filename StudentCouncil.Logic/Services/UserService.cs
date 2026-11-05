@@ -20,7 +20,8 @@ public class UserService : IUserService
 
     public const string avatarsFolder = "avatars";
     public static readonly string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
-    private static readonly HashSet<string> AllowedRoles = new(StringComparer.OrdinalIgnoreCase) { "Admin", "Leader", "Member" };
+    private static readonly HashSet<string> AllowedRoles = new(StringComparer.OrdinalIgnoreCase)
+        { "Admin", "Leader", "Member" };
 
     public UserService(
         UserManager<User> userManager,
@@ -38,13 +39,18 @@ public class UserService : IUserService
             throw new ForbiddenException("У вас нет прав на просмотр списка пользователей");
 
         List<User> users = await _userManager.Users.ToListAsync();
-        List<UserDTO> result = new List<UserDTO>();
 
-        foreach (User user in users)
-        {
-            IList<string> roles = await _userManager.GetRolesAsync(user);
-            result.Add(Mapper.ToUserDTO(user, roles.FirstOrDefault() ?? "Member"));
-        }
+        HashSet<int> adminIds = (await _userManager.GetUsersInRoleAsync("Admin")).Select(u => u.Id).ToHashSet();
+        HashSet<int> leaderIds = (await _userManager.GetUsersInRoleAsync("Leader")).Select(u => u.Id).ToHashSet();
+
+        string ResolveRole(User u) =>
+            adminIds.Contains(u.Id) ? "Admin"
+          : leaderIds.Contains(u.Id) ? "Leader"
+          : "Member";
+
+        List<UserDTO> result = users
+            .Select(u => Mapper.ToUserDTO(u, ResolveRole(u)))
+            .ToList();
 
         return new UserListResponseDTO
         {
@@ -158,6 +164,20 @@ public class UserService : IUserService
                 User? existingUser = await _userManager.FindByEmailAsync(dto.Email);
                 if (existingUser != null && existingUser.Id != user.Id)
                     throw new ConflictException("Пользователь с таким email уже существует");
+
+                IdentityResult emailResult = await _userManager.SetEmailAsync(user, dto.Email);
+                if (!emailResult.Succeeded)
+                {
+                    string errors = string.Join(", ", emailResult.Errors.Select(e => e.Description));
+                    throw new BadRequestException($"Не удалось изменить email: {errors}");
+                }
+
+                IdentityResult userNameResult = await _userManager.SetUserNameAsync(user, dto.Email);
+                if (!userNameResult.Succeeded)
+                {
+                    string errors = string.Join(", ", userNameResult.Errors.Select(e => e.Description));
+                    throw new BadRequestException($"Не удалось изменить username: {errors}");
+                }
             }
 
             bool wasActive = user.IsActive;
@@ -206,11 +226,13 @@ public class UserService : IUserService
             throw new NotFoundException("Пользователь не найден");
 
         bool isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
-        if (isAdmin)
+
+        if (isAdmin && user.IsActive)
         {
             IList<User> admins = await _userManager.GetUsersInRoleAsync("Admin");
-            if (admins.Count <= 1)
-                throw new ConflictException("Нельзя удалить последнего администратора");
+            int activeAdmins = admins.Count(a => a.IsActive);
+            if (activeAdmins <= 1)
+                throw new ConflictException("Нельзя удалить последнего активного администратора");
         }
 
         _fileStorage.DeleteFile(user.AvatarPath);
@@ -251,6 +273,9 @@ public class UserService : IUserService
     {
         int currentUserId = currentUser.GetUserId();
         bool isAdmin = currentUser.IsAdmin();
+
+        if (currentUserId != userId && !isAdmin)   
+            throw new ForbiddenException("У вас нет прав на удаление аватара этого пользователя");
 
         User? user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
@@ -294,6 +319,9 @@ public class UserService : IUserService
     public async Task DeleteAvatarAsync(int userId, ClaimsPrincipal currentUser)
     {
         int currentUserId = currentUser.GetUserId();
+
+        if (currentUserId != userId && !currentUser.IsAdmin())
+            throw new ForbiddenException("У вас нет прав на удаление аватара этого пользователя");
 
         User? user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
