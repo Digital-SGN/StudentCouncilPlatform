@@ -26,7 +26,6 @@ public class FileStorageService : IFileStorageService
         if (file == null || file.Length == 0)
             throw new ArgumentException("Файл не выбран или пуст");
 
-
         string extension = Path.GetExtension(file.FileName).ToLowerInvariant();
         if (!allowedExtensions.Contains(extension))
         {
@@ -38,7 +37,7 @@ public class FileStorageService : IFileStorageService
 
         await ValidateFileContentAsync(file, extension);
 
-        string fileName = $"{fileNamePrefix ?? ""}{DateTime.Now.Ticks}{extension}";
+        string fileName = $"{fileNamePrefix ?? ""}{Guid.NewGuid():N}{extension}";
 
         string webRootPath = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
         string targetFolder = Path.Combine(webRootPath, subFolder);
