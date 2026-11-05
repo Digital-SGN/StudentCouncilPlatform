@@ -27,7 +27,9 @@ public class AccountController : BaseController
     {
         _signInManager = signInManager;
         _userManager = userManager;
-        _setupTokenProtector = dataProtectionProvider.CreateProtector("AccountController.TwoFactorSetup").ToTimeLimitedDataProtector();
+        _setupTokenProtector = dataProtectionProvider
+            .CreateProtector("AccountController.TwoFactorSetup")
+            .ToTimeLimitedDataProtector();
         _logger = logger;
     }
 
@@ -43,7 +45,8 @@ public class AccountController : BaseController
             return Unauthorized(new { error = "Неверный email или пароль" });
         }
 
-        var result = await _signInManager.PasswordSignInAsync(user, request.Password, isPersistent: false, lockoutOnFailure: true);
+        var result = await _signInManager.PasswordSignInAsync(
+            user, request.Password, isPersistent: false, lockoutOnFailure: true);
 
         if (result.IsLockedOut)
         {
@@ -64,24 +67,6 @@ public class AccountController : BaseController
         if (!result.Succeeded)
         {
             return Unauthorized(new { error = "Неверный email или пароль" });
-        }
-
-        bool isTwoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
-
-        if (isTwoFactorEnabled)
-        {
-            IList<string> roles = await _userManager.GetRolesAsync(user);
-            return Ok(new LoginResultDTO
-            {
-                Status = "ok",
-                User = new LoginResponseDTO
-                {
-                    Id = user.Id,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Role = roles.FirstOrDefault() ?? "Member"
-                }
-            });
         }
 
         await _signInManager.SignOutAsync();
@@ -187,10 +172,15 @@ public class AccountController : BaseController
 
         bool isValid = await _userManager.VerifyTwoFactorTokenAsync(
             user, TokenOptions.DefaultAuthenticatorProvider, dto.Code);
+
         if (!isValid)
+        {
+            await _userManager.AccessFailedAsync(user);
             return BadRequest(new { error = "Неверный код" });
+        }
 
         await _userManager.SetTwoFactorEnabledAsync(user, true);
+        await _userManager.ResetAccessFailedCountAsync(user);
         await _signInManager.SignInAsync(user, isPersistent: false);
 
         _logger.LogInformation("2FA включена для пользователя {UserId}", user.Id);
