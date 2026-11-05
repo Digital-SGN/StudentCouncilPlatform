@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="StudentCouncil.Frontend/public/favicon.svg" width="100" alt="Логотип" />
+  <img src="https://github.com/Digital-SGN/Handbook/blob/main/assets/logo_council_platform.png" width="160" alt="Логотип" />
 </p>
 
 <h1 align="center">Платформа студенческого совета СГН</h1>
@@ -9,418 +9,202 @@
 </p>
 
 <p align="center">
-  <a href="https://studsovetsgn.ru"><img src="https://img.shields.io/badge/studsovetsgn.ru-0CBFA1" /></a>
-  <img src="https://img.shields.io/badge/.NET-8.0-512BD4" />
-  <img src="https://img.shields.io/badge/React-19-61DAFB" />
-  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1" />
-  <img src="https://img.shields.io/badge/Docker-ready-2496ED" />
+  <a href="https://studsovetsgn.ru"><img src="https://img.shields.io/badge/studsovetsgn.ru-0CBFA1?style=flat-square" /></a>
+  <img src="https://img.shields.io/badge/.NET-8.0-512BD4?style=flat-square" />
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square" />
+  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square" />
+  <img src="https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square" />
 </p>
 
----
 
 ## О проекте
 
 Внутренняя платформа для студенческого совета СГН МГТУ им. Н.Э. Баумана. Заменяет ручной учёт в таблицах и мессенджерах единой системой с ролевой моделью, геймификацией и аналитикой.
 
-**Что умеет:**
+**Основные возможности:**
 
-- Учёт участников с ролями (Admin / Leader / Member)
-- Организация мероприятий: регистрация, явка, бюджет
-- Выдача бейджей с PDF-подтверждением
-- Аналитика: статистика, топы, динамика по месяцам
-- Двухфакторная аутентификация (TOTP)
+- <img src="https://cdn.simpleicons.org/dotnet/0CBFA1" width="16" /> **Пользователи:** учёт участников, роли, система уровней и баллов.
+- <img src="https://cdn.simpleicons.org/googlecalendar/0CBFA1" width="16" /> **Мероприятия:** создание, регистрация, учёт явки, бюджетирование.
+- <img src="https://cdn.simpleicons.org/openbadges/0CBFA1" width="16" /> **Бейджи:** выдача цифровых подтверждений с возможностью загрузки PDF.
+- <img src="https://cdn.simpleicons.org/chartdotjs/0CBFA1" width="16" /> **Аналитика:** дашборды со статистикой, топами и динамикой по месяцам.
+- <img src="https://cdn.simpleicons.org/letsencrypt/0CBFA1" width="16" /> **Безопасность:** Cookie-аутентификация, поддержка 2FA (TOTP).
 
 ---
 
-## Структура
+## Стек технологий
 
-```text
-StudentCouncil/
-├── StudentCouncil.Data/      # DbContext, модели, миграции
-│   ├── Models/
-│   └── Migrations/
-├── StudentCouncil.Logic/     # DTO, интерфейсы, сервисы, мапперы
-│   ├── DTOs/
-│   ├── Exceptions/           # AppException + конкретные исключения
-│   ├── Interfaces/
-│   ├── Services/
-│   └── Mapper.cs
-├── StudentCouncil.Web/       # Контроллеры, Program.cs, wwwroot
-│   ├── Controllers/
-│   ├── Middlewares/          
-│   └── wwwroot/
-├── StudentCouncil.Frontend/  # React SPA (Vite)
-├── docker-compose.yml
-├── Dockerfile
-└── openapi.yaml
-```
+**Backend:**
+- <img src="https://cdn.simpleicons.org/dotnet/0CBFA1" width="16" /> ASP.NET Core 8 (C#)
+- <img src="https://cdn.simpleicons.org/postgresql/0CBFA1" width="16" /> PostgreSQL 16 (EF Core)
 
-##  Документация API
+**Frontend:**
+- <img src="https://cdn.simpleicons.org/react/0CBFA1" width="16" /> React 19 + Vite
+- <img src="https://cdn.simpleicons.org/chartdotjs/0CBFA1" width="16" /> Chart.js (визуализация данных)
 
-- [Swagger UI](https://digital-sgn.github.io/StudentCouncilPlatform-API)
-- [openapi.yaml](openapi.yaml) — спецификация в репозитории
-- Swagger в dev-режиме: `http://localhost:8080/swagger`
-
-## Стек
-
-**Backend**  
-![C#](https://img.shields.io/badge/C%23-239120?logo=c-sharp&logoColor=white)
-![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core_8-512BD4?logo=.net&logoColor=white)
-![EF Core](https://img.shields.io/badge/EF_Core-512BD4)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
-
-**Frontend**  
-![React](https://img.shields.io/badge/React_19-61DAFB?logo=react&logoColor=black)
-![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
-![Bootstrap](https://img.shields.io/badge/Bootstrap_5-7952B3?logo=bootstrap&logoColor=white)
-
-**Инфраструктура**  
-![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
-![Nginx](https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white)
-![Ubuntu](https://img.shields.io/badge/Ubuntu_22.04-E95420?logo=ubuntu&logoColor=white)
+**Инфраструктура:**
+- <img src="https://cdn.simpleicons.org/docker/0CBFA1" width="16" /> Docker + Docker Compose
+- <img src="https://cdn.simpleicons.org/nginx/0CBFA1" width="16" /> Nginx (reverse proxy)
+- <img src="https://cdn.simpleicons.org/ubuntu/0CBFA1" width="16" /> Ubuntu 22.04 (VPS)
 
 ---
 
 ## Архитектура
 
-### Схема БД
-```mermaid
-erDiagram
-    AspNetUsers ||--o{ Events : "ResponsibleUser"
-    AspNetUsers ||--o{ Badges : "User"
-    Events ||--o{ Badges : "Event"
-    AspNetUsers ||--o{ AspNetUserRoles : ""
-    AspNetRoles ||--o{ AspNetUserRoles : ""
+Проект представляет собой **слоистый монолит**. Backend разделён на три слоя:
 
-    AspNetUsers {
-        int Id PK
-        string UserName
-        string NormalizedUserName
-        string Email
-        string NormalizedEmail
-        bool EmailConfirmed
-        string PasswordHash
-        string SecurityStamp
-        string ConcurrencyStamp
-        string PhoneNumber
-        bool PhoneNumberConfirmed
-        bool TwoFactorEnabled
-        datetime LockoutEnd
-        bool LockoutEnabled
-        int AccessFailedCount
-        string FirstName "max 20, required"
-        string LastName "max 20, required"
-        string Patronymic "max 20"
-        string Group "max 10"
-        datetime BirthDate
-        string Telegram "max 20"
-        string ClothingSize "max 10"
-        string AvatarPath
-        int Balance
-        int TotalPointsEarned
-        int ExperiencePoints
-        int Level
-        int EventsAttended
-        int EventsOrganized
-        int TasksCompleted
-        bool IsActive
-        datetime JoinedAt
-        datetime LastActivityDate
-    }
-
-    Events {
-        int Id PK
-        string Title "max 100, required"
-        string Description "max 400"
-        datetime EventDate "required"
-        decimal Budget
-        string Location "max 100, required"
-        int RegisteredParticipants
-        int ActualParticipants
-        string RegistrationLink "max 200"
-        string PhotoPath "max 200"
-        int Status "Upcoming|Completed|Cancelled"
-        int ResponsibleUserId FK "required"
-        datetime CreatedAt
-        bool IsDeleted
-    }
-
-    Badges {
-        int Id PK
-        int UserId FK "required"
-        int EventId FK "required"
-        string Role "max 100, required"
-        string FilePath "max 500, required"
-        datetime CreatedAt
-    }
-
-    AspNetRoles {
-        int Id PK
-        string Name
-        string NormalizedName
-        string ConcurrencyStamp
-    }
-
-    AspNetUserRoles {
-        int UserId FK
-        int RoleId FK
-    }
-
-    AspNetUserClaims {
-        int Id PK
-        int UserId FK
-        string ClaimType
-        string ClaimValue
-    }
-
-    AspNetRoleClaims {
-        int Id PK
-        int RoleId FK
-        string ClaimType
-        string ClaimValue
-    }
-
-    AspNetUserLogins {
-        string LoginProvider PK
-        string ProviderKey PK
-        int UserId FK
-    }
-
-    AspNetUserTokens {
-        int UserId PK
-        string LoginProvider PK
-        string Name PK
-        string Value
-    }
-```
-
-
-### Архитектура бэкенда
+- **`StudentCouncil.Data`** — модели, `AppDbContext`, миграции EF Core.
+- **`StudentCouncil.Logic`** — DTO, бизнес-логика (сервисы), интерфейсы, кастомные исключения.
+- **`StudentCouncil.Web`** — REST API контроллеры, middleware для обработки ошибок, настройка DI.
+- **`StudentCouncil.Frontend`** — SPA на React, взаимодействует с API.
 
 ```mermaid
-flowchart TB
-    subgraph Web["StudentCouncil.Web (ASP.NET Core 8)"]
-        EM[ExceptionMiddleware<br/>ловит AppException → JSON]
-        AC[AccountController<br/>/api/account]
-        UC[UserController<br/>/api/users]
-        EC[EventController<br/>/api/events]
-        BDC[BadgeController<br/>/api/badges]
-    end
-
-    subgraph Logic["StudentCouncil.Logic"]
-        EX[Exceptions<br/>AppException + NotFound, Forbidden, Conflict...]
-        MAP[Mapper]
-        subgraph Interfaces
-            IUS[IUserService]
-            IES[IEventService]
-            IBS[IBadgeService]
-            IFS[IFileStorageService]
-            ILS[ILoggerService]
-        end
-        subgraph Services
-            US[UserService]
-            ES[EventService]
-            BS[BadgeService]
-            FS[FileStorageService]
-            LS[FileLoggerService]
+flowchart TD
+    User([Пользователь])
+    
+    subgraph VPS ["VPS (Ubuntu 22.04)"]
+        Nginx["Nginx"]
+        
+        subgraph Docker ["Docker Network"]
+            Frontend["React SPA<br/>(Frontend)"]
+            Backend["ASP.NET Core<br/>(Backend)"]
+            
+            subgraph Storage ["Хранилище"]
+                DB[("PostgreSQL")]
+                Vol[("Docker Volume")]
+            end
         end
     end
 
-    subgraph Data["StudentCouncil.Data"]
-        DB[AppDbContext<br/>IdentityDbContext]
-        subgraph Models
-            UM[User]
-            EM2[Event]
-            BM[Badge]
-        end
-    end
+    User -->|HTTPS| Nginx
+    Nginx -->|Отдаёт сайт| Frontend
+    Nginx <-->|/api| Backend
+    
+    Backend <-->|EF Core| DB
+    Backend <-->|Чтение/Запись| Vol
 
-    PG[(PostgreSQL)]
+    classDef user fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f;
+    classDef infra fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef frontend fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0c4a6e;
+    classDef backend fill:#ccfbf1,stroke:#0d9488,stroke-width:2px,color:#115e59;
+    classDef db fill:#e0e7ff,stroke:#6366f1,stroke-width:2px,color:#312e81;
+    classDef vol fill:#ffe4e6,stroke:#f43f5e,stroke-width:2px,color:#881337;
 
-    EM -.перехватывает.-> AC
-    EM -.перехватывает.-> UC
-    EM -.перехватывает.-> EC
-    EM -.перехватывает.-> BDC
-
-    AC --> IUS
-    UC --> IUS
-    EC --> IES
-    BDC --> IBS
-    BDC --> IFS
-
-    US -.кидает.-> EX
-    ES -.кидает.-> EX
-    BS -.кидает.-> EX
-
-    IUS -.реализует.-> US
-    IES -.реализует.-> ES
-    IBS -.реализует.-> BS
-    IFS -.реализует.-> FS
-    ILS -.реализует.-> LS
-
-    US --> MAP
-    ES --> MAP
-    BS --> MAP
-    US --> DB
-    ES --> DB
-    BS --> DB
-    DB --> UM
-    DB --> EM2
-    DB --> BM
-    DB --> PG
-
-    style Web fill:#512BD4,color:#fff
-    style Logic fill:#0CBFA1,color:#04120e
-    style Data fill:#148C9C,color:#fff
-```
-
-
-### Зависимости сервисов
-
-```mermaid
-flowchart LR
-    subgraph UserService
-        US[UserService]
-        UM[UserManager&lt;User&gt;]
-        UFS[IFileStorageService]
-        ULS[ILoggerService]
-    end
-
-    subgraph EventService
-        ES[EventService]
-        ECtx[AppDbContext]
-        EFS[IFileStorageService]
-        ELS[ILoggerService]
-    end
-
-    subgraph BadgeService
-        BS[BadgeService]
-        BCtx[AppDbContext]
-        BFS[IFileStorageService]
-        BLS[ILoggerService]
-    end
-
-    US --> UM
-    US --> UFS
-    US --> ULS
-
-    ES --> ECtx
-    ES --> EFS
-    ES --> ELS
-
-    BS --> BCtx
-    BS --> BFS
-    BS --> BLS
-```
-
-### DI-регистрация
-
-```mermaid
-flowchart LR
-    DI[ServiceCollection]
-    DI -->|Transient| IUS[IUserService → UserService]
-    DI -->|Transient| IES[IEventService → EventService]
-    DI -->|Transient| IBS[IBadgeService → BadgeService]
-    DI -->|Transient| IFS[IFileStorageService → FileStorageService]
-    DI -->|Singleton| ILS[ILoggerService → FileLoggerService]
-    DI -->|Scoped| DB[AppDbContext]
-    DI -->|Identity| IM[UserManager, SignInManager, RoleManager]
-```
-
-### Обработка ошибок
-
-```mermaid
-flowchart TB
-    Service[Service] -->|успех| Controller[Controller]
-    Service -->|throw AppException| Middleware[ExceptionMiddleware]
-
-    Controller -->|return Ok/Created| Client["200 / 201 + JSON"]
-    Middleware -->|NotFound| E404["404 { error }"]
-    Middleware -->|Forbidden| E403["403 { error }"]
-    Middleware -->|Conflict| E409["409 { error }"]
-    Middleware -->|BadRequest| E400["400 { error }"]
-    Middleware -->|любое исключение| E500["500 { error }"]
-
-    style Service fill:#0CBFA1,color:#04120e
-    style Middleware fill:#512BD4,color:#fff
-```
-
-**Иерархия исключений** (`StudentCouncil.Logic/Exceptions/`):
-
-| Исключение | HTTP | Когда бросается |
-|------------|------|-----------------|
-| `BadRequestException` | 400 | Некорректные данные |
-| `UnauthorizedException` | 401 | Не аутентифицирован |
-| `ForbiddenException` | 403 | Нет прав на действие |
-| `NotFoundException` | 404 | Ресурс не найден |
-| `ConflictException` | 409 | Конфликт (дубликат, FK violation) |
-
-### Аутентификация
-
-```mermaid
-flowchart TB
-    Login[POST /api/account/login] --> Find[FindByEmailAsync]
-    Find --> CheckPwd[CheckPasswordAsync]
-    CheckPwd --> TwoFA{2FA включена?}
-    TwoFA -->|Нет| Setup[Вернуть 402<br/>+ TOTP-ключ]
-    TwoFA -->|Да| SignIn[PasswordSignInAsync]
-    SignIn -->|Succeeded| OK[200 + cookie]
-    SignIn -->|RequiresTwoFactor| Code[403<br/>+ requiresTwoFactorCode]
-    SignIn -->|Fail| Bad[401]
-
-    Code --> Verify[POST /2fa/verification]
-    Verify --> TOTP[TwoFactorAuthenticatorSignInAsync]
-    TOTP -->|OK| OK2[200 + cookie]
-
-    style Setup fill:#ffd700,color:#04120e
-    style Code fill:#ffd700,color:#04120e
+    class User user;
+    class Nginx infra;
+    class Frontend frontend;
+    class Backend backend;
+    class DB db;
+    class Vol vol;
 ```
 
 ---
 
 ## Локальный запуск
 
+**Требования:** .NET 8 SDK, Node.js 20+, PostgreSQL 16 (или Docker Desktop).
+
+### 1. Настройка базы данных
+Создайте файл `StudentCouncil.Web/appsettings.Development.json` и укажите строку подключения к вашей локальной БД:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=studsovet;Username=postgres;Password=ваш_пароль"
+  }
+}
+```
+
+### 2. Запуск Backend
+
+```bash
+# Применить миграции
+dotnet ef database update --project StudentCouncil.Data --startup-project StudentCouncil.Web
+
+# Запустить сервер
+dotnet run --project StudentCouncil.Web
+```
+
+API будет доступно по адресу: `http://localhost:8080` (Swagger: `/swagger`).
+
+### 3. Запуск Frontend
+
+```bash
+cd StudentCouncil.Frontend
+npm install
+npm run dev
+```
+Сайт откроется на `http://localhost:5173`.
+
 ---
 
 ## Docker
 
-```bash
-# Создать .env с паролем БД
-echo "DB_PASSWORD=your_password" > .env
+Для запуска всего проекта одной командой используется Docker Compose.
 
-# Поднять все сервисы
+```bash
+# Создать .env файл с паролем для БД
+echo "DB_PASSWORD=ваш_сложный_пароль" > .env
+
+# Поднять контейнеры
 docker compose up -d
 
-# Логи 
-docker logs studentcouncil_backend --tail 100
+# Посмотреть логи backend
+docker logs studentcouncil_backend --tail 50
 ```
 
 **Контейнеры:**
 
 | Сервис | Порт | Назначение |
 |--------|------|-----------|
-| `postgres` | 127.0.0.1:5432 | PostgreSQL 16 (только локально) |
+| `postgres` | 127.0.0.1:5432 | PostgreSQL 16 |
 | `backend` | 8080 | ASP.NET Core 8 |
 | `frontend` | 8081 | Nginx со статикой React |
 
-**Volumes:**
-
-| Volume | Назначение |
-|--------|-----------|
-| `postgres_data` | Данные БД |
-| `backend_wwwroot` | Аватары, бейджи, фото мероприятий |
-| `backend_logs` | Логи приложения (`/app/Logs/`) |
+*Для сохранения данных используются Docker-volumes: `postgres_data` (БД), `backend_wwwroot` (файлы) и `backend_logs` (логи).*
 
 ---
 
+## Деплой
+
+```mermaid
+flowchart LR
+    Dev([Разработчик]) -->|git push| GitHub[(GitHub)]
+    GitHub -->|SSH| VPS[VPS Сервер]
+    
+    subgraph Script ["Скрипт deploy.sh"]
+        direction LR
+        Step1[1. git pull] --> Step2[2. Docker build] --> Step3[3. Docker up] --> Step4[4. Reload Nginx]
+    end
+    
+    VPS --> Script
+
+    %% Стили
+    classDef dev fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f;
+    classDef git fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
+    classDef vps fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0c4a6e;
+    classDef step fill:#ccfbf1,stroke:#0d9488,stroke-width:2px,color:#115e59;
+
+    class Dev dev;
+    class GitHub git;
+    class VPS vps;
+    class Step1,Step2,Step3,Step4 step;
+```
+
+## Документация API
+
+- <img src="https://cdn.simpleicons.org/swagger/0CBFA1" width="16" /> [Swagger UI (GitHub Pages)](https://digital-sgn.github.io/StudentCouncilPlatform-API)
+- <img src="https://cdn.simpleicons.org/openapiinitiative/0CBFA1" width="16" /> [openapi.yaml](openapi.yaml) — спецификация в репозитории
+- Локально в dev-режиме: `http://localhost:8080/swagger`
+
+---
 
 ## Ссылки
 
-- Сайт: [studsovetsgn.ru](https://studsovetsgn.ru)
-- Справочник отдела: [Handbook](https://github.com/Digital-SGN/Handbook)
-- Организация на GitHub: [Digital-SGN](https://github.com/Digital-SGN)
+- <img src="https://cdn.simpleicons.org/googlechrome/0CBFA1" width="16" /> Сайт: [studsovetsgn.ru](https://studsovetsgn.ru)
+- <img src="https://cdn.simpleicons.org/github/0CBFA1" width="16" /> Справочник отдела: [Handbook](https://github.com/Digital-SGN/Handbook)
+- <img src="https://cdn.simpleicons.org/github/0CBFA1" width="16" /> Организация на GitHub: [Digital-SGN](https://github.com/Digital-SGN)
 
----
+<br/>
 
 <p align="center">
   <sub>Отдел цифрового развития ССФ СГН · 2026</sub>
