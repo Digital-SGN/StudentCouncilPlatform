@@ -51,7 +51,7 @@ public class AccountController : BaseController
         if (result.IsLockedOut)
         {
             _logger.LogWarning("Аккаунт {Email} заблокирован после неудачных попыток", user.Email);
-            return Unauthorized(new { error = "Неверный email или пароль" });
+            return StatusCode(429, new { error = "Слишком много неудачных попыток. Попробуйте через 5 минут." });
         }
 
         if (result.IsNotAllowed)
