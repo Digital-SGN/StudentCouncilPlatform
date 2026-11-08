@@ -45,6 +45,23 @@ public class EventService : IEventService
         };
     }
 
+    public async Task<PublicEventListResponseDTO> GetPublicEventsAsync()
+    {
+        List<Event> events = await _context.Events
+            .Where(e => !e.IsDeleted && e.Status == EventStatus.Upcoming)
+            .OrderBy(e => e.EventDate) 
+            .AsNoTracking()
+            .ToListAsync();
+
+        List<PublicEventResponseDTO> eventDtos = [.. events.Select(Mapper.ToPublicEventDTO)];
+
+        return new PublicEventListResponseDTO
+        {
+            Count = eventDtos.Count,
+            Events = eventDtos
+        };
+    }
+
     public async Task<EventResponseDTO> GetEventByIdAsync(int id)
     {
         Event? ev = await _context.Events
