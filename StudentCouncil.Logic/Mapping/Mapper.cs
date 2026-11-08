@@ -137,6 +137,18 @@ public static class Mapper
         ev.ResponsibleUserId = dto.ResponsibleUserId;
     }
 
+    public static PublicEventResponseDTO ToPublicEventDTO(Event ev)
+    {
+        return new PublicEventResponseDTO
+        {
+            Id = ev.Id,
+            Title = ev.Title,
+            Description = ev.Description,
+            EventDate = ev.EventDate,
+            Location = ev.Location
+        };
+    }
+
     public static BadgeResponseDTO ToBadgeDTO(Badge badge)
     {
         return new BadgeResponseDTO

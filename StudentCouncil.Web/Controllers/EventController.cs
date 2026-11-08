@@ -24,6 +24,14 @@ public class EventController : BaseController
         return Ok(result);
     }
 
+    [HttpGet("/api/public/events")] 
+    [AllowAnonymous]          
+    public async Task<IActionResult> GetPublicEventsAsync()
+    {
+        PublicEventListResponseDTO result = await _eventService.GetPublicEventsAsync();
+        return Ok(result);
+    }
+
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin,Leader")]
     public async Task<IActionResult> GetByIdAsync(int id)

@@ -7,6 +7,7 @@ namespace StudentCouncil.Logic.Interfaces;
 public interface IEventService
 {
     Task<EventListResponseDTO> GetAllEventsAsync();
+    Task<PublicEventListResponseDTO> GetPublicEventsAsync();
     Task<EventResponseDTO> GetEventByIdAsync(int id);
     Task<EventResponseDTO> CreateEventAsync(CreateEventDTO dto, ClaimsPrincipal currentUser);
     Task UpdateEventAsync(int id, UpdateEventDTO dto, ClaimsPrincipal currentUser);
