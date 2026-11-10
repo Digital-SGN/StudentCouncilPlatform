@@ -31,3 +31,13 @@ body, a, button, div, p, h1, h2, h3, h4, h5, h6, span, input, textarea {
 * {
   cursor: none !important;
 }
+
+@media (hover: none) and (pointer: coarse) {
+    .custom-cursor {
+        display: none !important;
+    }
+
+    body, div, p, h1, h2, h3, h4, h5, h6, span, a, button, input, textarea {
+        cursor: auto !important;
+    }
+}
