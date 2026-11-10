@@ -104,7 +104,7 @@ th:hover .sort-icon {
     transform: translateY(-1px);
     background: #e2e8f0;
 }
-.action-btn.view { background: #e2e8f0; color: #2d3748; }
+.action-btn.view { background: #0CBFA1; color: white; }
 .action-btn.edit { background: #fef3c7; color: #92400e; }
 .action-btn.delete { background: #fee2e2; color: #dc2626; }
 .action-btn.reset-pwd { background: #f59e0b; color: white; }
