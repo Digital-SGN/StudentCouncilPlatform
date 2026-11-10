@@ -11,7 +11,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
-import logo from '../assets/logo.svg'; // <-- Импорт логотипа
+import logo from '../assets/logo.svg';
+import { faArrowRight, faLightbulb, faRocket, faThumbtack, faStar, faHeart, faCrown } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from '../context/AuthContext';
 import '../css/HomePage.css';
 
 const leadershipData = [
@@ -114,10 +116,8 @@ export default function HomePage() {
         <div className="container">
           
           <div className="about-header">
-            {/* Логотип по центру */}
             <img src={logo} alt="Логотип СГН" className="about-logo" />
             
-            {/* Заголовок с большими орнаментами */}
             <div className="about-title-wrapper">
               <div className="about-flourish left" aria-hidden="true"></div>
               <h2>О нас</h2>

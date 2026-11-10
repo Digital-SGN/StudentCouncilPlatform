@@ -1,15 +1,9 @@
-/* ============================================================
-   HOME PAGE - Editorial Style
-   ============================================================ */
 .home-page {
   --accent: #0CBFA1;
   --accent-dark: #148C9C;
   --ink: #0f172a;
 }
 
-/* ============================================================
-   HERO SECTION
-   ============================================================ */
 .hero-section {
   position: relative;
   min-height: 85vh;
@@ -285,9 +279,6 @@
   to { transform: translateX(-33.333%); }
 }
 
-/* ============================================================
-   LEADERSHIP SECTION (ДЕТЕКТИВНАЯ ДОСКА)
-   ============================================================ */
 .leadership-section {
   position: relative;
   background-color: #ffffff;
@@ -475,7 +466,6 @@
   text-align: center;
 }
 
-/* Разноцветные булавки */
 .pin-card-1 .push-pin { background: radial-gradient(circle at 35% 35%, #ff8787, #e03131); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
 .pin-card-2 .push-pin { background: radial-gradient(circle at 35% 35%, #74c0fc, #1c7ed6); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
 .pin-card-3 .push-pin { background: radial-gradient(circle at 35% 35%, #69db7c, #2f9e44); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
@@ -483,9 +473,6 @@
 .pin-card-5 .push-pin { background: radial-gradient(circle at 35% 35%, #da77f2, #9c36b5); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
 .pin-card-6 .push-pin { background: radial-gradient(circle at 35% 35%, #f783ac, #c2255c); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
 
-/* ============================================================
-   АДАПТИВНОСТЬ
-   ============================================================ */
 @media (max-width: 1200px) {
   .board-sticker { font-size: 14px; padding: 8px 14px; }
   .sticker-main { font-size: 16px; padding: 10px 20px; }

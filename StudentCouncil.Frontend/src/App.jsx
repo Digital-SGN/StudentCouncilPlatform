@@ -7,7 +7,11 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import HelpPage from './pages/HelpPage';
+<<<<<<< feat/ui-redesign-and-privacy
 import PrivacyPage from './pages/PrivacyPage'; 
+=======
+import PrivacyPage from './pages/PrivacyPage'; // <-- ДОБАВЛЕНО
+>>>>>>> main
 import LoginPage from './pages/LoginPage';
 import UsersPage from './pages/UsersPage';
 import ProfilePage from './pages/ProfilePage';
