@@ -1,97 +1,43 @@
 import { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLock, faFileAlt, faPhoneAlt, faBug } from '@fortawesome/free-solid-svg-icons';
+import { faTools } from '@fortawesome/free-solid-svg-icons';
 import Bubbles from '../components/Bubbles';
-import '../css/HelpPage.css'; 
+import '../css/HelpPage.css';
 
 export default function HelpPage() {
   const pageRef = useRef(null);
-  const blocksRef = useRef([]);
 
   useEffect(() => {
-    const pageObserver = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
+          if (entry.isIntersecting) entry.target.classList.add('visible');
         });
       },
       { threshold: 0.1 }
     );
-
-    if (pageRef.current) pageObserver.observe(pageRef.current);
-
-    const blockObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry, index) => {
-          if (entry.isIntersecting) {
-            setTimeout(() => {
-              entry.target.classList.add('visible');
-            }, index * 150);
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-
-    blocksRef.current.forEach((block) => {
-      if (block) blockObserver.observe(block);
-    });
-
-    return () => {
-      pageObserver.disconnect();
-      blockObserver.disconnect();
-    };
+    if (pageRef.current) observer.observe(pageRef.current);
+    return () => observer.disconnect();
   }, []);
 
   return (
     <div className="help-page" ref={pageRef}>
       <Bubbles />
-      <div className="help-container">
-        <div className="help-header">
-          <h1>Помощь</h1>
-          <p>Всё, что нужно знать о платформе студсовета СГН</p>
+      <div className="help-construction">
+        <div className="help-construction-icon">
+          <FontAwesomeIcon icon={faTools} />
         </div>
-        <div className="help-content">
-          <div className="help-block" ref={el => blocksRef.current[0] = el}>
-            <div className="help-icon"><FontAwesomeIcon icon={faLock} /></div>
-            <div className="help-text">
-              <h3>Доступ к платформе</h3>
-              <p>Платформа предназначена <strong>только для участников студенческого совета СГН</strong>. Данные для входа выдаются при вступлении в совет.</p>
-            </div>
-          </div>
-
-          <div className="help-block" ref={el => blocksRef.current[1] = el}>
-            <div className="help-icon"><FontAwesomeIcon icon={faFileAlt} /></div>
-            <div className="help-text">
-              <h3>Политика использования</h3>
-              <ul>
-                <li>Платформа является внутренним инструментом студенческого совета СГН.</li>
-                <li>Данные участников используются исключительно для организации деятельности совета.</li>
-                <li>Запрещена передача учётных данных третьим лицам.</li>
-                <li>Администрация оставляет за собой право блокировать аккаунты при нарушении правил.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="help-block" ref={el => blocksRef.current[2] = el}>
-            <div className="help-icon"><FontAwesomeIcon icon={faBug} /></div>
-            <div className="help-text">
-              <h3>Сообщить об ошибке</h3>
-              <p>
-                Нашли баг или есть предложение? Напишите нам:{' '}
-                <a href="https://t.me/skebob_gg" target="_blank" rel="noopener noreferrer">
-                  <strong>@skebob_gg</strong>
-                </a>{' '}
-                или на почту:{' '}
-                <a href="mailto:demonrux201@gmail.com">
-                  <strong>demonrux201@gmail.com</strong>
-                </a>
-              </p>
-            </div>
-          </div>
+        <h1 className="help-construction-title">Страница в разработке</h1>
+        <div className="help-construction-note">
+          А пока — если у вас есть вопрос или нашли ошибку, напишите нам:{' '}
+          <a href="https://t.me/skebob_gg" target="_blank" rel="noopener noreferrer">
+            @skebob_gg
+          </a>
         </div>
+        <div className="help-construction-progress">
+          <div className="help-construction-bar" />
+        </div>
+        <span className="help-construction-hint">Скоро…</span>
       </div>
     </div>
   );

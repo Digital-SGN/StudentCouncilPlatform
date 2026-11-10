@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLightbulb, faRocket, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faLightbulb, faRocket, faThumbtack, faStar, faHeart, faCrown } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
-import LeadershipCard from '../components/LeadershipCard';
 import '../css/HomePage.css';
 
 const leadershipData = [
@@ -15,42 +14,31 @@ const leadershipData = [
   { name: 'Владимир Николаев', position: 'Координаторы', photoUrl: '/images/2c2b1e5ecebc1b06a9fd7e55dbe34cdbae51922a.jpg', bgColor: '#FFD9E5' }
 ];
 
+const marqueeWords = ['Идеи', 'Развитие', 'Команда', 'События', 'Проекты', 'Инициативы', 'Творчество', 'Дружба'];
+
+function Marquee() {
+  const items = [...marqueeWords, ...marqueeWords, ...marqueeWords];
+  return (
+    <div className="marquee" aria-hidden="true">
+      <div className="marquee-track">
+        {items.map((w, i) => (
+          <span className="marquee-item" key={i}>
+            {w}
+            <span className="marquee-star">✦</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const { user } = useAuth();
-
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const autoPlayRef = useRef(null);
   const heroRef = useRef(null);
-
-  const total = leadershipData.length;
-  const prevIndex = (currentIndex - 1 + total) % total;
-  const nextIndex = (currentIndex + 1) % total;
-
-  const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % total);
-  const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + total) % total);
-  const goToSlide = (index) => setCurrentIndex(index);
-
-  useEffect(() => {
-    autoPlayRef.current = setInterval(nextSlide, 5000);
-    return () => clearInterval(autoPlayRef.current);
-  }, []);
-
-  const pauseAutoPlay = () => {
-    if (autoPlayRef.current) {
-      clearInterval(autoPlayRef.current);
-      autoPlayRef.current = null;
-    }
-  };
-
-  const resumeAutoPlay = () => {
-    pauseAutoPlay();
-    autoPlayRef.current = setInterval(nextSlide, 5000);
-  };
 
   useEffect(() => {
     const hero = heroRef.current;
     if (!hero) return;
-
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
@@ -78,21 +66,36 @@ export default function HomePage() {
       <section className="hero-section" ref={heroRef}>
         <div className="hero-parallax-bg" />
         <div className="hero-overlay">
-          <div className="container">
-            <h1 className="hero-title">Студенческий совет СГН</h1>
+          <div className="container hero-container">
+            
+            <h1 className="hero-title">
+              <span className="hero-line">
+                <span className="hero-word" style={{ animationDelay: '0.1s' }}>Создаём</span>
+              </span>
+              <span className="hero-line">
+                <span className="hero-word" style={{ animationDelay: '0.25s' }}>студенческую</span>
+              </span>
+              <span className="hero-line">
+                <span className="hero-word" style={{ animationDelay: '0.4s' }}>
+                  <span className="hero-accent">жизнь</span>
+                </span>
+              </span>
+            </h1>
+            
             <p className="hero-subtitle">
-              Развиваем студенческую жизнь, организуем мероприятия, поддерживаем инициативы
+              Идеи, проекты и команда факультета СГН. Мы делаем студенчество
+              ярче — от первых инициатив до больших событий.
             </p>
+            
             <div className="hero-cta">
               <a href="#leadership" className="hero-cta-btn">
                 Наше руководство
+                <FontAwesomeIcon icon={faArrowRight} />
               </a>
             </div>
+
           </div>
         </div>
-        <a href="#about" className="hero-scroll-hint" aria-label="Прокрутить вниз">
-          <span className="hero-scroll-dot" />
-        </a>
       </section>
 
       <section className="about-section" id="about">
@@ -108,76 +111,71 @@ export default function HomePage() {
             <p>
               В студсовете СГН не просто состоят, здесь создают самые яркие воспоминания о студенческой жизни
             </p>
-
-            <div className="about-features">
-              <div className="about-feature">
-                <span className="about-feature-icon">
-                  <FontAwesomeIcon icon={faLightbulb} />
-                </span>
-                <div className="about-feature-body">
-                  <span className="about-feature-title">Идеи</span>
-                  <span className="about-feature-text">Свои проекты и инициативы</span>
-                </div>
-              </div>
-
-              <div className="about-feature">
-                <span className="about-feature-icon">
-                  <FontAwesomeIcon icon={faRocket} />
-                </span>
-                <div className="about-feature-body">
-                  <span className="about-feature-title">Развитие</span>
-                  <span className="about-feature-text">Лидерские и рабочие навыки</span>
-                </div>
-              </div>
-
-              <div className="about-feature">
-                <span className="about-feature-icon">
-                  <FontAwesomeIcon icon={faUsers} />
-                </span>
-                <div className="about-feature-body">
-                  <span className="about-feature-title">Команда</span>
-                  <span className="about-feature-text">Люди, с которыми интересно</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
+        
+        <Marquee />
       </section>
 
       <section className="leadership-section" id="leadership">
-        <div className="leadership-dots" aria-hidden="true" />
-
-        <div className="container">
-          <h2>Наше руководство</h2>
-
-          <div
-            className="carousel-wrapper"
-            onMouseEnter={pauseAutoPlay}
-            onMouseLeave={resumeAutoPlay}
-          >
-            <button className="carousel-btn prev" onClick={prevSlide} aria-label="Предыдущий">‹</button>
-            <div className="carousel-container">
-              <div key={prevIndex} className="carousel-card side">
-                <LeadershipCard {...leadershipData[prevIndex]} />
-              </div>
-              <div key={currentIndex} className="carousel-card active">
-                <LeadershipCard {...leadershipData[currentIndex]} />
-              </div>
-              <div key={nextIndex} className="carousel-card side">
-                <LeadershipCard {...leadershipData[nextIndex]} />
-              </div>
+        <div className="leadership-section-container">
+          <div className="pin-board">
+            
+            <div className="board-sticker sticker-main">
+              <FontAwesomeIcon icon={faCrown} />
+              <span>Наше руководство</span>
             </div>
-            <button className="carousel-btn next" onClick={nextSlide} aria-label="Следующий">›</button>
-          </div>
 
-          <div className="carousel-indicators">
-            {leadershipData.map((_, idx) => (
-              <span
-                key={idx}
-                className={`indicator ${idx === currentIndex ? 'active' : ''}`}
-                onClick={() => goToSlide(idx)}
-              />
-            ))}
+            <div className="board-sticker sticker-1">
+              <FontAwesomeIcon icon={faLightbulb} />
+              <span>Идеи</span>
+            </div>
+            <div className="board-sticker sticker-2">
+              <FontAwesomeIcon icon={faRocket} />
+              <span>Космос</span>
+            </div>
+            <div className="board-sticker sticker-3">
+              <FontAwesomeIcon icon={faThumbtack} />
+              <span>Важно!</span>
+            </div>
+            <div className="board-sticker sticker-4">
+              <FontAwesomeIcon icon={faStar} />
+              <span>Звезды</span>
+            </div>
+            <div className="board-sticker sticker-5">
+              <FontAwesomeIcon icon={faHeart} />
+              <span>СГН</span>
+            </div>
+
+            <svg className="board-strings" viewBox="0 0 1200 700" preserveAspectRatio="none">
+              <path d="M 200 200 Q 400 250 600 200" stroke="#ef4444" strokeWidth="3" fill="none" opacity="0.7" />
+              <path d="M 200 200 Q 150 350 200 500" stroke="#3b82f6" strokeWidth="3" fill="none" opacity="0.7" />
+              <path d="M 600 200 Q 650 350 600 500" stroke="#eab308" strokeWidth="3" fill="none" opacity="0.7" />
+              <path d="M 1000 200 Q 1050 350 1000 500" stroke="#10b981" strokeWidth="3" fill="none" opacity="0.7" />
+              <path d="M 1000 200 Q 800 350 600 500" stroke="#a855f7" strokeWidth="3" fill="none" opacity="0.7" />
+            </svg>
+
+            <div className="board-grid">
+              {leadershipData.map((person, i) => (
+                <div 
+                  key={person.name} 
+                  className={`team-card pin-card-${i + 1}`}
+                  style={{ '--card-bg': person.bgColor }}
+                >
+                  <div className="push-pin" aria-hidden="true">
+                    <div className="pin-shadow"></div>
+                  </div>
+                  
+                  <div className="team-photo-wrapper">
+                    <img src={person.photoUrl} alt={person.name} loading="lazy" />
+                  </div>
+                  <div className="team-info">
+                    <h3>{person.name}</h3>
+                    <p>{person.position}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

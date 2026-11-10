@@ -26,7 +26,12 @@ export default function Footer() {
                             <FontAwesomeIcon icon={faTelegram} />
                         </a>
                     </div>
-                    <Link to="/help" className="help-link">Помощь</Link>
+                    
+                    <div className="footer-bottom-links">
+                        <Link to="/help" className="help-link">Помощь</Link>
+                        <span className="footer-dot">•</span>
+                        <Link to="/privacy" className="help-link">Конфиденциальность</Link>
+                    </div>
                 </div>
             </div>
         </footer>

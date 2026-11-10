@@ -457,3 +457,27 @@ main.main-login {
 .app-wrapper-login footer {
     margin-top: 0;
 }
+
+.footer-bottom-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.footer-dot {
+    color: #cbd5e1;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.footer-bottom-links .help-link {
+    font-size: 0.9rem;
+    color: #718096;
+    transition: color 0.2s;
+}
+
+.footer-bottom-links .help-link:hover {
+    color: var(--primary, #0CBFA1); 
+    text-decoration: underline;
+}

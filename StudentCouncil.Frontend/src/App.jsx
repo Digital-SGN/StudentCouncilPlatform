@@ -7,6 +7,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import HelpPage from './pages/HelpPage';
+import PrivacyPage from './pages/PrivacyPage'; // <-- ДОБАВЛЕНО
 import LoginPage from './pages/LoginPage';
 import UsersPage from './pages/UsersPage';
 import ProfilePage from './pages/ProfilePage';
@@ -52,6 +53,7 @@ function AppContent() {
                             <Route path="/events" element={<EventsPage />} />
                             <Route path="/events/:id" element={<EventDetailPage />} />
                             <Route path="/help" element={<HelpPage />} />
+                            <Route path="/privacy" element={<PrivacyPage />} /> {/* <-- ДОБАВЛЕНО */}
                         </Routes>
                     </div>
                 )}
