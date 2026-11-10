@@ -1,8 +1,17 @@
 import { useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faLightbulb, faRocket, faThumbtack, faStar, faHeart, faCrown } from '@fortawesome/free-solid-svg-icons';
+import { 
+  faArrowRight, 
+  faLightbulb, 
+  faRocket, 
+  faThumbtack, 
+  faStar, 
+  faHeart, 
+  faCrown
+} from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
+import logo from '../assets/logo.svg'; // <-- Импорт логотипа
 import '../css/HomePage.css';
 
 const leadershipData = [
@@ -103,13 +112,25 @@ export default function HomePage() {
         <div className="about-blob about-blob-2" aria-hidden="true" />
 
         <div className="container">
+          
+          <div className="about-header">
+            {/* Логотип по центру */}
+            <img src={logo} alt="Логотип СГН" className="about-logo" />
+            
+            {/* Заголовок с большими орнаментами */}
+            <div className="about-title-wrapper">
+              <div className="about-flourish left" aria-hidden="true"></div>
+              <h2>О нас</h2>
+              <div className="about-flourish right" aria-hidden="true"></div>
+            </div>
+          </div>
+
           <div className="about-text">
-            <h2>О нас</h2>
             <p>
               Студенческий совет факультета СГН – это место, где рождаются идеи и реализуются проекты. Мы создаём пространство для развития лидерских качеств, организуем мероприятия и поддерживаем инициативы студентов.
             </p>
             <p>
-              В студсовете СГН не просто состоят, здесь создают самые яркие воспоминания о студенческой жизни
+              В студсовете СГН не просто состоят, здесь создают самые яркие воспоминания о студенческой жизни. Мы всегда открыты новым идеям и рады каждому, кто хочет сделать наш факультет лучше.
             </p>
           </div>
         </div>
