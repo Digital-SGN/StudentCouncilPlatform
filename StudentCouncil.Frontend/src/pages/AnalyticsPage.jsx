@@ -3,7 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faUsers, faCalendarAlt, faIdCard, faChartLine, 
     faTrophy, faMedal, faUserGraduate, faLayerGroup,
-    faCalendarWeek, faUserPlus, faUserCheck, faMoneyBillWave  
+    faCalendarWeek, faUserPlus, faUserCheck, faMoneyBillWave,
+    faTriangleExclamation // <-- ДОБАВЛЕНА ИКОНКА
 } from '@fortawesome/free-solid-svg-icons';
 import {
     Chart as ChartJS,
@@ -296,6 +297,17 @@ export default function AnalyticsPage() {
         <div className="global-analytics-page fade-in">
             <Bubbles />
             <div className="analytics-wrapper">
+                
+                {/* --- БАННЕР О РАЗРАБОТКЕ --- */}
+                <div className="under-construction-banner">
+                    <FontAwesomeIcon icon={faTriangleExclamation} className="under-construction-banner-icon" />
+                    <div className="under-construction-banner-text">
+                        <h4>Раздел в разработке</h4>
+                        <p>Мы все еще собираем и настраиваем статистику. Некоторые данные могут отображаться некорректно или быть неполными.</p>
+                    </div>
+                </div>
+                {/* --------------------------- */}
+
                 <div className="analytics-card">
                     <h1 className="analytics-title">Глобальная аналитика</h1>
 
