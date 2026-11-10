@@ -1,11 +1,19 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import cursorImg from '../assets/cursor.png';
 import '../css/CustomCursor.css';
 
 export default function CustomCursor() {
   const cursorRef = useRef(null);
+  const [isDesktop, setIsDesktop] = useState(true);
 
   useEffect(() => {
+    const hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    setIsDesktop(hasFinePointer);
+  }, []);
+
+  useEffect(() => {
+    if (!isDesktop) return;
+
     const cursor = cursorRef.current;
     if (!cursor) return;
 
@@ -27,7 +35,9 @@ export default function CustomCursor() {
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, []);
+  }, [isDesktop]);
+
+  if (!isDesktop) return null;
 
   return (
     <div className="custom-cursor" ref={cursorRef}>
