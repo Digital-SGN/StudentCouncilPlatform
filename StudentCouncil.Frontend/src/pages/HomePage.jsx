@@ -9,10 +9,8 @@ import {
   faHeart, 
   faCrown
 } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
 import logo from '../assets/logo.svg';
-import { faArrowRight, faLightbulb, faRocket, faThumbtack, faStar, faHeart, faCrown } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import '../css/HomePage.css';
 
