@@ -7,13 +7,14 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import HelpPage from './pages/HelpPage';
-import PrivacyPage from './pages/PrivacyPage'; // <-- ДОБАВЛЕНО
+import PrivacyPage from './pages/PrivacyPage'; 
 import LoginPage from './pages/LoginPage';
 import UsersPage from './pages/UsersPage';
 import ProfilePage from './pages/ProfilePage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import EventsPage from './pages/EventsPage';
 import EventDetailPage from './pages/EventDetailPage';
+import CustomCursor from './components/CustomCursor'; 
 import './css/Index.css';
 import './css/LoginPage.css';
 import './css/UsersPage.css';
@@ -39,6 +40,7 @@ function AppContent() {
 
     return (
         <div className={`app-wrapper ${isLoginPage ? 'app-wrapper-login' : ''}`}>
+            <CustomCursor />
             <Header onLogout={handleLogout} />
             <main className={isLoginPage ? 'main-login' : ''}>
                 {isLoginPage ? (
@@ -53,7 +55,7 @@ function AppContent() {
                             <Route path="/events" element={<EventsPage />} />
                             <Route path="/events/:id" element={<EventDetailPage />} />
                             <Route path="/help" element={<HelpPage />} />
-                            <Route path="/privacy" element={<PrivacyPage />} /> {/* <-- ДОБАВЛЕНО */}
+                            <Route path="/privacy" element={<PrivacyPage />} /> 
                         </Routes>
                     </div>
                 )}
