@@ -11,7 +11,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
-import '../css/HomePage.css';
 
 const leadershipData = [
   { name: 'Савин Иван', position: 'Председатель', photoUrl: '/images/leaders/39186005c70975d20596305f13b1ca3c5beb0b39.webp', bgColor: '#FFE8D9' },
