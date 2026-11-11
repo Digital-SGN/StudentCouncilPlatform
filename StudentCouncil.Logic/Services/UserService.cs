@@ -126,74 +126,85 @@ public class UserService : IUserService
             throw new ForbiddenException("У вас нет прав на редактирование этого пользователя");
         }
 
-        if (isAdmin && !isOwnProfile)
+        if (isAdmin)
         {
-            IList<string> currentRoles = await _userManager.GetRolesAsync(user);
-            string currentRole = currentRoles.FirstOrDefault() ?? "Member";
-
-            if (!string.IsNullOrEmpty(dto.Role)
-                && dto.Role != "Admin" && dto.Role != "Leader" && dto.Role != "Member")
+            if (!isOwnProfile)
             {
-                throw new BadRequestException("Недопустимая роль");
-            }
+                IList<string> currentRoles = await _userManager.GetRolesAsync(user);
+                string currentRole = currentRoles.FirstOrDefault() ?? "Member";
 
-            if (dto.IsActive == false && currentRole == "Admin")
-            {
-                IList<User> admins = await _userManager.GetUsersInRoleAsync("Admin");
-                int activeAdmins = admins.Count(a => a.IsActive);
-                if (activeAdmins <= 1)
+                if (!string.IsNullOrEmpty(dto.Role)
+                    && dto.Role != "Admin" && dto.Role != "Leader" && dto.Role != "Member")
                 {
-                    _logger.LogWarning("Попытка заблокировать последнего активного администратора {Email}", user.Email);
-                    throw new ConflictException("Нельзя заблокировать последнего активного администратора");
-                }
-            }
-
-            if (currentRole == "Admin" && !string.IsNullOrEmpty(dto.Role) && dto.Role != "Admin")
-            {
-                IList<User> admins = await _userManager.GetUsersInRoleAsync("Admin");
-                int activeAdmins = admins.Count(a => a.IsActive);
-                if (activeAdmins <= 1)
-                {
-                    _logger.LogWarning("Попытка снять роль Admin у последнего администратора {Email}", user.Email);
-                    throw new BadRequestException("Нельзя снять роль администратора у последнего активного админа");
-                }
-            }
-
-            if (!string.IsNullOrEmpty(dto.Email) && dto.Email != user.Email)
-            {
-                User? existingUser = await _userManager.FindByEmailAsync(dto.Email);
-                if (existingUser != null && existingUser.Id != user.Id)
-                    throw new ConflictException("Пользователь с таким email уже существует");
-
-                IdentityResult emailResult = await _userManager.SetEmailAsync(user, dto.Email);
-                if (!emailResult.Succeeded)
-                {
-                    string errors = string.Join(", ", emailResult.Errors.Select(e => e.Description));
-                    throw new BadRequestException($"Не удалось изменить email: {errors}");
+                    throw new BadRequestException("Недопустимая роль");
                 }
 
-                IdentityResult userNameResult = await _userManager.SetUserNameAsync(user, dto.Email);
-                if (!userNameResult.Succeeded)
+                if (dto.IsActive == false && currentRole == "Admin")
                 {
-                    string errors = string.Join(", ", userNameResult.Errors.Select(e => e.Description));
-                    throw new BadRequestException($"Не удалось изменить username: {errors}");
+                    IList<User> admins = await _userManager.GetUsersInRoleAsync("Admin");
+                    int activeAdmins = admins.Count(a => a.IsActive);
+                    if (activeAdmins <= 1)
+                    {
+                        _logger.LogWarning("Попытка заблокировать последнего активного администратора {Email}", user.Email);
+                        throw new ConflictException("Нельзя заблокировать последнего активного администратора");
+                    }
+                }
+
+                if (currentRole == "Admin" && !string.IsNullOrEmpty(dto.Role) && dto.Role != "Admin")
+                {
+                    IList<User> admins = await _userManager.GetUsersInRoleAsync("Admin");
+                    int activeAdmins = admins.Count(a => a.IsActive);
+                    if (activeAdmins <= 1)
+                    {
+                        _logger.LogWarning("Попытка снять роль Admin у последнего администратора {Email}", user.Email);
+                        throw new BadRequestException("Нельзя снять роль администратора у последнего активного админа");
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(dto.Email) && dto.Email != user.Email)
+                {
+                    User? existingUser = await _userManager.FindByEmailAsync(dto.Email);
+                    if (existingUser != null && existingUser.Id != user.Id)
+                        throw new ConflictException("Пользователь с таким email уже существует");
+
+                    IdentityResult emailResult = await _userManager.SetEmailAsync(user, dto.Email);
+                    if (!emailResult.Succeeded)
+                    {
+                        string errors = string.Join(", ", emailResult.Errors.Select(e => e.Description));
+                        throw new BadRequestException($"Не удалось изменить email: {errors}");
+                    }
+
+                    IdentityResult userNameResult = await _userManager.SetUserNameAsync(user, dto.Email);
+                    if (!userNameResult.Succeeded)
+                    {
+                        string errors = string.Join(", ", userNameResult.Errors.Select(e => e.Description));
+                        throw new BadRequestException($"Не удалось изменить username: {errors}");
+                    }
+                }
+
+                bool wasActive = user.IsActive;
+
+                Mapper.UpdateUserEntity(user, dto, applyAdminFields: true);
+
+                if (!string.IsNullOrEmpty(dto.Role) && dto.Role != currentRole)
+                {
+                    await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                    await _userManager.AddToRoleAsync(user, dto.Role);
+                }
+
+                if (wasActive && !user.IsActive)
+                {
+                    await _userManager.UpdateSecurityStampAsync(user);
+                    _logger.LogInformation("Пользователь {Email} заблокирован, все сессии аннулированы", user.Email);
                 }
             }
-
-            bool wasActive = user.IsActive;
-
-            Mapper.UpdateUserEntity(user, dto, applyAdminFields: true);
-
-            if (!string.IsNullOrEmpty(dto.Role) && dto.Role != currentRole)
+            else
             {
-                await _userManager.RemoveFromRolesAsync(user, currentRoles);
-                await _userManager.AddToRoleAsync(user, dto.Role);
-            }
+                bool originalIsActive = user.IsActive;
 
-            if (wasActive && !user.IsActive)
-            {
-                await _userManager.UpdateSecurityStampAsync(user);
-                _logger.LogInformation("Пользователь {Email} заблокирован, все сессии аннулированы", user.Email);
+                Mapper.UpdateUserEntity(user, dto, applyAdminFields: true);
+
+                user.IsActive = originalIsActive;
             }
         }
         else

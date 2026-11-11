@@ -22,12 +22,10 @@ public static class Mapper
             JoinedAt = user.JoinedAt,
             IsActive = user.IsActive,
             AvatarPath = user.AvatarPath,
+            BannerPath = user.BannerPath,
+            AboutMe = user.AboutMe,  
             Balance = user.Balance,
             ExperiencePoints = user.ExperiencePoints,
-            Level = user.Level,
-            EventsAttended = user.EventsAttended,
-            EventsOrganized = user.EventsOrganized,
-            TasksCompleted = user.TasksCompleted,
             Role = role
         };
     }
@@ -49,11 +47,7 @@ public static class Mapper
             JoinedAt = DateTimeOffset.UtcNow,
             IsActive = true,
             Balance = 0,
-            ExperiencePoints = 0,
-            Level = 1,
-            EventsAttended = 0,
-            EventsOrganized = 0,
-            TasksCompleted = 0
+            ExperiencePoints = 0
         };
     }
 
@@ -67,6 +61,8 @@ public static class Mapper
         user.Telegram = dto.Telegram;
         user.ClothingSize = dto.ClothingSize;
         user.BirthDate = dto.BirthDate;
+        user.AboutMe = dto.AboutMe;
+        user.BannerPath = dto.BannerPath;
 
         if (!applyAdminFields)
             return;
@@ -78,7 +74,6 @@ public static class Mapper
         }
         user.Balance = dto.Balance;
         user.ExperiencePoints = dto.ExperiencePoints;
-        user.Level = (dto.ExperiencePoints / 250) + 1;
     }
 
     public static EventResponseDTO ToEventDTO(Event ev)

@@ -78,6 +78,11 @@ namespace StudentCouncil.Logic.DTOs
 
         public DateOnly? JoinedAt { get; set; }
 
+        [MaxLength(500)]
+        public string? AboutMe { get; set; }
+
+        public string? BannerPath { get; set; }
+
         [Range(0, int.MaxValue)]
         public int Balance { get; set; }
 
@@ -105,18 +110,16 @@ namespace StudentCouncil.Logic.DTOs
         public DateTimeOffset JoinedAt { get; set; }
         public bool IsActive { get; set; }
         public string? AvatarPath { get; set; }
+        public string? BannerPath { get; set; }
+        public string? AboutMe { get; set; }
         public int Balance { get; set; }
         public int ExperiencePoints { get; set; }
-        public int Level { get; set; }
-        public int EventsAttended { get; set; }
-        public int EventsOrganized { get; set; }
-        public int TasksCompleted { get; set; }
         public string Role { get; set; } = "Member";
     }
+
     public class UserListResponseDTO
     {
         public int Count { get; set; }
         public List<UserDTO>? Users { get; set; }
     }
 }
-
