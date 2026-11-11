@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import '../css/CustomCursor.css';
-
 export default function CustomCursor() {
   const cursorRef = useRef(null);
   const [isDesktop, setIsDesktop] = useState(true);
