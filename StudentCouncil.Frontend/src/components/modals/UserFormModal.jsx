@@ -1,19 +1,26 @@
 import { useState, useEffect } from 'react';
 import { API } from '../../api.js';
+import { AVAILABLE_BANNERS } from '../../constants/banners.js';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import '../../css/Modal.css';
 
 export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLeader, isOwnProfile, onSuccess }) {
     const [formData, setFormData] = useState({
         firstName: '', lastName: '', patronymic: '', email: '', password: '',
         group: '', phoneNumber: '', telegram: '', clothingSize: '', birthDate: '',
         joinedAt: '', balance: 0, experiencePoints: 0,
-        role: 'Member', isActive: true
+        role: 'Member', isActive: true, aboutMe: '', bannerPath: 'default'
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [initialLoading, setInitialLoading] = useState(!!userId);
 
-    const isEditMode = !!userId;
+    const [avatarFile, setAvatarFile] = useState(null);
+    const [avatarPreview, setAvatarPreview] = useState(null);
+    const [removeAvatar, setRemoveAvatar] = useState(false);
 
+    const isEditMode = !!userId;
     const canEditRoleAndStatus = isAdmin && !isOwnProfile;
     const canEditStats = isAdmin && !isOwnProfile;
     const showStatsForSelf = isAdmin && isOwnProfile;
@@ -43,8 +50,13 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
                 balance: user.balance ?? 0,
                 experiencePoints: user.experiencePoints ?? 0,
                 role: user.role || 'Member',
-                isActive: user.isActive ?? true
+                isActive: user.isActive ?? true,
+                aboutMe: user.aboutMe || '',
+                bannerPath: user.bannerPath || 'default'
             });
+            setAvatarPreview(user.avatarPath || null);
+            setAvatarFile(null);
+            setRemoveAvatar(false);
         }
         setInitialLoading(false);
     };
@@ -54,8 +66,11 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
             firstName: '', lastName: '', patronymic: '', email: '', password: '',
             group: '', phoneNumber: '', telegram: '', clothingSize: '', birthDate: '',
             joinedAt: '', balance: 0, experiencePoints: 0,
-            role: 'Member', isActive: true
+            role: 'Member', isActive: true, aboutMe: '', bannerPath: 'default'
         });
+        setAvatarFile(null);
+        setAvatarPreview(null);
+        setRemoveAvatar(false);
         setError('');
     };
 
@@ -65,6 +80,20 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
+    };
+
+    const handleAvatarChange = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setAvatarFile(file);
+        setAvatarPreview(URL.createObjectURL(file));
+        setRemoveAvatar(false);
+    };
+
+    const handleRemoveAvatar = () => {
+        setAvatarFile(null);
+        setAvatarPreview(null);
+        setRemoveAvatar(true);
     };
 
     const handleSubmit = async (e) => {
@@ -82,11 +111,11 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
             telegram: formData.telegram || null,  
             clothingSize: formData.clothingSize || null,  
             birthDate: formData.birthDate || null,
+            aboutMe: formData.aboutMe || null,
+            bannerPath: formData.bannerPath
         };
 
-        if (!isEditMode) {
-            data.password = formData.password;
-        }
+        if (!isEditMode) data.password = formData.password;
 
         if (canEditRoleAndStatus) {
             data.role = formData.role;
@@ -98,19 +127,29 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
             data.experiencePoints = parseInt(formData.experiencePoints) || 0;
         }
 
-        let result;
-        if (isEditMode) {
-            result = await API.updateUser(userId, data);
-        } else {
-            result = await API.createUser(data);
+        let result = isEditMode ? await API.updateUser(userId, data) : await API.createUser(data);
+
+        if (!result.ok) {
+            setError(result.data?.error || 'Ошибка сохранения профиля');
+            setLoading(false);
+            return;
         }
 
-        if (result.ok) {
-            onSuccess();
-            onClose();
-        } else {
-            setError(result.data?.error || 'Ошибка сохранения');
+        if (avatarFile) {
+            const fd = new FormData();
+            fd.append('avatar', avatarFile);
+            const avatarRes = await API.uploadAvatar(userId || result.data?.id, fd);
+            if (!avatarRes.ok) {
+                setError(avatarRes.data?.error || 'Ошибка загрузки аватара');
+                setLoading(false);
+                return;
+            }
+        } else if (removeAvatar && isEditMode) {
+            await API.deleteAvatar(userId);
         }
+
+        onSuccess();
+        onClose();
         setLoading(false);
     };
 
@@ -120,7 +159,7 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
         <div className="modal" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h3>{isEditMode ? 'Редактирование пользователя' : 'Создание пользователя'}</h3>
+                    <h3>{isEditMode ? 'Настройки профиля' : 'Создание пользователя'}</h3>
                     <span className="modal-close" onClick={onClose}>&times;</span>
                 </div>
                 <div className="modal-body">
@@ -128,6 +167,41 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
                         <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>
                     ) : (
                         <form onSubmit={handleSubmit}>
+                            
+                            <div className="form-group">
+                                <label>Фото профиля</label>
+                                <div className="avatar-modal-upload">
+                                    {avatarPreview && (
+                                        <div className="avatar-preview-wrapper">
+                                            <img src={avatarPreview} alt="Превью" className="avatar-preview" />
+                                            <button type="button" className="btn-remove-photo" onClick={handleRemoveAvatar}>Удалить</button>
+                                        </div>
+                                    )}
+                                    <input type="file" accept="image/*" onChange={handleAvatarChange} />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Фон профиля</label>
+                                <div className="banner-selection-grid">
+                                    {AVAILABLE_BANNERS.map((banner) => (
+                                        <div 
+                                            key={banner.id}
+                                            className={`banner-option ${formData.bannerPath === banner.id ? 'selected' : ''}`}
+                                            onClick={() => setFormData(prev => ({ ...prev, bannerPath: banner.id }))}
+                                            style={{
+                                                background: banner.url.startsWith('linear') ? banner.url : `url(${banner.url}) center/cover`
+                                            }}
+                                            title={banner.name}
+                                        >
+                                            {formData.bannerPath === banner.id && (
+                                                <div className="banner-check"><FontAwesomeIcon icon={faCheck} /></div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
                             <div className="form-row">
                                 <div className="form-group"><label>Имя *</label><input type="text" name="firstName" value={formData.firstName} onChange={handleChange} required /></div>
                                 <div className="form-group"><label>Фамилия *</label><input type="text" name="lastName" value={formData.lastName} onChange={handleChange} required /></div>
@@ -135,15 +209,13 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
                             <div className="form-group"><label>Отчество</label><input type="text" name="patronymic" value={formData.patronymic} onChange={handleChange} /></div>
 
                             <div className="form-group">
+                                <label>О себе</label>
+                                <textarea name="aboutMe" value={formData.aboutMe} onChange={handleChange} rows="3" maxLength="500" className="form-textarea" />
+                            </div>
+
+                            <div className="form-group">
                                 <label>Email *</label>
-                                <input 
-                                    type="email" 
-                                    name="email" 
-                                    value={formData.email} 
-                                    onChange={handleChange} 
-                                    required 
-                                    disabled={!isAdmin}
-                                />
+                                <input type="email" name="email" value={formData.email} onChange={handleChange} required disabled={!isAdmin} />
                             </div>
 
                             {!isEditMode && (
