@@ -1,7 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import cursorImg from '../assets/cursor.png';
-import '../css/CustomCursor.css';
-
 export default function CustomCursor() {
   const cursorRef = useRef(null);
   const [isDesktop, setIsDesktop] = useState(true);
@@ -41,7 +38,7 @@ export default function CustomCursor() {
 
   return (
     <div className="custom-cursor" ref={cursorRef}>
-      <img src={cursorImg} alt="cursor" />
+      <img src='/cursor.png' alt="cursor" />
     </div>
   );
 }

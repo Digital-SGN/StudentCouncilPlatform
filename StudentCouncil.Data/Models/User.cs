@@ -27,24 +27,18 @@ public class User : IdentityUser<int>
 
     public string? AvatarPath { get; set; }
 
+    public string? BannerPath { get; set; }
+
+    [MaxLength(500)]
+    public string? AboutMe { get; set; }
+
     public int Balance { get; set; } = 0;
 
-    public int TotalPointsEarned { get; set; } = 0;
-
     public int ExperiencePoints { get; set; } = 0;
-
-    public int Level { get; set; } = 1;
-
-    public int EventsAttended { get; set; } = 0;
-
-    public int EventsOrganized { get; set; } = 0;
-
-    public int TasksCompleted { get; set; } = 0;
 
     public bool IsActive { get; set; } = true;
 
     public DateTimeOffset JoinedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public DateTimeOffset LastActivityDate { get; set; } = DateTimeOffset.UtcNow;
-
 }

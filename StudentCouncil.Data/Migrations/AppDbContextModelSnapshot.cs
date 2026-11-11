@@ -260,6 +260,10 @@ namespace StudentCouncil.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AboutMe")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
 
@@ -268,6 +272,9 @@ namespace StudentCouncil.Data.Migrations
 
                     b.Property<int>("Balance")
                         .HasColumnType("integer");
+
+                    b.Property<string>("BannerPath")
+                        .HasColumnType("text");
 
                     b.Property<DateOnly?>("BirthDate")
                         .HasColumnType("date");
@@ -286,12 +293,6 @@ namespace StudentCouncil.Data.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("EventsAttended")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("EventsOrganized")
-                        .HasColumnType("integer");
 
                     b.Property<int>("ExperiencePoints")
                         .HasColumnType("integer");
@@ -318,9 +319,6 @@ namespace StudentCouncil.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("integer");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
@@ -353,15 +351,9 @@ namespace StudentCouncil.Data.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
-                    b.Property<int>("TasksCompleted")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Telegram")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
-
-                    b.Property<int>("TotalPointsEarned")
-                        .HasColumnType("integer");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");

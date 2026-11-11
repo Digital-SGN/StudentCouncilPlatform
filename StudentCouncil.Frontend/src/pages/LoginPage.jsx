@@ -6,9 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faEye, faEyeSlash, faTriangleExclamation, faArrowRight,
     faCalendarAlt, faUsers, faTrophy, faRocket, faLightbulb,
-    faStar, faWandMagicSparkles // <-- Добавили иконки для фона
+    faStar, faWandMagicSparkles 
 } from '@fortawesome/free-solid-svg-icons';
-import logo from '../assets/logo.svg';
 import Alert from '../components/Alert';
 import '../css/LoginPage.css';
 import '../css/Bubbles.css';
@@ -306,14 +305,12 @@ export default function LoginPage({ setUser }) {
     return (
         <div className="login-page fade-in">
             <div className="login-bg-circles" aria-hidden="true">
-                {/* Основные кружки */}
                 <span className="bg-circle bg-circle-1"><FontAwesomeIcon icon={faCalendarAlt} /></span>
                 <span className="bg-circle bg-circle-2"><FontAwesomeIcon icon={faUsers} /></span>
                 <span className="bg-circle bg-circle-3"><FontAwesomeIcon icon={faTrophy} /></span>
                 <span className="bg-circle bg-circle-4"><FontAwesomeIcon icon={faRocket} /></span>
                 <span className="bg-circle bg-circle-5"><FontAwesomeIcon icon={faLightbulb} /></span>
                 
-                {/* НОВЫЕ МАЛЕНЬКИЕ ДЕКОРАТИВНЫЕ ЭЛЕМЕНТЫ */}
                 <span className="bg-sparkle sparkle-1"><FontAwesomeIcon icon={faStar} /></span>
                 <span className="bg-sparkle sparkle-2"><FontAwesomeIcon icon={faWandMagicSparkles} /></span>
                 <span className="bg-sparkle sparkle-3"><FontAwesomeIcon icon={faStar} /></span>
@@ -330,7 +327,7 @@ export default function LoginPage({ setUser }) {
 
                 <div className="login-container">
                     <div className="login-logo">
-                        <img src={logo} alt="Лого" />
+                        <img src="/images/logo.png" alt="Лого" />
                     </div>
                     <h1>Добро пожаловать!</h1>
 

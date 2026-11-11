@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import catImage from '../assets/cat.gif';
 import MusicButton from './MusicButton';
 
 export default function Header({ onLogout }) { 
@@ -53,7 +52,7 @@ export default function Header({ onLogout }) {
                             {user && (
                                 <li className="nav-item">
                                     <span className="nav-text">
-                                        <img src={catImage} alt="кот" onClick={playMeow} className="cat-in-header" />
+                                        <img src="/cat.gif" alt="кот" onClick={playMeow} className="cat-in-header" />
                                         Привет, {displayEmail}!
                                     </span>
                                 </li>

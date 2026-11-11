@@ -16,7 +16,7 @@
 .hero-parallax-bg {
   position: absolute;
   inset: -20% 0 -20% 0;
-  background-image: url('../assets/home.png');
+  background-image: url('/images/home.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

@@ -11,16 +11,14 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
-import logo from '../assets/logo.svg';
-import '../css/HomePage.css';
 
 const leadershipData = [
-  { name: 'Савин Иван', position: 'Председатель', photoUrl: '/images/39186005c70975d20596305f13b1ca3c5beb0b39.jpg', bgColor: '#FFE8D9' },
-  { name: 'Кулькова Анна', position: 'Старостат', photoUrl: '/images/d050eeec9bcfe2419e4b0100b921c6cdd58e05db.jpg', bgColor: '#D9E8FF' },
-  { name: 'Ананьев Дмитрий', position: 'Цифровое развитие', photoUrl: '/images/256faba4e678509c364feb68f8c98469be792dcc.jpg', bgColor: '#E0FFD9' },
-  { name: 'Бирюков Александр', position: 'Медиа отдел', photoUrl: '/images/2196c77377bbe98659f8aa8faf8ab17310d7ea6e.jpg', bgColor: '#FFF2D9' },
-  { name: 'Комардин Максим', position: 'Научный отдел', photoUrl: '/images/b356b0ae5c9a9094ef1339edf00d3e5ce671709c.jpg', bgColor: '#F0D9FF' },
-  { name: 'Владимир Николаев', position: 'Координаторы', photoUrl: '/images/2c2b1e5ecebc1b06a9fd7e55dbe34cdbae51922a.jpg', bgColor: '#FFD9E5' }
+  { name: 'Савин Иван', position: 'Председатель', photoUrl: '/images/leaders/39186005c70975d20596305f13b1ca3c5beb0b39.webp', bgColor: '#FFE8D9' },
+  { name: 'Кулькова Анна', position: 'Старостат', photoUrl: '/images/leaders/d050eeec9bcfe2419e4b0100b921c6cdd58e05db.webp', bgColor: '#D9E8FF' },
+  { name: 'Ананьев Дмитрий', position: 'Цифровое развитие', photoUrl: '/images/leaders/256faba4e678509c364feb68f8c98469be792dcc.webp', bgColor: '#E0FFD9' },
+  { name: 'Бирюков Александр', position: 'Медиа отдел', photoUrl: '/images/leaders/2196c77377bbe98659f8aa8faf8ab17310d7ea6e.webp', bgColor: '#FFF2D9' },
+  { name: 'Комардин Максим', position: 'Научный отдел', photoUrl: '/images/leaders/b356b0ae5c9a9094ef1339edf00d3e5ce671709c.webp', bgColor: '#F0D9FF' },
+  { name: 'Владимир Николаев', position: 'Координаторы', photoUrl: '/images/leaders/2c2b1e5ecebc1b06a9fd7e55dbe34cdbae51922a.webp', bgColor: '#FFD9E5' }
 ];
 
 const marqueeWords = ['Идеи', 'Развитие', 'Команда', 'События', 'Проекты', 'Инициативы', 'Творчество', 'Дружба'];
@@ -114,7 +112,7 @@ export default function HomePage() {
         <div className="container">
           
           <div className="about-header">
-            <img src={logo} alt="Логотип СГН" className="about-logo" />
+            <img src="/logo.svg" alt="Логотип СГН" className="about-logo" />
             
             <div className="about-title-wrapper">
               <div className="about-flourish left" aria-hidden="true"></div>

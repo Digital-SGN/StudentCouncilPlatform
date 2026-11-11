@@ -1,3 +1,13 @@
+.modal-content {
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-body {
+    overflow-y: auto; 
+}
+
 .confirm-modal {
     max-width: 420px;
     text-align: center;
@@ -81,6 +91,100 @@
     opacity: 1;
 }
 
+.form-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: #0CBFA1;
+    box-shadow: 0 0 0 3px rgba(12, 191, 161, 0.1);
+}
+
+.avatar-modal-upload {
+    margin-top: 8px;
+}
+
+.avatar-preview-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 12px;
+}
+
+.avatar-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #0CBFA1;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.btn-remove-photo {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #f87171;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.btn-remove-photo:hover {
+    background: #fecaca;
+}
+
+.banner-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.banner-option {
+    height: 60px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background-size: cover;
+    background-position: center;
+}
+
+.banner-option:hover {
+    transform: scale(1.05);
+}
+
+.banner-option.selected {
+    border-color: #0CBFA1;
+    box-shadow: 0 0 0 2px rgba(12, 191, 161, 0.3);
+}
+
+.banner-check {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(12, 191, 161, 0.6);
+    color: white;
+    font-size: 20px;
+    border-radius: 6px;
+}
+
 .photo-preview-wrapper {
     position: relative;
     margin-bottom: 10px;
@@ -94,19 +198,8 @@
     object-fit: cover;
 }
 
-.btn-remove-photo {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(0, 0, 0, 0.65);
-    color: #fff;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-}
-
-.btn-remove-photo:hover {
-    background: rgba(0, 0, 0, 0.85);
+@media (max-width: 768px) {
+    .banner-selection-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
