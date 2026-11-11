@@ -10,6 +10,7 @@ import {
   faCrown
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
+import '../css/HomePage.css';
 import Bubbles from '../components/Bubbles';
 
 const leadershipData = [

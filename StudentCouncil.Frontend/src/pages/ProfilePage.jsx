@@ -110,8 +110,24 @@ export default function ProfilePage() {
     const getRoleData = () => {
         const roleCount = {};
         badges.forEach(b => { roleCount[b.role] = (roleCount[b.role] || 0) + 1; });
+
+        const shortRoleNames = {
+            'Ответственный за направление': 'Отв. за напр.',
+            'Главный организатор': 'Гл. орг.',
+            'Организатор': 'Орг.',
+            'Техпод': 'Техпод',
+            'Участник': 'Участник',
+            'Волонтер': 'Волонтер',
+            'Медиа': 'Медиа',
+            'Спикер': 'Спикер',
+            'Куратор': 'Куратор',
+            'Ведущий': 'Ведущий'
+        };
+
+        const labels = Object.keys(roleCount).map(role => shortRoleNames[role] || role);
+
         return {
-            labels: Object.keys(roleCount),
+            labels: labels,
             datasets: [{
                 label: 'Количество',
                 data: Object.values(roleCount),
@@ -123,12 +139,21 @@ export default function ProfilePage() {
 
     const barData = badges.length > 0 ? getRoleData() : null;
     const barOptions = {
-        responsive: true, maintainAspectRatio: false,
+        responsive: true, 
+        maintainAspectRatio: false,
         plugins: { 
             legend: { display: false }, 
-            title: { display: true, text: 'Роли на мероприятиях', color: '#1e293b' } 
+            title: { display: false } 
         },
-        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        scales: { 
+            y: { beginAtZero: true, ticks: { stepSize: 1 } },
+            x: { 
+                ticks: {
+                    maxRotation: 45, 
+                    minRotation: 0  
+                }
+            }
+        }
     };
 
     return (

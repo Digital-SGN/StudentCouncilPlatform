@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import '../css/CustomCursor.css';
+
 export default function CustomCursor() {
   const cursorRef = useRef(null);
   const [isDesktop, setIsDesktop] = useState(true);
@@ -37,8 +39,16 @@ export default function CustomCursor() {
   if (!isDesktop) return null;
 
   return (
-    <div className="custom-cursor" ref={cursorRef}>
-      <img src='/cursor.png' alt="cursor" />
+    <div 
+      className="custom-cursor" 
+      ref={cursorRef}
+      style={{ width: '40px', height: '40px', position: 'fixed', top: 0, left: 0, pointerEvents: 'none', zIndex: 99999 }}
+    >
+      <img 
+        src='/cursor.png' 
+        alt="cursor" 
+        style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+      />
     </div>
   );
 }
