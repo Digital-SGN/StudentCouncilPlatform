@@ -507,6 +507,25 @@
     border-radius: 0 0 0 0; 
   }
 
+  .hero-section {
+    min-height: 55vh; 
+  }
+  
+  .hero-overlay {
+    padding: 60px 0; 
+  }
+
+  .hero-title {
+    font-size: 2.2rem; 
+    margin-bottom: 16px; 
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem; 
+    margin-bottom: 24px; 
+    line-height: 1.4;
+  }
+
   .board-grid { grid-template-columns: 1fr; max-width: 340px; }
   .pin-board { padding: 90px 16px 80px; border-radius: 20px; }
   
