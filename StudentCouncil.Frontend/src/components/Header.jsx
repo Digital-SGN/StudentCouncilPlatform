@@ -35,7 +35,7 @@ export default function Header({ onLogout }) {
         <header className="custom-header">
             <div className="header-container">
                 <Link className="header-brand" to="/" onClick={closeMenu}>
-                    Студсовет
+                    Студсовет СГН
                 </Link>
 
                 <button 

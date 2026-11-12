@@ -498,6 +498,15 @@
 }
 
 @media (max-width: 768px) {
+
+  .home-page {
+    padding: 0;
+  }
+
+  .hero-section {
+    border-radius: 0 0 0 0; 
+  }
+
   .board-grid { grid-template-columns: 1fr; max-width: 340px; }
   .pin-board { padding: 90px 16px 80px; border-radius: 20px; }
   
