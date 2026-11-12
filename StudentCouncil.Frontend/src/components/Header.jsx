@@ -5,102 +5,104 @@ import MusicButton from './MusicButton';
 
 export default function Header({ onLogout }) { 
     const { user, loading } = useAuth();
-    const collapseRef = useRef(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const meowAudioRef = useRef(null);
 
     useEffect(() => {
         meowAudioRef.current = new Audio('/music/meow.mp3');
     }, []);
 
-    if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
 
-    const closeMenu = () => {
-        if (!collapseRef.current) return;
-        const bsCollapse = window.bootstrap?.Collapse?.getInstance(collapseRef.current);
-        if (bsCollapse) {
-            bsCollapse.hide();
-        }
-    };
+    if (loading) return null; 
+
+    const closeMenu = () => setIsMenuOpen(false);
 
     const playMeow = () => {
         if (meowAudioRef.current) {
             meowAudioRef.current.currentTime = 0;
-            meowAudioRef.current.play().then(() => console.log("Мяу!")).catch(e => console.error("Ошибка воспроизведения:", e));
+            meowAudioRef.current.play().catch(e => console.error("Ошибка воспроизведения:", e));
         }
     };
 
     const displayEmail = user?.email && user.email.length > 25 ? user.email.substring(0, 17) + '...' : user?.email;
 
     return (
-        <header>
-            <nav className="navbar navbar-expand-md navbar-light">
-                <div className="container-fluid">
-                    <Link className="navbar-brand" to="/" onClick={closeMenu}>
-                        Студсовет
-                    </Link>
-                    <button 
-                        className="navbar-toggler" 
-                        type="button" 
-                        data-bs-toggle="collapse" 
-                        data-bs-target="#navbarNav"
-                    >
-                        <span className="navbar-toggler-icon"></span>
-                    </button>
+        <header className="custom-header">
+            <div className="header-container">
+                <Link className="header-brand" to="/" onClick={closeMenu}>
+                    Студсовет
+                </Link>
 
-                    <div className="collapse navbar-collapse" id="navbarNav" ref={collapseRef}>
-                        <ul className="navbar-nav">
-                            {user && (
-                                <li className="nav-item">
-                                    <span className="nav-text">
-                                        <img src="/cat.gif" alt="кот" onClick={playMeow} className="cat-in-header" />
-                                        Привет, {displayEmail}!
-                                    </span>
-                                </li>
-                            )}
+                <button 
+                    className={`header-toggler ${isMenuOpen ? 'open' : ''}`}
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    aria-label="Открыть меню"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
 
+                {/* Меню */}
+                <div className={`header-collapse ${isMenuOpen ? 'show' : ''}`}>
+                    <ul className="header-nav">
+                        {user && (
                             <li className="nav-item">
-                                <Link className="nav-link" to="/" onClick={closeMenu}>Главная</Link>
+                                <span className="nav-text">
+                                    <img src="/cat.gif" alt="кот" onClick={playMeow} className="cat-in-header" />
+                                    Привет, {displayEmail}!
+                                </span>
                             </li>
+                        )}
 
-                            {user && (
-                                <>
-                                    <li className="nav-item">
-                                        <Link className="nav-link" to={`/users/${user.id}`} onClick={closeMenu}>Мой профиль</Link>
-                                    </li>
-                                    {(user.role === "Admin" || user.role === "Leader") && (
-                                        <>
-                                            <li className="nav-item">
-                                                <Link className="nav-link" to="/users" onClick={closeMenu}>Участники</Link>
-                                            </li>
-                                            <li className="nav-item">
-                                                <Link className="nav-link" to="/events" onClick={closeMenu}>Мероприятия</Link>
-                                            </li>
-                                            <li className="nav-item">
-                                                <Link className="nav-link" to="/analytics" onClick={closeMenu}>Аналитика</Link>
-                                            </li>
-                                        </>
-                                    )}
-                                    <li className="nav-item">
-                                        <button className="nav-link" onClick={() => { closeMenu(); onLogout(); }}>Выйти</button>
-                                    </li>
-                                </>
-                            )}
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/" onClick={closeMenu}>Главная</Link>
+                        </li>
 
-                            {!user && (
-                                <>
-                                    <li className="nav-item">
-                                        <Link className="nav-link" to="/help" onClick={closeMenu}>Помощь</Link>
-                                    </li>
-                                    <li className="nav-item">
-                                        <Link className="nav-link" to="/login" onClick={closeMenu}>Войти</Link>
-                                    </li>
-                                </>
-                            )}
-                        </ul>
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/fishing" onClick={closeMenu}>Рыбалка</Link>
+                        </li>
+
+                        {user && (
+                            <>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to={`/users/${user.id}`} onClick={closeMenu}>Мой профиль</Link>
+                                </li>
+                                {(user.role === "Admin" || user.role === "Leader") && (
+                                    <>
+                                        <li className="nav-item">
+                                            <Link className="nav-link" to="/users" onClick={closeMenu}>Участники</Link>
+                                        </li>
+                                        <li className="nav-item">
+                                            <Link className="nav-link" to="/events" onClick={closeMenu}>Мероприятия</Link>
+                                        </li>
+                                        <li className="nav-item">
+                                            <Link className="nav-link" to="/analytics" onClick={closeMenu}>Аналитика</Link>
+                                        </li>
+                                    </>
+                                )}
+                                <li className="nav-item">
+                                    <button className="nav-link logout-btn" onClick={() => { closeMenu(); onLogout(); }}>Выйти</button>
+                                </li>
+                            </>
+                        )}
+
+                        {!user && (
+                            <>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/help" onClick={closeMenu}>Помощь</Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/login" onClick={closeMenu}>Войти</Link>
+                                </li>
+                            </>
+                        )}
+                    </ul>
+                    <div className="header-actions">
                         <MusicButton />
                     </div>
                 </div>
-            </nav>
+            </div>
         </header>
     );
 }

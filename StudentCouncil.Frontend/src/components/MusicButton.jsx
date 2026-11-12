@@ -43,13 +43,6 @@ export default function MusicButton() {
             className="music-control" 
             onClick={toggleMusic}
             title={isPlaying ? 'Выключить музыку' : 'Включить музыку'}
-            style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                fontSize: '1.2rem',
-                marginLeft: '10px'
-            }}
         >
             <FontAwesomeIcon icon={isPlaying ? faVolumeUp : faVolumeOff} />
         </button>
