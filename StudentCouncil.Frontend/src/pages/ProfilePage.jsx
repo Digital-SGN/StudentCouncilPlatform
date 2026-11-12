@@ -79,8 +79,10 @@ export default function ProfilePage() {
     if (!isOwnProfile && !isAdmin && !isLeader) return <div className="alert alert-danger">Нет прав на просмотр</div>;
 
     const xpPerLevel = 250;
-    const currentLevel = Math.floor(user.experiencePoints / xpPerLevel) + 1;
-    const xpInCurrentLevel = user.experiencePoints % xpPerLevel;
+ 
+    const currentXP = user.experiencePoints || 0; 
+    const currentLevel = Math.floor(currentXP / xpPerLevel) + 1;
+    const xpInCurrentLevel = currentXP % xpPerLevel;
     const xpPercent = Math.min(100, Math.max(0, (xpInCurrentLevel / xpPerLevel * 100)));
 
     const isDefaultBanner = !user.bannerPath || user.bannerPath === 'default';

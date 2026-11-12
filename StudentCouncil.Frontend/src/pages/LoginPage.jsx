@@ -327,7 +327,7 @@ export default function LoginPage({ setUser }) {
 
                 <div className="login-container">
                     <div className="login-logo">
-                        <img src="/images/logo.png" alt="Лого" />
+                        <img src="/logo.svg" alt="Лого" />
                     </div>
                     <h1>Добро пожаловать!</h1>
 
