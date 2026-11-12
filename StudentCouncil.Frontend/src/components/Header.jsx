@@ -18,7 +18,6 @@ export default function Header({ onLogout }) {
         meowAudioRef.current = new Audio('/music/meow.mp3');
     }, []);
 
-
     if (loading) return null; 
 
     const closeMenu = () => setIsMenuOpen(false);
@@ -49,6 +48,7 @@ export default function Header({ onLogout }) {
                     <span></span>
                 </button>
 
+                {/* Меню */}
                 <div className={`header-collapse ${isMenuOpen ? 'show' : ''}`}>
                     <ul className="header-nav">
                         {user && (
