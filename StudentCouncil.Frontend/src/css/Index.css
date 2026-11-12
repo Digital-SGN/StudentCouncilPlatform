@@ -272,7 +272,7 @@ main {
 
    .nav-link {
         display: flex;
-        justify-content: center; /* Центрируем иконку и текст */
+        justify-content: center; 
         align-items: center;
         width: 100%;
         text-align: center;
@@ -514,4 +514,10 @@ input, textarea, select, [contenteditable="true"] {
 .disabled, [disabled], .pending, .badge-link.pending {
     cursor: default !important;
     pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    main {
+        padding: 0;
+    }
 }

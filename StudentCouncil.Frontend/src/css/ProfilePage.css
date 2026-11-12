@@ -414,7 +414,7 @@
 
 @media (max-width: 768px) {
     .profile-wrapper { 
-        padding: 10px 0; 
+        padding: 0; 
     }
     
     .profile-card {
