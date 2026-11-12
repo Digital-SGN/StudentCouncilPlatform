@@ -1,19 +1,15 @@
 import { useEffect, useRef } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShieldHalved } from '@fortawesome/free-solid-svg-icons';
 import Bubbles from '../components/Bubbles';
-import '../css/HelpPage.css'; 
+import '../css/PrivacyPage.css';
 
 export default function PrivacyPage() {
   const pageRef = useRef(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add('visible');
-        });
-      },
+      (entries) => entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      }),
       { threshold: 0.1 }
     );
     if (pageRef.current) observer.observe(pageRef.current);
@@ -21,25 +17,126 @@ export default function PrivacyPage() {
   }, []);
 
   return (
-    <div className="help-page" ref={pageRef}>
+    <div className="privacy-page" ref={pageRef}>
       <Bubbles />
-      <div className="help-construction">
-        <div className="help-construction-icon" style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', boxShadow: '0 12px 28px rgba(59, 130, 246, 0.35)' }}>
-          <FontAwesomeIcon icon={faShieldHalved} />
+      <div className="privacy-container">
+        <div className="privacy-header">
+          <h1>Политика конфиденциальности</h1>
+          <p className="privacy-updated">Дата последнего обновления: 12 ноября 2026 г.</p>
         </div>
-        
-        <h1 className="help-construction-title">Политика конфиденциальности</h1>
-        
-        <p className="help-construction-text">
-          Мы готовим этот раздел. Скоро здесь появится подробная информация о том, 
-          как мы собираем, используем и защищаем ваши данные.
-        </p>
-        
-        <div className="help-construction-progress">
-          <div className="help-construction-bar" style={{ background: 'linear-gradient(90deg, #3b82f6, #1d4ed8)' }} />
+
+        <div className="privacy-content">
+          <section>
+            <h2>1. Общие положения</h2>
+            <p>
+              Настоящая Политика определяет порядок обработки и защиты персональных данных
+              пользователей сайта Студенческого совета факультета СГН МГТУ им. Н.Э. Баумана
+              (далее — Сайт).
+            </p>
+            <p>
+              Оператор персональных данных: <strong>Ананьев Дмитрий Денисович</strong>,
+              ИНН: <strong>612189025757</strong>, контактный email: <strong>demonrux201@yandex.ru</strong>.
+            </p>
+            <p>
+              Политика подготовлена в соответствии с Федеральным законом от 27.07.2006 № 152-ФЗ
+              «О персональных данных».
+            </p>
+          </section>
+
+          <section>
+            <h2>2. Какие данные мы обрабатываем</h2>
+            <p>Мы обрабатываем данные, которые вы предоставляете при заполнении профиля
+              или участии в мероприятиях Студенческого совета:</p>
+            <ul>
+              <li>Фамилия, имя, отчество;</li>
+              <li>Адрес электронной почты;</li>
+              <li>Номер телефона;</li>
+              <li>Ссылка на профиль в Telegram;</li>
+              <li>Учебная группа;</li>
+              <li>Дата рождения;</li>
+              <li>Размер одежды (для подготовки мерча);</li>
+              <li>Фотография профиля и фотографии с мероприятий;</li>
+              <li>Файлы бейджей участников.</li>
+            </ul>
+            <p>
+              Также автоматически собираются технические данные: IP-адрес, данные cookies,
+              сведения о браузере — для обеспечения безопасности и корректной работы Сайта.
+            </p>
+          </section>
+
+          <section>
+            <h2>3. Цели обработки</h2>
+            <ul>
+              <li>Идентификация пользователей и предоставление доступа к личному кабинету;</li>
+              <li>Организация и проведение мероприятий, учёт участников;</li>
+              <li>Подготовка и выдача бейджей, мерча и других материалов;</li>
+              <li>Связь с пользователями (уведомления, ответы на обращения);</li>
+              <li>Обеспечение безопасности Сайта.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>4. Как мы защищаем данные</h2>
+            <p>
+              Мы принимаем необходимые правовые, организационные и технические меры для защиты
+              персональных данных от неправомерного доступа, уничтожения, изменения, блокирования
+              и распространения:
+            </p>
+            <ul>
+              <li>Передача данных между вашим браузером и сервером защищена протоколом HTTPS;</li>
+              <li>Пароли хранятся в защищённом виде и не доступны даже администраторам;</li>
+              <li>Доступ к административным функциям ограничен;</li>
+              <li>Для дополнительной защиты входа используется двухфакторная аутентификация;</li>
+              <li>Данные хранятся на серверах, расположенных на территории Российской Федерации.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>5. Сроки хранения</h2>
+            <p>
+              Персональные данные обрабатываются до достижения целей обработки либо до отзыва
+              согласия. После отзыва согласия или исключения из состава Студенческого совета
+              данные уничтожаются или обезличиваются в срок, не превышающий 30 дней.
+            </p>
+          </section>
+
+          <section>
+            <h2>6. Передача третьим лицам</h2>
+            <p>
+              Мы не передаём персональные данные третьим лицам, за исключением случаев,
+              прямо предусмотренных законодательством Российской Федерации. Сайт не использует
+              зарубежные сервисы для хранения или обработки персональных данных граждан РФ.
+            </p>
+          </section>
+
+          <section>
+            <h2>7. Ваши права</h2>
+            <p>Вы вправе:</p>
+            <ul>
+              <li>получить информацию об обработке ваших персональных данных;</li>
+              <li>потребовать уточнения, блокирования или уничтожения данных, если они неполны,
+                устарели, неточны или получены незаконно;</li>
+              <li>отозвать согласие на обработку персональных данных.</li>
+            </ul>
+            <p>
+              Для реализации прав напишите нам на email, указанный в разделе «Контакты».
+            </p>
+          </section>
+
+          <section>
+            <h2>8. Контакты</h2>
+            <p>
+              По всем вопросам, связанным с обработкой персональных данных, обращайтесь
+              к Оператору — <strong>Ананьеву Дмитрию Денисовичу</strong>:
+            </p>
+            <p>
+              Email: <a href="mailto:demonrux201@yandex.ru">demonrux201@yandex.ru</a>
+            </p>
+            <p>
+              Telegram: <a href="https://t.me/skebob_gg" target="_blank" rel="noopener noreferrer">@skebob_gg</a>
+            </p>
+          </section>
         </div>
-        
-        <span className="help-construction-hint">Скоро…</span>
       </div>
     </div>
   );
