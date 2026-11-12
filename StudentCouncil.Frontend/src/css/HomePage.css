@@ -519,7 +519,6 @@
 
 .pin-card-1 .team-info p { font-size: 12px; }
 
-/* Цвета пинов */
 .pin-card-1 .push-pin { background: radial-gradient(circle at 35% 35%, #ff8787, #e03131); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
 .pin-card-2 .push-pin { background: radial-gradient(circle at 35% 35%, #74c0fc, #1c7ed6); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
 .pin-card-3 .push-pin { background: radial-gradient(circle at 35% 35%, #69db7c, #2f9e44); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
@@ -529,7 +528,6 @@
 .pin-card-7 .push-pin { background: radial-gradient(circle at 35% 35%, #38bdf8, #0284c7); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
 
 
-/* --- АДАПТИВ --- */
 @media (max-width: 1024px) {
   .board-grid { 
     grid-template-columns: repeat(2, 1fr); 
@@ -537,7 +535,6 @@
     gap: 40px 30px;
   }
   
-  /* Сбрасываем позиции для планшетов, выстраиваем в 2 колонки */
   .pin-card-1 { grid-column: 1 / -1; grid-row: auto; max-width: 340px; margin: 0 auto; }
   .pin-card-2, .pin-card-3, .pin-card-4, .pin-card-5, .pin-card-6, .pin-card-7 { 
     grid-column: auto; 
@@ -555,23 +552,52 @@
 }
 
 @media (max-width: 768px) {
-  .home-page { padding: 0; }
-  .hero-section { border-radius: 0; min-height: 55vh; }
-  .hero-overlay { padding: 60px 0; }
-  .hero-title { font-size: 2.2rem; margin-bottom: 16px; }
-  .hero-subtitle { font-size: 0.95rem; margin-bottom: 24px; line-height: 1.4; }
+  .home-page { 
+    padding: 0; 
+  }
+  
+  .hero-section { 
+    border-radius: 0; 
+    min-height: 55vh; 
+  }
+  
+  .hero-overlay { 
+    padding: 60px 0; 
+  }
+  
+  .hero-title { 
+    font-size: 2.2rem; 
+    margin-bottom: 16px; 
+  }
+  
+  .hero-subtitle { 
+    font-size: 0.95rem; 
+    margin-bottom: 24px; 
+    line-height: 1.4; 
+  }
 
   .board-grid { 
     grid-template-columns: 1fr; 
     max-width: 340px; 
   }
   
-  .pin-card-1 { grid-column: 1; max-width: 100%; }
+  .pin-card-1 { 
+    grid-column: 1; 
+    max-width: 100%; 
+  }
   
-  .pin-board { padding: 90px 16px 80px; border-radius: 20px; }
+  .pin-board { 
+    padding: 90px 16px 80px; 
+    border-radius: 20px; 
+  }
   
-  .sticker-1, .sticker-2, .sticker-3, .sticker-4 { display: none; }
-  .sticker-5 { bottom: 20px; }
+  .sticker-1, .sticker-2, .sticker-3, .sticker-4 { 
+    display: none; 
+  }
+  
+  .sticker-5 { 
+    bottom: 20px; 
+  }
   
   .sticker-main { 
     top: 20px; 
@@ -581,13 +607,36 @@
     max-width: 90%;
   }
   
-  .pin-board .team-photo-wrapper { height: 280px; }
-  .pin-card-1 .team-photo-wrapper { height: 280px; }
-  .pin-board::before { border-radius: 20px; }
+  .pin-board .team-photo-wrapper { 
+    height: 280px; 
+  }
+  
+  .pin-card-1 .team-photo-wrapper { 
+    height: 280px; 
+  }
+  
+  .pin-board::before { 
+    border-radius: 20px; 
+  }
 
-  .about-logo { max-width: 100px; }
-  .about-title-wrapper { gap: 10px; }
-  .about-text h2 { font-size: 28px; }
-  .about-flourish { height: 30px; min-width: 30px; }
-  .about-text { padding: 0 16px 20px; }
+  .about-logo { 
+    max-width: 100px; 
+  }
+  
+  .about-title-wrapper { 
+    gap: 10px; 
+  }
+  
+  .about-text h2 { 
+    font-size: 28px; 
+  }
+  
+  .about-flourish { 
+    height: 30px; 
+    min-width: 30px; 
+  }
+  
+  .about-text { 
+    padding: 0 16px 20px; 
+  }
 }
