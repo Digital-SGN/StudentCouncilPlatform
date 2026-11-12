@@ -42,7 +42,6 @@ export default function CustomCursor() {
     <div 
       className="custom-cursor" 
       ref={cursorRef}
-      // ЖЕСТКО ЗАДАЕМ РАЗМЕР ЗДЕСЬ, CSS больше не сможет это сломать
       style={{ width: '40px', height: '40px', position: 'fixed', top: 0, left: 0, pointerEvents: 'none', zIndex: 99999 }}
     >
       <img 
