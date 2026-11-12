@@ -102,10 +102,13 @@ main {
     scrollbar-width: none; 
 }
 
+<<<<<<< HEAD
 .header-nav::-webkit-scrollbar {
     display: none;
 }
 
+=======
+>>>>>>> 4aa35b1a26703ef304d6379676f66f243d61d78e
 .nav-text {
     color: #0CBFA1;
     font-size: 15px; /
@@ -245,12 +248,12 @@ main {
         flex-direction: column;
         align-items: stretch;
         padding: 15px 20px;
-        max-height: calc(100vh - 80px); /* Ограничиваем высоту экраном */
+        max-height: calc(100vh - 80px);
         overflow-y: auto;
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.3s ease, visibility 0.3s ease, max-height 0.3s ease;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15); /* Сделали тень заметнее */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         border-radius: 0 0 16px 16px;
         z-index: 100;
     }
@@ -281,9 +284,13 @@ main {
         width: 100%;
     }
 
-   .nav-link {
+    .nav-link {
         display: flex;
+<<<<<<< HEAD
         justify-content: center; 
+=======
+        justify-content: center;
+>>>>>>> 4aa35b1a26703ef304d6379676f66f243d61d78e
         align-items: center;
         width: 100%;
         text-align: center;
@@ -336,7 +343,6 @@ main {
         height: 44px;
     }
 }
-
 
 @keyframes spin {
   0%   { transform: rotate(0deg); }
@@ -445,6 +451,7 @@ main.main-login {
     text-decoration: underline;
 }
 
+/* --- Утилиты и Анимации --- */
 .loading {
     text-align: center;
     padding: 2rem;
