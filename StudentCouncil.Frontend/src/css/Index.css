@@ -164,6 +164,7 @@ main {
     height: 100%;         
     display: flex;        
     align-items: center;
+    gap: 6px; 
     border-radius: 8px;
     transition: all 0.3s ease;
     background: transparent;
@@ -172,6 +173,16 @@ main {
     font-family: inherit;
     white-space: nowrap;
     line-height: 1;      
+}
+
+.nav-link svg {
+    color: #94a3b8;
+    font-size: 1.1em;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover svg {
+    color: var(--primary);
 }
 
 .nav-link:hover {
@@ -221,58 +232,81 @@ main {
         right: 0;
         background: white;
         flex-direction: column;
-        align-items: flex-start;
-        padding: 0 20px;
-        max-height: 0;
-        overflow: hidden;
+        align-items: stretch;
+        padding: 15px 20px;
+        max-height: calc(100vh - 80px); /* Ограничиваем высоту экраном */
+        overflow-y: auto;
         opacity: 0;
-        transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease, max-height 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15); /* Сделали тень заметнее */
         border-radius: 0 0 16px 16px;
         z-index: 100;
     }
 
     .header-collapse.show {
-        max-height: 80vh;
-        overflow-y: auto;
         opacity: 1;
-        padding: 20px;
+        visibility: visible;
+    }
+
+    .header-collapse::-webkit-scrollbar {
+        display: none;
+    }
+    .header-collapse {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
     }
 
     .header-nav {
         flex-direction: column;
         width: 100%;
         align-items: stretch;
-        gap: 10px;
+        gap: 8px;
+        height: auto;
+        margin-bottom: 12px; 
     }
 
     .nav-item {
         width: 100%;
     }
 
-    .nav-link {
-        display: block;
+   .nav-link {
+        display: flex;
+        justify-content: center; /* Центрируем иконку и текст */
+        align-items: center;
         width: 100%;
         text-align: center;
-        background: #f8f9fa;
-        padding: 12px;
-        font-size: 16px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 12px 20px; 
+        border-radius: 12px;
+        font-size: 15px;
+        height: auto;
+        color: #1e293b !important;
+        transition: background 0.2s;
+    }
+    
+    .nav-link:hover, .nav-link:active {
+        background: #e2e8f0;
     }
 
     .nav-text {
         border-right: none;
         margin-right: 0;
         width: 100%;
-        justify-content: center;
+        display: flex;
         flex-direction: column;
-        border-bottom: 1px solid #e2e8f0;
+        align-items: center;
+        justify-content: center;
         padding-bottom: 15px;
+        border-bottom: 1px solid #e2e8f0;
+        margin-bottom: 5px;
     }
 
     .cat-in-header {
-        width: 100px;
-        height: 60px;
-        margin-bottom: 10px;
+        width: 80px;
+        height: 50px;
+        margin-bottom: 8px;
     }
 
     .header-actions {
@@ -280,8 +314,15 @@ main {
         justify-content: center;
         padding-top: 15px;
         border-top: 1px solid #e2e8f0;
-        margin-top: 10px;
         height: auto;
+    }
+
+    .music-control {
+        margin: 0;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        width: 44px;
+        height: 44px;
     }
 }
 
@@ -393,7 +434,6 @@ main.main-login {
     text-decoration: underline;
 }
 
-/* --- Утилиты и Анимации --- */
 .loading {
     text-align: center;
     padding: 2rem;
