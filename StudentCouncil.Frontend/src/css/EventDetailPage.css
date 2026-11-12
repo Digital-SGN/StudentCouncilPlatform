@@ -672,11 +672,6 @@
     }
 }
 
-.loading-container .spinner {
-    --spinner-color: #ffffff;
-    --spinner-track: rgba(255, 255, 255, 0.25);
-}
-
 .event-detail-card {
     position: relative;
     overflow: hidden;

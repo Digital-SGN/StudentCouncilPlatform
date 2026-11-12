@@ -8,7 +8,7 @@
 .events-wrapper {
     position: relative;
     z-index: 1;
-    padding: 40px 20px;
+    padding: 20px 20px;
     max-width: 1200px;
     margin: 0 auto;
 }
@@ -57,20 +57,32 @@
     background: transparent;
 }
 
+.events-card-wrapper {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.events-card-body {
+    padding: 24px;
+}
+
 .event-card {
     background: white;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     flex-direction: column;
     height: 100%;
+    border: 1px solid #04b194;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 0.2s, border-color 0.2s;
 }
 
 .event-card:hover {
-    background: #f8fafc;
-    box-shadow: 0 15px 30px rgba(12, 191, 161, 0.15);
+    border-color: #148C9C;
+    box-shadow: 0 6px 16px rgba(20, 140, 156, 0.2);
 }
 
 .event-card-header {
@@ -96,7 +108,7 @@
 .event-status {
     padding: 4px 12px;
     border-radius: 20px;
-    font-size: 20px;
+    font-size: 14px;
     font-weight: 600;
     white-space: nowrap;
     flex-shrink: 0;
@@ -162,18 +174,23 @@
     flex-shrink: 0;
 }
 
-.event-info-text {
-    font-size: 18px;
-    color: black;
+.event-info-text,
+.event-link,
+.attendance-numbers {
+    font-size: 16px;
+    color: #1e293b;
     word-break: break-word;
     flex: 1;
 }
 
+.event-info-empty {
+    color: #94a3b8;
+    font-style: italic;
+}
+
 .event-link {
     color: #0CBFA1;
-    font-size: 18px;
     text-decoration: none;
-    word-break: break-word;
 }
 
 .event-link:hover {
@@ -203,9 +220,9 @@
     padding: 8px 16px;
     border-radius: 8px;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 700;
     text-decoration: none;
-    transition: all 0.2s;
+    transition: background 0.2s, color 0.2s;
     cursor: pointer;
     border: none;
     flex: 1;
@@ -219,9 +236,9 @@
 }
 
 .event-btn.view:hover {
-    background: #cbd5e0;
+    background: #0baf92;
+    color: white;
     text-decoration: none;
-    color: #2d3748;
 }
 
 .event-btn.edit {
@@ -244,11 +261,6 @@
 
 .event-btn.delete:hover {
     background: #fecaca;
-}
-
-.event-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .empty-state {
@@ -576,39 +588,14 @@
 }
 
 .attendance-stats {
-    font-size: 10px;
-    width: 80%;
-}
-
-.progress-bar {
-    background: #e2e8f0;
-    border-radius: 10px;
-    height: 6px;
-    margin-top: 6px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    background: #0CBFA1;
-    height: 100%;
-    border-radius: 10px;
-    transition: width 0.3s ease;
-}
-
-.attendance-stats {
     width: 100%;
-}
-
-.attendance-numbers {
-    font-size: 18px;
-    color: black;
-    margin-bottom: 4px;
 }
 
 .progress-bar {
     background: #e2e8f0;
     border-radius: 10px;
     height: 8px;
+    margin-top: 6px;
     overflow: hidden;
 }
 

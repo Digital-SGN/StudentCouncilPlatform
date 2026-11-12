@@ -4,7 +4,7 @@
     width: 30%;
     height: 100vh;
     pointer-events: none;
-    z-index: 0;
+    z-index: 2;
     overflow: visible;
 }
 
@@ -16,20 +16,33 @@
     right: 0;
 }
 
-.bubble {
+.bubble, .bubble-large {
     position: absolute;
-    background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     pointer-events: none;
+    
+    background: radial-gradient(
+        circle at 30% 30%, 
+        rgba(255, 255, 255, 0.5) 0%, 
+        rgba(255, 255, 255, 0.15) 40%, 
+        rgba(255, 255, 255, 0.02) 80%
+    );
+    
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    
+    box-shadow: 
+        inset 0 0 20px rgba(255, 255, 255, 0.3),
+        0 10px 30px rgba(12, 191, 161, 0.1);
+        
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    
     animation: floatBubble 6s ease-in-out infinite;
 }
 
 .bubble-large {
-    position: absolute;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 50%;
-    pointer-events: none;
     animation: floatBubbleLarge 8s ease-in-out infinite;
+    border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .bubble-left-1 {
@@ -165,5 +178,12 @@
     50% {
         transform: translateY(-40px) scale(1.2);
         opacity: 0.4;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .bubbles-side {
+        display: none;
     }
 }

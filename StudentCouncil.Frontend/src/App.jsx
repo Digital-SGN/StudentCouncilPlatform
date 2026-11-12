@@ -1,27 +1,28 @@
-import { useEffect } from 'react';
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { API } from './api';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import HomePage from './pages/HomePage';
-import HelpPage from './pages/HelpPage';
-import PrivacyPage from './pages/PrivacyPage'; 
-import LoginPage from './pages/LoginPage';
-import UsersPage from './pages/UsersPage';
-import ProfilePage from './pages/ProfilePage';
-import AnalyticsPage from './pages/AnalyticsPage';
-import EventsPage from './pages/EventsPage';
-import EventDetailPage from './pages/EventDetailPage';
 import CustomCursor from './components/CustomCursor'; 
+import Loader from './components/Loader'; 
+
+const HomePage = lazy(() => import('./pages/HomePage'));
+const HelpPage = lazy(() => import('./pages/HelpPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage')); 
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const UsersPage = lazy(() => import('./pages/UsersPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
+const EventsPage = lazy(() => import('./pages/EventsPage'));
+const EventDetailPage = lazy(() => import('./pages/EventDetailPage'));
+const FishingGamePage = lazy(() => import('./pages/FishingGamePage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage')); // 404
+
 import './css/Index.css';
 import './css/LoginPage.css';
-import './css/UsersPage.css';
-import './css/ProfilePage.css';
-import './css/EventsPage.css';
 import './css/Bubbles.css';
-import './css/HelpPage.css';
 
 function AppContent() {
     const { user, setUser, loading } = useAuth();
@@ -34,7 +35,7 @@ function AppContent() {
         navigate('/login');
     };
 
-    if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
+    if (loading) return <Loader text="Проверка авторизации..." />;
 
     const isLoginPage = location.pathname === '/login';
 
@@ -46,7 +47,7 @@ function AppContent() {
                 {isLoginPage ? (
                     <LoginPage setUser={setUser} />
                 ) : (
-                    <div className="container">
+                    <Suspense fallback={<Loader text="Загрузка страницы..." />}>
                         <Routes>
                             <Route path="/" element={<HomePage />} />
                             <Route path="/users" element={<UsersPage />} />
@@ -56,8 +57,11 @@ function AppContent() {
                             <Route path="/events/:id" element={<EventDetailPage />} />
                             <Route path="/help" element={<HelpPage />} />
                             <Route path="/privacy" element={<PrivacyPage />} /> 
+                            <Route path="/fishing" element={<FishingGamePage />} />
+                            
+                            <Route path="*" element={<NotFoundPage />} /> 
                         </Routes>
-                    </div>
+                    </Suspense>
                 )}
             </main>
             <Footer />
