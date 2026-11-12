@@ -498,16 +498,12 @@
 }
 
 @media (max-width: 768px) {
-
   .home-page {
     padding: 0;
   }
 
   .hero-section {
     border-radius: 0 0 0 0; 
-  }
-
-  .hero-section {
     min-height: 55vh; 
   }
   
