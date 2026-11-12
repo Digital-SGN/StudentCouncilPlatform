@@ -16,9 +16,11 @@ import { ROLE_STYLES } from '../constants/roles';
 import { AVAILABLE_BANNERS } from '../constants/banners';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
+import Loader from '../components/Loader';
 import Alert from '../components/Alert';
 import UserFormModal from '../components/modals/UserFormModal';
 import '../css/ProfilePage.css';
+
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -73,7 +75,7 @@ export default function ProfilePage() {
         if (!result) alert('Ошибка скачивания бейджа');
     };
 
-    if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
+    if (loading) return <Loader text="Загрузка профиля..." />;
     if (error) return <Alert type="danger" message={error} />;
     if (!user) return <div className="alert alert-danger">Пользователь не найден</div>;
     if (!isOwnProfile && !isAdmin && !isLeader) return <div className="alert alert-danger">Нет прав на просмотр</div>;
