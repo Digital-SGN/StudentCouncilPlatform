@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+    faHome, faFish, faUser, faUsers, 
+    faCalendarAlt, faChartLine, faSignOutAlt, 
+    faQuestionCircle, faSignInAlt 
+} from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import MusicButton from './MusicButton';
 
@@ -11,7 +17,6 @@ export default function Header({ onLogout }) {
     useEffect(() => {
         meowAudioRef.current = new Audio('/music/meow.mp3');
     }, []);
-
 
     if (loading) return null; 
 
@@ -56,33 +61,47 @@ export default function Header({ onLogout }) {
                         )}
 
                         <li className="nav-item">
-                            <Link className="nav-link" to="/" onClick={closeMenu}>Главная</Link>
+                            <Link className="nav-link" to="/" onClick={closeMenu}>
+                                <FontAwesomeIcon icon={faHome} /> <span>Главная</span>
+                            </Link>
                         </li>
 
                         <li className="nav-item">
-                            <Link className="nav-link" to="/fishing" onClick={closeMenu}>Рыбалка</Link>
+                            <Link className="nav-link" to="/fishing" onClick={closeMenu}>
+                                <FontAwesomeIcon icon={faFish} /> <span>Рыбалка</span>
+                            </Link>
                         </li>
 
                         {user && (
                             <>
                                 <li className="nav-item">
-                                    <Link className="nav-link" to={`/users/${user.id}`} onClick={closeMenu}>Мой профиль</Link>
+                                    <Link className="nav-link" to={`/users/${user.id}`} onClick={closeMenu}>
+                                        <FontAwesomeIcon icon={faUser} /> <span>Мой профиль</span>
+                                    </Link>
                                 </li>
                                 {(user.role === "Admin" || user.role === "Leader") && (
                                     <>
                                         <li className="nav-item">
-                                            <Link className="nav-link" to="/users" onClick={closeMenu}>Участники</Link>
+                                            <Link className="nav-link" to="/users" onClick={closeMenu}>
+                                                <FontAwesomeIcon icon={faUsers} /> <span>Участники</span>
+                                            </Link>
                                         </li>
                                         <li className="nav-item">
-                                            <Link className="nav-link" to="/events" onClick={closeMenu}>Мероприятия</Link>
+                                            <Link className="nav-link" to="/events" onClick={closeMenu}>
+                                                <FontAwesomeIcon icon={faCalendarAlt} /> <span>Мероприятия</span>
+                                            </Link>
                                         </li>
                                         <li className="nav-item">
-                                            <Link className="nav-link" to="/analytics" onClick={closeMenu}>Аналитика</Link>
+                                            <Link className="nav-link" to="/analytics" onClick={closeMenu}>
+                                                <FontAwesomeIcon icon={faChartLine} /> <span>Аналитика</span>
+                                            </Link>
                                         </li>
                                     </>
                                 )}
                                 <li className="nav-item">
-                                    <button className="nav-link logout-btn" onClick={() => { closeMenu(); onLogout(); }}>Выйти</button>
+                                    <button className="nav-link logout-btn" onClick={() => { closeMenu(); onLogout(); }}>
+                                        <FontAwesomeIcon icon={faSignOutAlt} /> <span>Выйти</span>
+                                    </button>
                                 </li>
                             </>
                         )}
@@ -90,10 +109,14 @@ export default function Header({ onLogout }) {
                         {!user && (
                             <>
                                 <li className="nav-item">
-                                    <Link className="nav-link" to="/help" onClick={closeMenu}>Помощь</Link>
+                                    <Link className="nav-link" to="/help" onClick={closeMenu}>
+                                        <FontAwesomeIcon icon={faQuestionCircle} /> <span>Помощь</span>
+                                    </Link>
                                 </li>
                                 <li className="nav-item">
-                                    <Link className="nav-link" to="/login" onClick={closeMenu}>Войти</Link>
+                                    <Link className="nav-link" to="/login" onClick={closeMenu}>
+                                        <FontAwesomeIcon icon={faSignInAlt} /> <span>Войти</span>
+                                    </Link>
                                 </li>
                             </>
                         )}
