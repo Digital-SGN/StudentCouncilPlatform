@@ -300,8 +300,9 @@
   position: relative;
   background-color: #0f172a;
   border-radius: 32px;
-  padding: 100px 40px 80px;
+  padding: 90px 40px 80px; /* Чуть уменьшили верхний отступ */
   box-shadow: 0 30px 60px rgba(15, 23, 42, 0.2);
+  overflow: hidden;
 }
 
 .pin-board::before {
@@ -315,22 +316,35 @@
   z-index: 0;
 }
 
+/* Водяные знаки */
+.bg-watermark {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.04);
+  z-index: 0;
+  pointer-events: none;
+}
+.watermark-1 { font-size: 200px; top: 5%; left: 2%; transform: rotate(-15deg); }
+.watermark-2 { font-size: 250px; top: 20%; right: -2%; transform: rotate(20deg); }
+.watermark-3 { font-size: 180px; bottom: 5%; right: 5%; transform: rotate(10deg); }
+.watermark-4 { font-size: 150px; bottom: 15%; left: 5%; transform: rotate(-20deg); }
+
+/* СТИКЕРЫ (Сделали больше) */
 .board-sticker {
   position: absolute;
-  padding: 10px 18px;
+  padding: 14px 24px; /* Увеличили паддинг */
   font-weight: 800;
   font-family: 'Courier New', Courier, monospace;
-  font-size: 15px;
+  font-size: 16px; /* Увеличили шрифт */
   box-shadow: 2px 4px 15px rgba(0,0,0,0.3);
   z-index: 10;
   cursor: pointer;
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.board-sticker svg { font-size: 16px; }
+.board-sticker svg { font-size: 18px; }
 
 .board-sticker:hover {
   transform: scale(1.1) rotate(0deg) !important;
@@ -338,13 +352,13 @@
 }
 
 .sticker-main {
-  top: 30px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%) rotate(2deg);
   background: #f97316; 
   color: #ffffff;
-  font-size: 18px;
-  padding: 12px 28px;
+  font-size: 20px; /* Увеличили шрифт */
+  padding: 16px 36px; /* Увеличили паддинг */
   border-radius: 8px;
   z-index: 20;
 }
@@ -354,10 +368,10 @@
 }
 
 .sticker-1 { top: 30px; left: 5%; background: #fef08a; color: #854d0e; transform: rotate(-6deg); }
-.sticker-2 { top: 40px; right: 8%; background: #fbcfe8; color: #9d174d; transform: rotate(8deg); border-radius: 50px; }
-.sticker-3 { bottom: 40px; left: 5%; background: #bbf7d0; color: #166534; transform: rotate(4deg); }
-.sticker-4 { bottom: 50px; right: 5%; background: #bfdbfe; color: #1e3a8a; transform: rotate(-5deg); clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%); }
-.sticker-5 { bottom: 30px; left: 50%; transform: translateX(-50%) rotate(-3deg); background: #fecdd3; color: #e11d48; border-radius: 50px; padding: 12px 24px; }
+.sticker-2 { top: 30px; right: 5%; background: #fbcfe8; color: #9d174d; transform: rotate(8deg); border-radius: 50px; }
+.sticker-3 { bottom: 30px; left: 5%; background: #bbf7d0; color: #166534; transform: rotate(4deg); }
+.sticker-4 { bottom: 30px; right: 5%; background: #bfdbfe; color: #1e3a8a; transform: rotate(-5deg); clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%); }
+.sticker-5 { bottom: 20px; left: 50%; transform: translateX(-50%) rotate(-3deg); background: #fecdd3; color: #e11d48; border-radius: 50px; padding: 14px 28px; }
 
 .sticker-5:hover {
   transform: translateX(-50%) rotate(0deg) scale(1.1) !important;
@@ -365,36 +379,75 @@
 
 .board-strings {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0; width: 100%; height: 100%;
   pointer-events: none;
   z-index: 1;
-  filter: drop-shadow(0 4px 4px rgba(0,0,0,0.6));
 }
 
+/* --- НОВАЯ КОМПАКТНАЯ СЕТКА (1 + 2 + 4) --- */
 .board-grid {
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 70px 50px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 50px 20px;
   max-width: 1100px;
   margin: 0 auto;
 }
 
+/* Председатель (Центр) */
+.pin-card-1 { 
+  grid-column: 2 / 4; 
+  grid-row: 1;
+  justify-self: center; 
+  width: 100%;
+  max-width: 340px; 
+  transform: rotate(-1deg);
+  z-index: 5;
+}
+
+/* Ближайшие соратники (по бокам от Председателя) */
+.pin-card-2 { 
+  grid-column: 1; 
+  grid-row: 1; 
+  align-self: center;
+  margin-top: 50px; /* Опускаем их чуть ниже */
+  transform: rotate(-2deg);
+}
+
+.pin-card-3 { 
+  grid-column: 4; 
+  grid-row: 1; 
+  align-self: center;
+  margin-top: 50px;
+  transform: rotate(2deg);
+}
+
+/* Остальные 4 в самом низу */
+.pin-card-4 { grid-column: 1; grid-row: 2; transform: rotate(1deg); }
+.pin-card-5 { grid-column: 2; grid-row: 2; transform: rotate(-1deg); }
+.pin-card-6 { grid-column: 3; grid-row: 2; transform: rotate(2deg); }
+.pin-card-7 { grid-column: 4; grid-row: 2; transform: rotate(-2deg); }
+
+/* Стили карточки */
 .pin-board .team-card {
+  position: relative;
   background: #ffffff;
   border-radius: 4px;
-  padding: 18px 18px 28px;
+  padding: 14px 14px 20px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
   transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
   cursor: crosshair;
+  width: 100%;
+}
+
+.pin-board .team-card:hover {
+  transform: scale(1.06) rotate(0deg) !important;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+  z-index: 30;
 }
 
 .push-pin {
@@ -418,34 +471,26 @@
   filter: blur(1px);
 }
 
+/* ФОТО (Увеличили высоту и сместили фокус на лицо) */
 .pin-board .team-photo-wrapper {
   width: 100%;
-  height: 240px;
+  height: 250px; /* Было 180. Теперь лица не обрезаются */
   border-radius: 2px;
   overflow: hidden;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   background: var(--card-bg);
+}
+
+.pin-card-1 .team-photo-wrapper {
+  height: 280px; /* У Председателя еще больше */
 }
 
 .pin-board .team-photo-wrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;
+  object-position: center 15%; /* Сместили фокус вверх, чтобы видеть лица */
   transition: transform 0.4s ease;
-}
-
-.pin-card-1 { transform: translateY(0) rotate(-2deg); }
-.pin-card-2 { transform: translateY(20px) rotate(1.5deg); }
-.pin-card-3 { transform: translateY(-10px) rotate(-1deg); }
-.pin-card-4 { transform: translateY(10px) rotate(2deg); }
-.pin-card-5 { transform: translateY(-15px) rotate(-1.5deg); }
-.pin-card-6 { transform: translateY(15px) rotate(1deg); }
-
-.pin-board .team-card:hover {
-  transform: translateY(-15px) rotate(0deg) scale(1.06) !important;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
-  z-index: 30;
 }
 
 .pin-board .team-card:hover .team-photo-wrapper img {
@@ -453,76 +498,76 @@
 }
 
 .pin-board .team-info h3 {
-  font-size: 22px;
+  font-size: 16px; 
   font-weight: 800;
   color: #1e293b;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   text-align: center;
 }
 
+.pin-card-1 .team-info h3 { font-size: 20px; }
+
 .pin-board .team-info p {
-  font-size: 13px;
+  font-size: 10px; 
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   margin: 0;
   text-align: center;
 }
 
+.pin-card-1 .team-info p { font-size: 12px; }
+
+/* Цвета пинов */
 .pin-card-1 .push-pin { background: radial-gradient(circle at 35% 35%, #ff8787, #e03131); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
 .pin-card-2 .push-pin { background: radial-gradient(circle at 35% 35%, #74c0fc, #1c7ed6); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
 .pin-card-3 .push-pin { background: radial-gradient(circle at 35% 35%, #69db7c, #2f9e44); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
 .pin-card-4 .push-pin { background: radial-gradient(circle at 35% 35%, #ffd43b, #f08c00); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
 .pin-card-5 .push-pin { background: radial-gradient(circle at 35% 35%, #da77f2, #9c36b5); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
 .pin-card-6 .push-pin { background: radial-gradient(circle at 35% 35%, #f783ac, #c2255c); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
+.pin-card-7 .push-pin { background: radial-gradient(circle at 35% 35%, #38bdf8, #0284c7); box-shadow: 0 6px 10px rgba(0, 0, 0, 0.6), inset -2px -4px 6px rgba(0,0,0,0.5), inset 2px 2px 4px rgba(255,255,255,0.6); }
 
-@media (max-width: 1200px) {
-  .board-sticker { font-size: 14px; padding: 8px 14px; }
-  .sticker-main { font-size: 16px; padding: 10px 20px; }
-  .board-grid { gap: 50px 30px; }
-  .pin-board .team-photo-wrapper { height: 200px; }
-}
 
+/* --- АДАПТИВ --- */
 @media (max-width: 1024px) {
-  .board-grid { grid-template-columns: repeat(2, 1fr); max-width: 800px; }
-  .pin-card-1, .pin-card-2, .pin-card-3, .pin-card-4, .pin-card-5, .pin-card-6 { transform: translateY(0) rotate(0deg); }
-  .pin-board .team-card:hover { transform: translateY(-10px) scale(1.05) !important; }
-  .board-strings { display: none; } 
-  .pin-board { padding: 100px 30px 60px; }
+  .board-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+    max-width: 700px; 
+    gap: 40px 30px;
+  }
   
-  .sticker-1 { left: 10%; top: 20px; }
-  .sticker-2 { right: 10%; top: 20px; }
-  .sticker-3 { left: 10%; }
-  .sticker-4 { right: 10%; }
+  /* Сбрасываем позиции для планшетов, выстраиваем в 2 колонки */
+  .pin-card-1 { grid-column: 1 / -1; grid-row: auto; max-width: 340px; margin: 0 auto; }
+  .pin-card-2, .pin-card-3, .pin-card-4, .pin-card-5, .pin-card-6, .pin-card-7 { 
+    grid-column: auto; 
+    grid-row: auto; 
+    margin-top: 0; 
+  }
+  
+  .board-strings, .bg-watermark { display: none; } 
+  .pin-board { padding: 80px 20px 60px; }
+  
+  .sticker-1 { left: 2%; top: 20px; }
+  .sticker-2 { right: 2%; top: 20px; }
+  .sticker-3 { left: 2%; bottom: 20px; }
+  .sticker-4 { right: 2%; bottom: 20px; }
 }
 
 @media (max-width: 768px) {
-  .home-page {
-    padding: 0;
-  }
+  .home-page { padding: 0; }
+  .hero-section { border-radius: 0; min-height: 55vh; }
+  .hero-overlay { padding: 60px 0; }
+  .hero-title { font-size: 2.2rem; margin-bottom: 16px; }
+  .hero-subtitle { font-size: 0.95rem; margin-bottom: 24px; line-height: 1.4; }
 
-  .hero-section {
-    border-radius: 0 0 0 0; 
-    min-height: 55vh; 
+  .board-grid { 
+    grid-template-columns: 1fr; 
+    max-width: 340px; 
   }
   
-  .hero-overlay {
-    padding: 60px 0; 
-  }
-
-  .hero-title {
-    font-size: 2.2rem; 
-    margin-bottom: 16px; 
-  }
-
-  .hero-subtitle {
-    font-size: 0.95rem; 
-    margin-bottom: 24px; 
-    line-height: 1.4;
-  }
-
-  .board-grid { grid-template-columns: 1fr; max-width: 340px; }
+  .pin-card-1 { grid-column: 1; max-width: 100%; }
+  
   .pin-board { padding: 90px 16px 80px; border-radius: 20px; }
   
   .sticker-1, .sticker-2, .sticker-3, .sticker-4 { display: none; }
@@ -530,32 +575,19 @@
   
   .sticker-main { 
     top: 20px; 
-    font-size: 15px; 
-    padding: 8px 16px; 
+    font-size: 16px; 
+    padding: 12px 20px; 
     width: max-content;
     max-width: 90%;
   }
   
   .pin-board .team-photo-wrapper { height: 280px; }
+  .pin-card-1 .team-photo-wrapper { height: 280px; }
   .pin-board::before { border-radius: 20px; }
 
   .about-logo { max-width: 100px; }
   .about-title-wrapper { gap: 10px; }
   .about-text h2 { font-size: 28px; }
   .about-flourish { height: 30px; min-width: 30px; }
-  
   .about-text { padding: 0 16px 20px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-word,
-  .hero-accent,
-  .hero-subtitle,
-  .hero-cta,
-  .hero-cta-btn {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-    filter: none !important;
-  }
 }
