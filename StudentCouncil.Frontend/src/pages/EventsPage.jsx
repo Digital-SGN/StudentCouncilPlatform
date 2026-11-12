@@ -190,7 +190,7 @@ export default function EventsPage() {
             <Bubbles />
             <div className="events-wrapper">
                 <div className="events-header">
-                    <h1>Мероприятия</h1>
+                    <h1>Список мероприятий</h1>
                     <div className="header-actions">
                         <div className="search-box">
                             <FontAwesomeIcon icon={faSearch} className="search-icon" />
@@ -259,116 +259,119 @@ export default function EventsPage() {
                         )}
                     </div>
                 </div>
-
-                {sortedEvents.length === 0 ? (
-                    <div className="empty-state">
-                        <div className="empty-icon"><FontAwesomeIcon icon={faCalendarDay} /></div>
-                        <h3>Нет мероприятий</h3>
-                        <p>Пока нет мероприятий, соответствующих критериям</p>
-                    </div>
-                ) : (
-                    <div className="events-grid">
-                        {sortedEvents.map(event => (
-                            <div key={event.id} className="event-card">
-                                {event.photoPath && (
-                                    <div
-                                        className="event-card-photo"
-                                        style={{ backgroundImage: `url(${event.photoPath})` }}
-                                    />
-                                )}
-                                <div className="event-card-header">
-                                    <div className="event-title">{event.title}</div>
-                                    <div className={`event-status ${getStatusClass(event.status)}`}>
-                                        {getStatusText(event.status)}
-                                    </div>
-                                </div>
-                                <div className="event-card-body">
-                                    <div className="event-info">
-                                        <div className="event-info-item">
-                                            <span className="event-info-icon"><FontAwesomeIcon icon={faCalendar} /></span>
-                                            <span className="event-info-text">
-                                                {new Date(event.eventDate).toLocaleDateString('ru-RU', {
-                                                    day: 'numeric', month: 'long', year: 'numeric',
-                                                    hour: '2-digit', minute: '2-digit'
-                                                })}
-                                            </span>
-                                        </div>
-                                        {event.budget != null && (
-                                            <div className="event-info-item">
-                                                <span className="event-info-icon"><FontAwesomeIcon icon={faMoneyBillWave} /></span>
-                                                <span className="event-info-text">{event.budget.toLocaleString()} ₽</span>
-                                            </div>
+                <div className="events-card-wrapper">
+                    <div className="events-card-body">
+                        {sortedEvents.length === 0 ? (
+                            <div className="empty-state">
+                                <div className="empty-icon"><FontAwesomeIcon icon={faCalendarDay} /></div>
+                                <h3>Нет мероприятий</h3>
+                                <p>Пока нет мероприятий, соответствующих критериям</p>
+                            </div>
+                        ) : (
+                            <div className="events-grid">
+                                {sortedEvents.map(event => (
+                                    <div key={event.id} className="event-card">
+                                        {event.photoPath && (
+                                            <div
+                                                className="event-card-photo"
+                                                style={{ backgroundImage: `url(${event.photoPath})` }}
+                                            />
                                         )}
-                                        <div className="event-info-item">
-                                            <span className="event-info-icon"><FontAwesomeIcon icon={faMapMarkerAlt} /></span>
-                                            <span className="event-info-text">{event.location}</span>
+                                        <div className="event-card-header">
+                                            <div className="event-title">{event.title}</div>
+                                            <div className={`event-status ${getStatusClass(event.status)}`}>
+                                                {getStatusText(event.status)}
+                                            </div>
                                         </div>
-                                        <div className="event-info-item">
-                                            <FontAwesomeIcon icon={faUsers} className="event-info-icon" />
-                                            {event.registeredParticipants > 0 ? (
-                                                <div className="attendance-stats">
-                                                    <div className="attendance-numbers">
-                                                        {event.actualParticipants} / {event.registeredParticipants}
-                                                        {' '}
-                                                        ({Math.round(event.actualParticipants / event.registeredParticipants * 100)}%)
-                                                    </div>
-                                                    <div className="progress-bar">
-                                                        <div
-                                                            className="progress-fill"
-                                                            style={{ width: `${(event.actualParticipants / event.registeredParticipants * 100)}%` }}
-                                                        />
-                                                    </div>
+                                        <div className="event-card-body">
+                                            <div className="event-info">
+                                                <div className="event-info-item">
+                                                    <span className="event-info-icon"><FontAwesomeIcon icon={faCalendar} /></span>
+                                                    <span className="event-info-text">
+                                                        {new Date(event.eventDate).toLocaleDateString('ru-RU', {
+                                                            day: 'numeric', month: 'long', year: 'numeric',
+                                                            hour: '2-digit', minute: '2-digit'
+                                                        })}
+                                                    </span>
                                                 </div>
-                                            ) : (
-                                                <span className="event-info-text event-info-empty">н/д</span>
+                                                {event.budget != null && (
+                                                    <div className="event-info-item">
+                                                        <span className="event-info-icon"><FontAwesomeIcon icon={faMoneyBillWave} /></span>
+                                                        <span className="event-info-text">{event.budget.toLocaleString()} ₽</span>
+                                                    </div>
+                                                )}
+                                                <div className="event-info-item">
+                                                    <span className="event-info-icon"><FontAwesomeIcon icon={faMapMarkerAlt} /></span>
+                                                    <span className="event-info-text">{event.location}</span>
+                                                </div>
+                                                <div className="event-info-item">
+                                                    <FontAwesomeIcon icon={faUsers} className="event-info-icon" />
+                                                    {event.registeredParticipants > 0 ? (
+                                                        <div className="attendance-stats">
+                                                            <div className="attendance-numbers">
+                                                                {event.actualParticipants} / {event.registeredParticipants}
+                                                                {' '}
+                                                                ({Math.round(event.actualParticipants / event.registeredParticipants * 100)}%)
+                                                            </div>
+                                                            <div className="progress-bar">
+                                                                <div
+                                                                    className="progress-fill"
+                                                                    style={{ width: `${(event.actualParticipants / event.registeredParticipants * 100)}%` }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="event-info-text event-info-empty">н/д</span>
+                                                    )}
+                                                </div>
+                                                <div className="event-info-item">
+                                                    <span className="event-info-icon"><FontAwesomeIcon icon={faUser} /></span>
+                                                    <span className="event-info-text">
+                                                        Ответственный:{' '}
+                                                        {event.responsibleUserName ? (
+                                                            <Link
+                                                                to={`/users/${event.responsibleUserId}`}
+                                                                className="event-responsible-link"
+                                                            >
+                                                                {event.responsibleUserName}
+                                                            </Link>
+                                                        ) : (
+                                                            <span className="event-info-empty">н/д</span>
+                                                        )}
+                                                    </span>
+                                                </div>
+                                                {event.registrationLink && (
+                                                    <div className="event-info-item">
+                                                        <span className="event-info-icon"><FontAwesomeIcon icon={faLink} /></span>
+                                                        <a href={event.registrationLink} target="_blank" rel="noopener noreferrer" className="event-link">
+                                                            Ссылка на регистрацию
+                                                        </a>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {event.description && (
+                                                <div className="event-description">{event.description}</div>
                                             )}
                                         </div>
-                                        <div className="event-info-item">
-                                            <span className="event-info-icon"><FontAwesomeIcon icon={faUser} /></span>
-                                            <span className="event-info-text">
-                                                Ответственный:{' '}
-                                                {event.responsibleUserName ? (
-                                                    <Link
-                                                        to={`/users/${event.responsibleUserId}`}
-                                                        className="event-responsible-link"
-                                                    >
-                                                        {event.responsibleUserName}
-                                                    </Link>
-                                                ) : (
-                                                    <span className="event-info-empty">н/д</span>
-                                                )}
-                                            </span>
+                                        <div className="event-card-footer">
+                                            <Link to={`/events/${event.id}`} className="event-btn view"><FontAwesomeIcon icon={faEye} /> </Link>
+                                            {isAdmin && (
+                                                <>
+                                                    <button onClick={() => openEditModal(event.id)} className="event-btn edit">
+                                                        <FontAwesomeIcon icon={faEdit} /> Ред.
+                                                    </button>
+                                                    <button onClick={() => handleDeleteClick(event.id)} className="event-btn delete">
+                                                        <FontAwesomeIcon icon={faTrashAlt} />
+                                                    </button>
+                                                </>
+                                            )}
                                         </div>
-                                        {event.registrationLink && (
-                                            <div className="event-info-item">
-                                                <span className="event-info-icon"><FontAwesomeIcon icon={faLink} /></span>
-                                                <a href={event.registrationLink} target="_blank" rel="noopener noreferrer" className="event-link">
-                                                    Ссылка на регистрацию
-                                                </a>
-                                            </div>
-                                        )}
                                     </div>
-                                    {event.description && (
-                                        <div className="event-description">{event.description}</div>
-                                    )}
-                                </div>
-                                <div className="event-card-footer">
-                                    <Link to={`/events/${event.id}`} className="event-btn view"><FontAwesomeIcon icon={faEye} /> </Link>
-                                    {isAdmin && (
-                                        <>
-                                            <button onClick={() => openEditModal(event.id)} className="event-btn edit">
-                                                <FontAwesomeIcon icon={faEdit} /> Ред.
-                                            </button>
-                                            <button onClick={() => handleDeleteClick(event.id)} className="event-btn delete">
-                                                <FontAwesomeIcon icon={faTrashAlt} />
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
+                                ))}
                             </div>
-                        ))}
+                        )}
                     </div>
-                )}
+                </div>
             </div>
 
             <EventFormModal

@@ -5,7 +5,7 @@ import {
     faTable, faIdCard, faGraduationCap, faEnvelope, 
     faChartLine, faCircle, faEdit, faTrashAlt,
     faEye, faPlus, faCheckCircle, faKey, faShieldAlt, faEllipsisV,
-    faSort, faSortUp, faSortDown, faFileExport, faSearch
+    faSort, faSortUp, faSortDown, faFileExport, faSearch, faUserSlash
 } from '@fortawesome/free-solid-svg-icons';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -44,8 +44,20 @@ export default function UsersPage() {
     const [reset2FAModal, setReset2FAModal] = useState({ isOpen: false, userId: null });
     const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, userId: null });
 
+    const [openDropdownId, setOpenDropdownId] = useState(null);
+
     useEffect(() => {
         loadUsers();
+    }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (!e.target.closest('.dropdown')) {
+                setOpenDropdownId(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     const loadUsers = async () => {
@@ -102,6 +114,7 @@ export default function UsersPage() {
 
     const openResetPasswordModal = (userId) => setResetPasswordModal({ isOpen: true, userId, newPassword: '' });
     const closeResetPasswordModal = () => setResetPasswordModal({ isOpen: false, userId: null, newPassword: '' });
+    
     const confirmResetPassword = async () => {
         const { userId, newPassword } = resetPasswordModal;
         if (!newPassword) return alert('Введите новый пароль');
@@ -116,6 +129,7 @@ export default function UsersPage() {
 
     const openReset2FAModal = (userId) => setReset2FAModal({ isOpen: true, userId });
     const closeReset2FAModal = () => setReset2FAModal({ isOpen: false, userId: null });
+    
     const confirmReset2FA = async () => {
         const { userId } = reset2FAModal;
         const result = await API.resetTwoFactor(userId);
@@ -233,7 +247,13 @@ export default function UsersPage() {
 
                 <div className="users-card">
                     <div className="users-card-body">
-                        {viewMode === 'cards' ? (
+                        {sortedUsers.length === 0 ? (
+                            <div className="empty-state">
+                                <div className="empty-icon"><FontAwesomeIcon icon={faUserSlash} /></div>
+                                <h3>Никого не найдено</h3>
+                                <p>Попробуйте изменить поисковый запрос</p>
+                            </div>
+                        ) : viewMode === 'cards' ? (
                             <div className="users-cards">
                                 {sortedUsers.map(user => (
                                     <div key={user.id} className="user-card">
@@ -272,22 +292,24 @@ export default function UsersPage() {
                                                     <button onClick={() => openEditModal(user.id)} className="action-btn edit">
                                                         <FontAwesomeIcon icon={faEdit} />
                                                     </button>
-                                                    <details className="dropdown">
-                                                        <summary className="action-btn more">
+                                                    <div className="dropdown">
+                                                        <button className="action-btn more" onClick={() => setOpenDropdownId(openDropdownId === user.id ? null : user.id)}>
                                                             <FontAwesomeIcon icon={faEllipsisV} />
-                                                        </summary>
-                                                        <div className="dropdown-menu">
-                                                            <button onClick={() => openResetPasswordModal(user.id)} className="dropdown-item">
-                                                                <FontAwesomeIcon icon={faKey} /> Сброс пароля
-                                                            </button>
-                                                            <button onClick={() => openReset2FAModal(user.id)} className="dropdown-item">
-                                                                <FontAwesomeIcon icon={faShieldAlt} /> Сбросить 2FA
-                                                            </button>
-                                                            <button onClick={() => handleDeleteClick(user.id)} className="dropdown-item delete">
-                                                                <FontAwesomeIcon icon={faTrashAlt} /> Удалить
-                                                            </button>
-                                                        </div>
-                                                    </details>
+                                                        </button>
+                                                        {openDropdownId === user.id && (
+                                                            <div className="dropdown-menu">
+                                                                <button onClick={() => { openResetPasswordModal(user.id); setOpenDropdownId(null); }} className="dropdown-item">
+                                                                    <FontAwesomeIcon icon={faKey} /> Сброс пароля
+                                                                </button>
+                                                                <button onClick={() => { openReset2FAModal(user.id); setOpenDropdownId(null); }} className="dropdown-item">
+                                                                    <FontAwesomeIcon icon={faShieldAlt} /> Сбросить 2FA
+                                                                </button>
+                                                                <button onClick={() => { handleDeleteClick(user.id); setOpenDropdownId(null); }} className="dropdown-item delete">
+                                                                    <FontAwesomeIcon icon={faTrashAlt} /> Удалить
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </>
                                             )}
                                         </div>
@@ -334,22 +356,24 @@ export default function UsersPage() {
                                                             <button onClick={() => openEditModal(user.id)} className="action-btn edit">
                                                                 <FontAwesomeIcon icon={faEdit} /> Ред.
                                                             </button>
-                                                            <details className="dropdown">
-                                                                <summary className="action-btn more">
+                                                            <div className="dropdown">
+                                                                <button className="action-btn more" onClick={() => setOpenDropdownId(openDropdownId === user.id ? null : user.id)}>
                                                                     <FontAwesomeIcon icon={faEllipsisV} />
-                                                                </summary>
-                                                                <div className="dropdown-menu">
-                                                                    <button onClick={() => openResetPasswordModal(user.id)} className="dropdown-item">
-                                                                        <FontAwesomeIcon icon={faKey} /> Сброс пароля
-                                                                    </button>
-                                                                    <button onClick={() => openReset2FAModal(user.id)} className="dropdown-item">
-                                                                        <FontAwesomeIcon icon={faShieldAlt} /> 2FA
-                                                                    </button>
-                                                                    <button onClick={() => handleDeleteClick(user.id)} className="dropdown-item delete">
-                                                                        <FontAwesomeIcon icon={faTrashAlt} /> Удалить
-                                                                    </button>
-                                                                </div>
-                                                            </details>
+                                                                </button>
+                                                                {openDropdownId === user.id && (
+                                                                    <div className="dropdown-menu">
+                                                                        <button onClick={() => { openResetPasswordModal(user.id); setOpenDropdownId(null); }} className="dropdown-item">
+                                                                            <FontAwesomeIcon icon={faKey} /> Сброс пароля
+                                                                        </button>
+                                                                        <button onClick={() => { openReset2FAModal(user.id); setOpenDropdownId(null); }} className="dropdown-item">
+                                                                            <FontAwesomeIcon icon={faShieldAlt} /> 2FA
+                                                                        </button>
+                                                                        <button onClick={() => { handleDeleteClick(user.id); setOpenDropdownId(null); }} className="dropdown-item delete">
+                                                                            <FontAwesomeIcon icon={faTrashAlt} /> Удалить
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </>
                                                     )}
                                                 </td>

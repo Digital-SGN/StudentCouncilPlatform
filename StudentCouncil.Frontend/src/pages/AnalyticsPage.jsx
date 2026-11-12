@@ -1,40 +1,19 @@
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-    faUsers, faCalendarAlt, faIdCard, faChartLine, 
-    faTrophy, faMedal, faUserGraduate, faLayerGroup,
-    faCalendarWeek, faUserPlus, faUserCheck, faMoneyBillWave,
-    faTriangleExclamation // <-- ДОБАВЛЕНА ИКОНКА
+    faUsers, faCalendarAlt, faChartLine, faMoneyBillWave, 
+    faTrophy, faUserCheck, faArrowTrendUp
 } from '@fortawesome/free-solid-svg-icons';
 import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement,
-    PointElement,
-    LineElement
+    Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement
 } from 'chart.js';
-import { Bar, Pie, Line } from 'react-chartjs-2';
+import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
 import '../css/AnalyticsPage.css';
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement,
-    PointElement,
-    LineElement
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement);
 
 export default function AnalyticsPage() {
     const { user } = useAuth();
@@ -45,415 +24,295 @@ export default function AnalyticsPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [stats, setStats] = useState({
-        totalUsers: 0,
-        activeUsers: 0,
-        totalEvents: 0,
-        totalBadges: 0,
-        avgLevel: 0,
-        totalBalance: 0,
-        totalRegistered: 0,
-        totalActual: 0,
-        averageAttendanceRate: 0,
-        topEventsByAttendance: [],
-        roleDistribution: {},
-        topUsersByBadges: [],
-        eventsPerMonth: [],
-        totalBudget: 0,
-        avgBudget: 0,
-        topEventsByBudget: []
+        totalUsers: 0, activeUsers: 0, totalEvents: 0, totalRegistered: 0, totalActual: 0,
+        averageAttendanceRate: 0, totalBudget: 0, avgBudget: 0,
+        topUsers: [], topEvents: [], eventsPerMonth: []
     });
 
     useEffect(() => {
-        if (canView) {
-            loadAnalytics();
-        } else {
-            setLoading(false);
-        }
+        if (canView) loadAnalytics();
+        else setLoading(false);
     }, [canView]);
 
     const loadAnalytics = async () => {
         try {
             setLoading(true);
-            setError(null);
+            const [usersResult, eventsResult] = await Promise.all([
+                API.getUsers(),
+                API.getEvents()
+            ]);
 
-            const usersResult = await API.getUsers();
-            if (!usersResult.ok) throw new Error(usersResult.data?.error || 'Ошибка загрузки пользователей');
+            if (!usersResult.ok || !eventsResult.ok) throw new Error('Ошибка загрузки данных');
+
             const users = usersResult.data.users || [];
-
-            const eventsResult = await API.getEvents();
-            if (!eventsResult.ok) throw new Error(eventsResult.data?.error || 'Ошибка загрузки мероприятий');
             const events = eventsResult.data.events || [];
 
             let totalRegistered = 0;
             let totalActual = 0;
-            const eventsAttendance = [];
-
-            events.forEach(e => {
-                const registered = e.registeredParticipants || 0;
-                const actual = e.actualParticipants || 0;
-                totalRegistered += registered;
-                totalActual += actual;
-                const rate = registered > 0 ? (actual / registered) * 100 : 0;
-                eventsAttendance.push({
-                    id: e.id,
-                    title: e.title,
-                    registered,
-                    actual,
-                    rate
-                });
-            });
-
-            const averageAttendanceRate = events.length > 0 ? (totalActual / totalRegistered * 100).toFixed(1) : 0;
-            const topEventsByAttendance = [...eventsAttendance].sort((a, b) => b.rate - a.rate).slice(0, 5);
-
-            const badgesPromises = users.map(u => API.getBadgesByUser(u.id));
-            const badgesResults = await Promise.all(badgesPromises);
-            const allBadges = [];
-            badgesResults.forEach((res, idx) => {
-                if (res.ok && res.data.badges) {
-                    allBadges.push(...res.data.badges);
-                } else {
-                    console.warn(`Не удалось загрузить бейджи для пользователя ${users[idx].id}`);
-                }
-            });
-
-            const activeUsers = users.filter(u => u.isActive !== false).length;
-            const totalUsers = users.length;
-            const totalEvents = events.length;
-            const totalBadges = allBadges.length;
-
-            const sumLevel = users.reduce((sum, u) => sum + (u.level || 0), 0);
-            const avgLevel = totalUsers ? (sumLevel / totalUsers).toFixed(1) : 0;
-
-            const totalBalance = users.reduce((sum, u) => sum + (u.balance || 0), 0);
-
-            const roleDist = {};
-            allBadges.forEach(b => {
-                const role = b.role;
-                roleDist[role] = (roleDist[role] || 0) + 1;
-            });
-
-            const userBadgeCount = new Map();
-            allBadges.forEach(b => {
-                userBadgeCount.set(b.userId, (userBadgeCount.get(b.userId) || 0) + 1);
-            });
-            const topUsers = users
-                .map(u => ({
-                    id: u.id,
-                    name: `${u.lastName} ${u.firstName} ${u.patronymic || ''}`.trim(),
-                    badgeCount: userBadgeCount.get(u.id) || 0,
-                    level: u.level || 0,
-                    balance: u.balance || 0
-                }))
-                .sort((a, b) => b.badgeCount - a.badgeCount)
-                .slice(0, 10);
-
+            let totalBudget = 0;
+            let eventsWithBudget = 0;
             const eventsByMonth = {};
+
             events.forEach(e => {
+                totalRegistered += e.registeredParticipants || 0;
+                totalActual += e.actualParticipants || 0;
+                
+                if (e.budget && e.budget > 0) {
+                    totalBudget += e.budget;
+                    eventsWithBudget++;
+                }
+
                 if (e.eventDate) {
                     const date = new Date(e.eventDate);
-                    const key = `${date.getFullYear()}-${date.getMonth() + 1}`;
+                    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
                     eventsByMonth[key] = (eventsByMonth[key] || 0) + 1;
                 }
             });
+
+            const averageAttendanceRate = totalRegistered > 0 ? (totalActual / totalRegistered * 100).toFixed(1) : 0;
+            const avgBudget = eventsWithBudget > 0 ? (totalBudget / eventsWithBudget).toFixed(0) : 0;
+
+            const topEvents = [...events]
+                .filter(e => e.registeredParticipants > 0)
+                .map(e => ({
+                    title: e.title,
+                    registered: e.registeredParticipants,
+                    actual: e.actualParticipants,
+                    rate: (e.actualParticipants / e.registeredParticipants * 100)
+                }))
+                .sort((a, b) => b.rate - a.rate)
+                .slice(0, 5);
+
             const sortedMonths = Object.keys(eventsByMonth).sort();
             const eventsPerMonth = sortedMonths.map(month => ({
                 month,
                 count: eventsByMonth[month]
             }));
 
-            let totalBudget = 0;
-            let eventsWithBudget = 0;
-            const eventsWithBudgetList = [];
-            events.forEach(e => {
-                if (e.budget && e.budget > 0) {
-                    totalBudget += e.budget;
-                    eventsWithBudget++;
-                    eventsWithBudgetList.push({ id: e.id, title: e.title, budget: e.budget });
+            const badgesPromises = users.map(u => API.getBadgesByUser(u.id));
+            const badgesResults = await Promise.all(badgesPromises);
+            const userBadgeCount = new Map();
+            
+            badgesResults.forEach((res, idx) => {
+                if (res.ok && res.data.badges) {
+                    userBadgeCount.set(users[idx].id, res.data.badges.length);
                 }
             });
-            const avgBudget = eventsWithBudget ? (totalBudget / eventsWithBudget).toFixed(2) : 0;
-            const topEventsByBudget = [...eventsWithBudgetList]
-                .sort((a, b) => b.budget - a.budget)
+
+            const topUsers = users
+                .map(u => ({
+                    id: u.id,
+                    name: `${u.lastName} ${u.firstName}`,
+                    badgeCount: userBadgeCount.get(u.id) || 0,
+                    level: u.level || 1,
+                    experience: u.experiencePoints || 0
+                }))
+                .sort((a, b) => b.experience - a.experience)
                 .slice(0, 5);
 
             setStats({
-                totalUsers,
-                activeUsers,
-                totalEvents,
-                totalBadges,
-                avgLevel,
-                totalBalance,
+                totalUsers: users.length,
+                activeUsers: users.filter(u => u.isActive !== false).length,
+                totalEvents: events.length,
                 totalRegistered,
                 totalActual,
                 averageAttendanceRate,
-                topEventsByAttendance,
-                roleDistribution: roleDist,
-                topUsersByBadges: topUsers,
-                eventsPerMonth,
                 totalBudget,
                 avgBudget,
-                eventsWithBudget,
-                topEventsByBudget
+                topUsers,
+                topEvents,
+                eventsPerMonth
             });
 
         } catch (err) {
-            console.error(err);
             setError(err.message || 'Ошибка загрузки аналитики');
         } finally {
             setLoading(false);
         }
     };
 
-    if (!canView) {
-        return <div className="alert alert-danger">Доступ запрещён</div>;
-    }
-    if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка аналитики...</p></div>;
+    if (!canView) return <div className="alert alert-danger">Доступ запрещён</div>;
+    if (loading) return <div className="loading-container"><div className="spinner"></div><p>Сбор аналитики...</p></div>;
     if (error) return <div className="alert alert-danger">{error}</div>;
 
-    const pieLabels = Object.keys(stats.roleDistribution);
-    const pieDataValues = Object.values(stats.roleDistribution);
-    const pieData = {
-        labels: pieLabels,
-        datasets: [{
-            data: pieDataValues,
-            backgroundColor: ['#0CBFA1', '#FF6B6B', '#4ECDC4', '#FFE66D', '#A8E6CF', '#DDA0DD', '#F39C12', '#3498DB'],
-            borderWidth: 0
-        }]
-    };
-    const pieOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { position: 'right', labels: { font: { size: 12 } } },
-            tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${ctx.raw} (${((ctx.raw / stats.totalBadges)*100).toFixed(1)}%)` } }
-        }
-    };
-
-    const lineLabels = stats.eventsPerMonth.map(item => item.month);
-    const lineCounts = stats.eventsPerMonth.map(item => item.count);
+    
     const lineData = {
-        labels: lineLabels,
+        labels: stats.eventsPerMonth.map(i => i.month),
         datasets: [{
-            label: 'Количество мероприятий',
-            data: lineCounts,
+            label: 'Мероприятий',
+            data: stats.eventsPerMonth.map(i => i.count),
             borderColor: '#0CBFA1',
             backgroundColor: 'rgba(12, 191, 161, 0.1)',
-            tension: 0.3,
             fill: true,
-            pointBackgroundColor: '#0CBFA1',
-            pointRadius: 4
+            tension: 0.4, // Плавные изгибы
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#0CBFA1',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6
         }]
     };
     const lineOptions = {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-            tooltip: { mode: 'index' }
-        },
+        plugins: { legend: { display: false } },
         scales: {
-            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { borderDash: [5, 5] } }
         }
     };
 
-    const topNames = stats.topUsersByBadges.map(u => u.name.split(' ')[1] || u.name);
-    const topBadgeCounts = stats.topUsersByBadges.map(u => u.badgeCount);
-    const barData = {
-        labels: topNames,
+    const doughnutData = {
+        labels: ['Пришли', 'Не пришли'],
         datasets: [{
-            label: 'Количество мероприятий',
-            data: topBadgeCounts,
-            backgroundColor: '#0CBFA1',
-            borderRadius: 8
+            data: [stats.totalActual, stats.totalRegistered - stats.totalActual],
+            backgroundColor: ['#0CBFA1', '#E2E8F0'],
+            borderWidth: 0,
+            hoverOffset: 4
         }]
     };
-    const barOptions = {
+    const doughnutOptions = {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-    };
-
-    const budgetBarLabels = stats.topEventsByBudget.map(e => e.title.length > 20 ? e.title.slice(0,17)+'...' : e.title);
-    const budgetBarValues = stats.topEventsByBudget.map(e => e.budget);
-    const budgetBarData = {
-        labels: budgetBarLabels,
-        datasets: [{
-            label: 'Бюджет (₽)',
-            data: budgetBarValues,
-            backgroundColor: '#F39C12',
-            borderRadius: 8
-        }]
-    };
-    const budgetBarOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `${ctx.raw.toLocaleString()} ₽` } } },
-        scales: { y: { beginAtZero: true, ticks: { callback: (value) => value.toLocaleString() } } }
+        cutout: '75%', // Делает из пирога пончик
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } }
     };
 
     return (
-        <div className="global-analytics-page fade-in">
+        <div className="analytics-page fade-in">
             <Bubbles />
             <div className="analytics-wrapper">
                 
-                {/* --- БАННЕР О РАЗРАБОТКЕ --- */}
-                <div className="under-construction-banner">
-                    <FontAwesomeIcon icon={faTriangleExclamation} className="under-construction-banner-icon" />
-                    <div className="under-construction-banner-text">
-                        <h4>Раздел в разработке</h4>
-                        <p>Мы все еще собираем и настраиваем статистику. Некоторые данные могут отображаться некорректно или быть неполными.</p>
+                <div className="analytics-header">
+                    <h1>Дашборд</h1>
+                    <p>Ключевые метрики Студенческого совета</p>
+                </div>
+
+                <div className="kpi-grid">
+                    <div className="kpi-card">
+                        <div className="kpi-icon" style={{ background: 'rgba(12, 191, 161, 0.1)', color: '#0CBFA1' }}><FontAwesomeIcon icon={faUsers} /></div>
+                        <div className="kpi-info">
+                            <span className="kpi-label">Участники</span>
+                            <span className="kpi-value">{stats.totalUsers}</span>
+                            <span className="kpi-sub">Активных: {stats.activeUsers}</span>
+                        </div>
+                    </div>
+                    
+                    <div className="kpi-card">
+                        <div className="kpi-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}><FontAwesomeIcon icon={faCalendarAlt} /></div>
+                        <div className="kpi-info">
+                            <span className="kpi-label">Мероприятия</span>
+                            <span className="kpi-value">{stats.totalEvents}</span>
+                            <span className="kpi-sub">За всё время</span>
+                        </div>
+                    </div>
+
+                    <div className="kpi-card">
+                        <div className="kpi-icon" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}><FontAwesomeIcon icon={faMoneyBillWave} /></div>
+                        <div className="kpi-info">
+                            <span className="kpi-label">Бюджет</span>
+                            <span className="kpi-value">{stats.totalBudget.toLocaleString()} ₽</span>
+                            <span className="kpi-sub">Ср. чек: {stats.avgBudget.toLocaleString()} ₽</span>
+                        </div>
+                    </div>
+
+                    <div className="kpi-card">
+                        <div className="kpi-icon" style={{ background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' }}><FontAwesomeIcon icon={faUserCheck} /></div>
+                        <div className="kpi-info">
+                            <span className="kpi-label">Средняя явка</span>
+                            <span className="kpi-value">{stats.averageAttendanceRate}%</span>
+                            <span className="kpi-sub">{stats.totalActual} из {stats.totalRegistered}</span>
+                        </div>
                     </div>
                 </div>
-                {/* --------------------------- */}
 
-                <div className="analytics-card">
-                    <h1 className="analytics-title">Глобальная аналитика</h1>
-
-                    <div className="stats-grid">
-                        <div className="stat-card">
-                            <div className="stat-icon"><FontAwesomeIcon icon={faUsers} /></div>
-                            <div className="stat-value">{stats.totalUsers}</div>
-                            <div className="stat-label">Участников</div>
-                            <div className="stat-sub">Активных: {stats.activeUsers}</div>
+                <div className="charts-grid">
+                    <div className="chart-card wide">
+                        <div className="chart-header">
+                            <h3><FontAwesomeIcon icon={faArrowTrendUp} /> Динамика мероприятий</h3>
                         </div>
-                        <div className="stat-card">
-                            <div className="stat-icon"><FontAwesomeIcon icon={faCalendarAlt} /></div>
-                            <div className="stat-value">{stats.totalEvents}</div>
-                            <div className="stat-label">Мероприятий</div>
+                        <div className="chart-container">
+                            <Line data={lineData} options={lineOptions} />
                         </div>
-                        <div className="stat-card">
-                            <div className="stat-icon"><FontAwesomeIcon icon={faIdCard} /></div>
-                            <div className="stat-value">{stats.totalBadges}</div>
-                            <div className="stat-label">Бейджей</div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-icon"><FontAwesomeIcon icon={faUserGraduate} /></div>
-                            <div className="stat-value">{stats.avgLevel}</div>
-                            <div className="stat-label">Средний уровень</div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-icon"><FontAwesomeIcon icon={faMedal} /></div>
-                            <div className="stat-value">{stats.totalBalance}</div>
-                            <div className="stat-label">Общий баланс</div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-icon"><FontAwesomeIcon icon={faMoneyBillWave} /></div>
-                            <div className="stat-value">{stats.totalBudget.toLocaleString()} ₽</div>
-                            <div className="stat-label">Общий бюджет</div>
-                            <div className="stat-sub">Ср. бюджет: {stats.avgBudget.toLocaleString()} ₽</div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-icon"><FontAwesomeIcon icon={faUserPlus} /></div>
-                            <div className="stat-value">{stats.totalRegistered}</div>
-                            <div className="stat-label">Всего записей</div>
-                        </div>
-                        <div className="stat-card">
-                            <div className="stat-icon"><FontAwesomeIcon icon={faUserCheck} /></div>
-                            <div className="stat-value">{stats.totalActual}</div>
-                            <div className="stat-label">Всего пришло</div>
-                            <div className="stat-sub">Явка: {stats.averageAttendanceRate}%</div>
-                        </div>
-                        
                     </div>
 
-                    <div className="charts-grid">
-                        {pieLabels.length > 0 && (
-                            <div className="chart-card">
-                                <h3><FontAwesomeIcon icon={faLayerGroup} /> Распределение ролей</h3>
-                                <div style={{ height: '300px' }}>
-                                    <Pie data={pieData} options={pieOptions} />
-                                </div>
+                    <div className="chart-card">
+                        <div className="chart-header">
+                            <h3><FontAwesomeIcon icon={faChartLine} /> Общая явка</h3>
+                        </div>
+                        <div className="chart-container doughnut-container">
+                            <Doughnut data={doughnutData} options={doughnutOptions} />
+                            <div className="doughnut-center">
+                                <span>{stats.averageAttendanceRate}%</span>
                             </div>
-                        )}
+                        </div>
+                    </div>
+                </div>
 
-                        {stats.eventsPerMonth.length > 0 && (
-                            <div className="chart-card">
-                                <h3><FontAwesomeIcon icon={faCalendarWeek} /> Динамика мероприятий</h3>
-                                <div style={{ height: '300px' }}>
-                                    <Line data={lineData} options={lineOptions} />
-                                </div>
-                            </div>
-                        )}
+                <div className="tables-grid">
+                    <div className="table-card">
+                        <div className="chart-header">
+                            <h3><FontAwesomeIcon icon={faTrophy} /> Топ активистов</h3>
+                        </div>
+                        <div className="table-responsive">
+                            <table className="analytics-table">
+                                <thead>
+                                    <tr>
+                                        <th>Участник</th>
+                                        <th>Уровень</th>
+                                        <th>Опыт (XP)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {stats.topUsers.map((u, i) => (
+                                        <tr key={u.id}>
+                                            <td>
+                                                <div className="user-rank">
+                                                    <span className={`rank-badge rank-${i+1}`}>{i+1}</span>
+                                                    {u.name}
+                                                </div>
+                                            </td>
+                                            <td><span className="level-pill">Lvl {u.level}</span></td>
+                                            <td><strong>{u.experience}</strong></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-                        {stats.topEventsByBudget.length > 0 && (
-                            <div className="chart-card">
-                                <h3><FontAwesomeIcon icon={faMoneyBillWave} /> Топ мероприятий по бюджету</h3>
-                                <div style={{ height: '300px' }}>
-                                    <Bar data={budgetBarData} options={budgetBarOptions} />
-                                </div>
-                                <div className="top-users-table" style={{ marginTop: '16px' }}>
-                                    <table className="simple-table">
-                                        <thead>
-                                            <tr><th>Мероприятие</th><th>Бюджет (₽)</th></tr>
-                                        </thead>
-                                        <tbody>
-                                            {stats.topEventsByBudget.map(e => (
-                                                <tr key={e.id}>
-                                                    <td>{e.title}</td>
-                                                    <td>{e.budget.toLocaleString()}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
-
-                        {stats.topEventsByAttendance.length > 0 && (
-                            <div className="chart-card">
-                                <h3><FontAwesomeIcon icon={faChartLine} /> Топ мероприятий по посещаемости</h3>
-                                <div className="top-users-table">
-                                    <table className="simple-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Мероприятие</th>
-                                                <th>Записалось</th>
-                                                <th>Пришло</th>
-                                                <th>Явка</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {stats.topEventsByAttendance.map(e => (
-                                                <tr key={e.id}>
-                                                    <td>{e.title}</td>
-                                                    <td>{e.registered}</td>
-                                                    <td>{e.actual}</td>
-                                                    <td>{e.rate.toFixed(1)}%</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
-
-                        {stats.topUsersByBadges.length > 0 && (
-                            <div className="chart-card full-width">
-                                <h3><FontAwesomeIcon icon={faTrophy} /> Топ участников по активности</h3>
-                                <div style={{ height: '400px' }}>
-                                    <Bar data={barData} options={barOptions} />
-                                </div>
-                                <div className="top-users-table">
-                                    <table className="simple-table">
-                                        <thead>
-                                            <tr><th>Участник</th><th>Мероприятий</th><th>Уровень</th><th>Баллы</th></tr>
-                                        </thead>
-                                        <tbody>
-                                            {stats.topUsersByBadges.map(u => (
-                                                <tr key={u.id}>
-                                                    <td>{u.name}</td>
-                                                    <td>{u.badgeCount}</td>
-                                                    <td>{u.level}</td>
-                                                    <td>{u.balance}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
+                    {/* Топ мероприятий */}
+                    <div className="table-card">
+                        <div className="chart-header">
+                            <h3><FontAwesomeIcon icon={faCalendarAlt} /> Лучшие мероприятия</h3>
+                        </div>
+                        <div className="table-responsive">
+                            <table className="analytics-table">
+                                <thead>
+                                    <tr>
+                                        <th>Название</th>
+                                        <th>Записалось</th>
+                                        <th>Явка</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {stats.topEvents.map((e, i) => (
+                                        <tr key={i}>
+                                            <td><div className="event-title-cell">{e.title}</div></td>
+                                            <td>{e.actual} / {e.registered}</td>
+                                            <td>
+                                                <span className="rate-pill" style={{ 
+                                                    background: e.rate > 75 ? '#d1fae5' : e.rate > 50 ? '#fef3c7' : '#fee2e2',
+                                                    color: e.rate > 75 ? '#065f46' : e.rate > 50 ? '#92400e' : '#991b1b'
+                                                }}>
+                                                    {e.rate.toFixed(0)}%
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
