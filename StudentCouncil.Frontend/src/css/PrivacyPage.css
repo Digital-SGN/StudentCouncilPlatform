@@ -162,6 +162,7 @@
     .privacy-content p, 
     .privacy-content li {
         font-size: 14px;
+        word-break: break-word;
     }
 
     .privacy-content section {

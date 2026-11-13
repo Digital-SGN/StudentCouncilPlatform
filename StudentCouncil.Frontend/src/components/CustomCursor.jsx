@@ -16,10 +16,22 @@ export default function CustomCursor() {
     const cursor = cursorRef.current;
     if (!cursor) return;
 
+    let rafId = null;
+    let mouseX = 0;
+    let mouseY = 0;
+
+    const updatePosition = () => {
+      cursor.style.transform = `translate3d(${mouseX}px, ${mouseY}px, 0)`;
+      rafId = null;
+    };
+
     const moveCursor = (e) => {
-      requestAnimationFrame(() => {
-        cursor.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-      });
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      
+      if (!rafId) {
+        rafId = requestAnimationFrame(updatePosition);
+      }
     };
 
     const handleMouseDown = () => cursor.classList.add('clicking');
@@ -33,6 +45,7 @@ export default function CustomCursor() {
       window.removeEventListener('mousemove', moveCursor);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [isDesktop]);
 

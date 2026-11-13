@@ -44,7 +44,7 @@ export default function HelpPage() {
           </section>
 
           <section>
-            <h2>Двухфакторная аутентификация (2FA)</h2>
+            <h2>Двухфакторная аутентификация</h2>
             <p>
               При первом входе система попросит вас настроить двухфакторную аутентификацию. 
               Отсканируйте QR-код в любом приложении-аутентификаторе (например, Google Authenticator 
@@ -64,7 +64,7 @@ export default function HelpPage() {
           </section>
 
           <section>
-            <h2>Нашли ошибку или что-то не работает?</h2>
+            <h2>Нашли ошибку?</h2>
             <p>
               Если вы столкнулись с ошибкой или некорректной работой сайта, пожалуйста, 
               пришлите скриншот и краткое описание проблемы в Telegram. Мы постараемся 
@@ -79,7 +79,7 @@ export default function HelpPage() {
             </p>
             <ul>
               <li>Telegram: <a href="https://t.me/skebob_gg" target="_blank" rel="noopener noreferrer">@skebob_gg</a></li>
-              <li>Email: <a href="mailto:demonrux201@yandex.ru">demonrux201@yandex.ru</a></li>
+              <li>Email: <a href="mailto:info@studsovetsgn.ru">info@studsovetsgn.ru</a></li>
             </ul>
           </section>
         </div>
