@@ -313,12 +313,15 @@ main {
         padding-bottom: 15px;
         border-bottom: 1px solid #e2e8f0;
         margin-bottom: 5px;
+        font-size: 18px;
     }
 
     .cat-in-header {
-        width: 80px;
-        height: 50px;
-        margin-bottom: 8px;
+        width: 130px; 
+        height: 75px; 
+        margin: 0 auto 12px auto; 
+        display: block;
+        border-radius: 8px;
     }
 
     .header-actions {
@@ -366,11 +369,10 @@ footer p {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;             
+    gap: 0px; 
     margin-top: 8px;
     font-size: 13px;
 }
-
 .footer-links a {
     color: var(--primary);
     text-decoration: none;
@@ -389,16 +391,23 @@ footer p {
 
 .social-icons {
     display: flex;
+    gap: 12px; 
+    margin-bottom: 4px; 
 }
 
 .social-icons a {
     color: #0CBFA1;
-    font-size: 2rem;      
+    font-size: 2rem; 
     transition: color 0.2s, transform 0.2s;
-    display: inline-flex;      
+    display: flex;      
     align-items: center;
     line-height: 1;          
 }
+
+.social-icons a svg {
+    display: block; 
+}
+
 
 .social-icons a:hover {
     color: #148C9C;
@@ -408,9 +417,8 @@ footer p {
 .help-link {
     color: var(--primary);
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 1rem;
     transition: color 0.2s;
-    margin-top: -1px;
 }
 
 .help-link:hover {
@@ -430,7 +438,7 @@ main.main-login {
 .footer-bottom-links {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 2px;
     margin-top: 4px;
 }
 
@@ -438,10 +446,11 @@ main.main-login {
     color: #cbd5e1;
     font-size: 14px;
     pointer-events: none;
+    padding: 0 2px;
 }
 
 .footer-bottom-links .help-link {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #718096;
     transition: color 0.2s;
 }
@@ -451,7 +460,13 @@ main.main-login {
     text-decoration: underline;
 }
 
-/* --- Утилиты и Анимации --- */
+.footer-bottom-links {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: 0px; 
+}
+
 .loading {
     text-align: center;
     padding: 2rem;

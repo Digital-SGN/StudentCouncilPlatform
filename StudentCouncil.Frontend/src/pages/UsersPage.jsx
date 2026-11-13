@@ -235,11 +235,11 @@ export default function UsersPage() {
                             </button>
                         </div>
                         <button onClick={exportToCSV} className="export-btn">
-                            <FontAwesomeIcon icon={faFileExport} /> Экспорт CSV
+                            <FontAwesomeIcon icon={faFileExport} /> Экспорт
                         </button>
                         {isAdmin && (
                             <button onClick={openCreateModal} className="create-btn">
-                                <FontAwesomeIcon icon={faPlus} /> Создать участника
+                                <FontAwesomeIcon icon={faPlus} /> Создать
                             </button>
                         )}
                     </div>
