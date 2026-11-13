@@ -3,22 +3,39 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faWater, faTree, faShoePrints, faPersonSwimming, 
     faStar, faGem, faCrown, faFish, faClock, 
-    faHourglassEnd, faWind, faRotateRight, faDesktop, faTriangleExclamation
+    faRotateRight, faDesktop, faTriangleExclamation
 } from '@fortawesome/free-solid-svg-icons';
 import Bubbles from '../components/Bubbles';
 import '../css/FishingGamePage.css';
 
 const LOCATIONS = [
-    { id: 'river', name: 'Яуза', icon: faWater, bg: '/game-assets/river.png', x: 5, y: 45 },
-    { id: 'pond', name: 'Измайлово', icon: faTree, bg: '/game-assets/pond.png', x: 70, y: 20 },
-    { id: 'marina', name: 'Лужа на районе', icon: faShoePrints, bg: '/game-assets/marina.png', x: 76, y: 68 },
-    { id: 'pool', name: 'Бассейн СК', icon: faPersonSwimming, bg: '/game-assets/pool.png', x: 20, y: 20 },
+    { id: 'river', name: 'Яуза', icon: faWater, bg: '/game-assets/river.png', x: 5, y: 45, music: 'river' },
+    { id: 'pond', name: 'Измайлово', icon: faTree, bg: '/game-assets/pond.png', x: 70, y: 20, music: 'pond' },
+    { id: 'marina', name: 'Лужа на районе', icon: faShoePrints, bg: '/game-assets/marina.png', x: 76, y: 68, music: 'marina' },
+    { id: 'pool', name: 'Бассейн СК', icon: faPersonSwimming, bg: '/game-assets/pool.png', x: 20, y: 20, music: 'pool' },
 ];
 
 const PREDICTIONS = {
-    common: ['Сегодня тебя ждёт неожиданная пятёрка', 'Кто-то из группы вспомнит о тебе добрым словом', 'Кофе в автомате сегодня будет вкуснее обычного', 'Найдёшь забытую наличку в кармане куртки', 'Лекция закончится раньше, чем ты думаешь', 'Тебе улыбнётся незнакомец — это знак'],
-    rare: ['На этой неделе тебя ждёт приятный сюрприз от друга', 'Твой проект выстрелит лучше, чем ты ожидаешь', 'Ты наконец-то выспишься. Правда-правда', 'Встретишь человека, который изменит твои планы'],
-    epic: ['Этим летом случится то, о чём ты будешь рассказывать годами', 'Ты найдёшь своё призвание там, где совсем не искал', 'Судьба уже готовит тебе большую встречу', 'Твоя идея изменит что-то вокруг. Не откладывай её'],
+    common: [
+        'Сегодня тебя ждёт неожиданная пятёрка', 
+        'Кто-то из группы вспомнит о тебе добрым словом', 
+        'Кофе в автомате сегодня будет вкуснее обычного', 
+        'Найдёшь забытую наличку в кармане куртки', 
+        'Лекция закончится раньше, чем ты думаешь', 
+        'Тебе улыбнётся незнакомец — это знак'
+    ],
+    rare: [
+        'На этой неделе тебя ждёт приятный сюрприз от друга', 
+        'Твой проект выстрелит лучше, чем ты ожидаешь', 
+        'Ты наконец-то выспишься. Правда-правда', 
+        'Встретишь человека, который изменит твои планы'
+    ],
+    epic: [
+        'Этим летом случится то, о чём ты будешь рассказывать годами',
+        'Ты найдёшь своё призвание там, где совсем не искал', 
+        'Судьба уже готовит тебе большую встречу', 
+        'Твоя идея изменит что-то вокруг. Не откладывай её'
+    ],
 };
 
 const RARITY_CONFIG = {
@@ -35,11 +52,9 @@ export default function FishingGamePage() {
     const canvasRef = useRef(null);
     const gameApi = useRef({});
     
-    // Состояние для проверки мобильного устройства
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
-        // Проверяем, является ли устройство мобильным (тач-экран или маленький экран)
         const checkMobile = () => {
             const isTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
             const isSmallScreen = window.innerWidth <= 768;
@@ -52,7 +67,6 @@ export default function FishingGamePage() {
     }, []);
 
     useEffect(() => {
-        // Если мобилка, не запускаем логику игры
         if (isMobile) return;
 
         const container = containerRef.current;
@@ -64,16 +78,48 @@ export default function FishingGamePage() {
         const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
         const SFX = { 
-            click: '/game-assets/click.mp3', cast: '/game-assets/cast.mp3', bite: '/game-assets/bite.mp3', hit: '/game-assets/hit.mp3', miss: '/game-assets/miss.mp3', success: '/game-assets/success.mp3', fail: '/game-assets/fail.mp3', rarity_common: '/game-assets/rarity_common.mp3', rarity_rare: '/game-assets/rarity_rare.mp3', rarity_epic: '/game-assets/rarity_epic.mp3' 
+            click: '/game-assets/click.mp3', 
+            cast: '/game-assets/cast.mp3', 
+            bite: '/game-assets/bite.mp3', 
+            hit: '/game-assets/hit.mp3', 
+            miss: '/game-assets/miss.mp3',
+            success: '/game-assets/success.mp3', 
+            fail: '/game-assets/fail.mp3', 
+            rarity_common: '/game-assets/rarity_common.mp3', 
+            rarity_rare: '/game-assets/rarity_rare.mp3', 
+            rarity_epic: '/game-assets/rarity_epic.mp3' 
         };
         
-        let unlocked = false; let mutedState = false;
+        const MUSIC = { 
+            map: '/game-assets/music_map.mp3', 
+            location: '/game-assets/music_location.mp3', 
+            river: '/game-assets/music_river.mp3', 
+            pond: '/game-assets/music_pond.mp3', 
+            marina: '/game-assets/music_marina.mp3', 
+            pool: '/game-assets/music_pool.mp3' 
+        };
+        
+        let unlocked = false; 
+        let mutedState = false;
+        let pendingMusic = null; 
+        let currentMusic = null; 
+        let currentTrack = null;
+        
         const cache = {};
         Object.entries(SFX).forEach(([key, src]) => { 
             const a = new Audio(src); a.preload = 'auto'; cache[key] = a; 
         });
 
-        const unlockAudio = () => { if (unlocked) return; unlocked = true; };
+        const unlockAudio = () => { 
+            if (unlocked) return; 
+            unlocked = true; 
+            if (pendingMusic) { 
+                const t = pendingMusic; 
+                pendingMusic = null; 
+                _playMusic(t); 
+            } 
+        };
+        
         window.addEventListener('pointerdown', unlockAudio, { once: true });
         window.addEventListener('keydown', unlockAudio, { once: true });
 
@@ -81,7 +127,47 @@ export default function FishingGamePage() {
             if (mutedState) return; const base = cache[name]; if (!base) return; const node = base.cloneNode(); node.volume = 0.7; node.play().catch(() => {}); 
         };
 
-        const Sound = { click: () => playSfx('click'), cast: () => playSfx('cast'), bite: () => playSfx('bite'), hit: () => playSfx('hit'), miss: () => playSfx('miss'), fail: () => playSfx('fail'), success: () => playSfx('success'), rarity: (lvl) => playSfx('rarity_' + lvl) };
+        const fade = (audio, target, duration, onDone) => { 
+            if (!audio) { onDone && onDone(); return; } 
+            const start = audio.volume; 
+            const t0 = performance.now(); 
+            const step = (now) => { 
+                const k = Math.min((now - t0) / duration, 1); 
+                audio.volume = Math.max(0, Math.min(1, start + (target - start) * k)); 
+                if (k < 1) requestAnimationFrame(step); 
+                else onDone && onDone(); 
+            }; 
+            requestAnimationFrame(step); 
+        };
+
+        const _playMusic = (trackName) => { 
+            if (mutedState) return; 
+            const src = MUSIC[trackName] || MUSIC.location; 
+            if (currentTrack === trackName && currentMusic && !currentMusic.paused) return; 
+            const next = new Audio(src); 
+            next.loop = true; 
+            next.volume = 0; 
+            next.play().catch(() => {}); 
+            const prev = currentMusic; 
+            if (prev) { 
+                fade(prev, 0, 900, () => { prev.pause(); prev.src = ''; }); 
+            } 
+            fade(next, 0.35, 900); 
+            currentMusic = next; 
+            currentTrack = trackName; 
+        };
+
+        const playMusic = (track) => { 
+            if (!unlocked) { 
+                pendingMusic = track; 
+                return; 
+            } 
+            _playMusic(track); 
+        };
+
+        const Sound = { 
+            click: () => playSfx('click'), cast: () => playSfx('cast'), bite: () => playSfx('bite'), hit: () => playSfx('hit'), miss: () => playSfx('miss'), fail: () => playSfx('fail'), success: () => playSfx('success'), rarity: (lvl) => playSfx('rarity_' + lvl), music: playMusic 
+        };
 
         const state = { screen: 'MAP', location: null, rarity: null, hitsLeft: 0 };
         let timeLeft = GAME_DURATION_SEC;
@@ -107,7 +193,10 @@ export default function FishingGamePage() {
         const showScreen = (name) => {
             state.screen = name;
             $$('.screen').forEach(s => s.classList.toggle('active', s.dataset.screen === name));
-            if (name === 'MAP') { resetGlobalTimer(); }
+            if (name === 'MAP') { 
+                resetGlobalTimer(); 
+                Sound.music('map');
+            }
         };
 
         const enterLocation = (loc) => {
@@ -115,6 +204,7 @@ export default function FishingGamePage() {
             const locName = $('#locationName'); if (locName) locName.textContent = loc.name;
             ['#locationBg', '#castingBg', '#timingBg', '#followingBg', '#resultBg'].forEach(sel => { const el = $(sel); if (el) el.style.backgroundImage = `url('${loc.bg}')`; });
             showScreen('LOCATION');
+            Sound.music(loc.music);
         };
         gameApi.current.enterLocation = enterLocation;
 
@@ -273,6 +363,7 @@ export default function FishingGamePage() {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('pointerdown', unlockAudio);
             if (canvas) canvas.removeEventListener('mousemove', handleMouseMove);
+            if (currentMusic) { currentMusic.pause(); currentMusic.src = ''; }
         };
     }, [isMobile]);
 
