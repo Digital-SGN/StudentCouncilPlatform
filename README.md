@@ -14,8 +14,12 @@
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square" />
   <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square" />
   <img src="https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square" />
+  <img src="https://img.shields.io/badge/License-Internal-red?style=flat-square" />
 </p>
 
+<p align="center">
+  <img width="700" height="362" alt="preview" src="https://github.com/user-attachments/assets/4f4f5986-958b-4740-8f68-d19764fcc490" />
+</p>
 
 ## О проекте
 
@@ -23,11 +27,13 @@
 
 **Основные возможности:**
 
+- <img src="https://cdn.simpleicons.org/shieldsdotio/0CBFA1" width="16" /> **Ролевая модель (RBAC):** Гибкое разграничение прав (Admin, Leader, Member) на уровне API и интерфейса.
 - <img src="https://cdn.simpleicons.org/dotnet/0CBFA1" width="16" /> **Пользователи:** учёт участников, роли, система уровней и баллов.
 - <img src="https://cdn.simpleicons.org/googlecalendar/0CBFA1" width="16" /> **Мероприятия:** создание, регистрация, учёт явки, бюджетирование.
 - <img src="https://cdn.simpleicons.org/openbadges/0CBFA1" width="16" /> **Бейджи:** выдача цифровых подтверждений с возможностью загрузки PDF.
 - <img src="https://cdn.simpleicons.org/chartdotjs/0CBFA1" width="16" /> **Аналитика:** дашборды со статистикой, топами и динамикой по месяцам.
-- <img src="https://cdn.simpleicons.org/letsencrypt/0CBFA1" width="16" /> **Безопасность:** Cookie-аутентификация, поддержка 2FA (TOTP).
+- <img src="https://cdn.simpleicons.org/letsencrypt/0CBFA1" width="16" /> **Безопасность:** Cookie-аутентификация, поддержка TOTP (2FA), защита от брутфорса (Lockout).
+- <img src="https://api.iconify.design/fa6-solid/trophy.svg?color=%230CBFA1" width="16" /> **Геймификация:** Система уровней (XP), баланс баллов, кастомные баннеры профиля.
 
 ---
 
@@ -205,6 +211,11 @@ flowchart LR
 - <img src="https://cdn.simpleicons.org/github/0CBFA1" width="16" /> Организация на GitHub: [Digital-SGN](https://github.com/Digital-SGN)
 
 <br/>
+
+## Лицензия
+
+Проект разработан для внутреннего использования ССФ СГН МГТУ им. Н.Э. Баумана. 
+Код открыт для ознакомления. Коммерческое использование без согласия запрещено.
 
 <p align="center">
   <sub>Отдел цифрового развития ССФ СГН · 2026</sub>
