@@ -1,4 +1,4 @@
-.not-found-page {
+.error-state-page {
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -7,7 +7,7 @@
     padding: 20px;
 }
 
-.not-found-container {
+.error-state-container {
     background: white;
     border-radius: 32px;
     padding: 60px 40px;
@@ -25,12 +25,19 @@
     line-height: 1;
     color: #1e293b;
     margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
 }
 
 .error-code span {
     color: #0CBFA1;
     display: inline-block;
-    animation: float 3s ease-in-out infinite;
+    animation: floatError 3s ease-in-out infinite;
+}
+
+@keyframes floatError {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
 }
 
 .error-icon {
@@ -40,13 +47,13 @@
     transform: rotate(-15deg);
 }
 
-.not-found-container h1 {
+.error-state-container h1 {
     font-size: 32px;
     color: #1e293b;
     margin-bottom: 16px;
 }
 
-.not-found-container p {
+.error-state-container p {
     font-size: 16px;
     color: #64748b;
     line-height: 1.6;
@@ -73,7 +80,10 @@
     color: white;
 }
 
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+@media (max-width: 576px) {
+    .error-code { font-size: 80px; }
+    .error-state-container { padding: 40px 20px; }
+    .error-icon { font-size: 40px; }
+    .error-state-container h1 { font-size: 24px; }
+    .error-state-container p { font-size: 14px; }
 }
