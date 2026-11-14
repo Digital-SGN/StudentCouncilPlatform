@@ -5,7 +5,7 @@ import {
     faLeaf, faChartSimple, faGem, faCrown, faDiamond, faInfinity,
     faEnvelope, faUsers, faPhone, faComment, 
     faBirthdayCake, faCalendarAlt,
-    faMoneyBillWave, faCog, faQuoteLeft, faChartLine, faGhost, faLock
+    faMoneyBillWave, faCog, faQuoteLeft, faChartLine, faGhost
 } from '@fortawesome/free-solid-svg-icons';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend
@@ -22,7 +22,6 @@ import ErrorState from '../components/ErrorState';
 import UserFormModal from '../components/modals/UserFormModal';
 import '../css/ProfilePage.css';
 
-
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function ProfilePage() {
@@ -35,6 +34,7 @@ export default function ProfilePage() {
     const isLeader = currentUser?.role === 'Leader';
     const isOwnProfile = currentUser?.id != null && String(currentUser.id) === String(userId);
     const canEdit = isOwnProfile || isAdmin;
+    const canSeePrivateData = isOwnProfile || isAdmin || isLeader;
 
     const [user, setUser] = useState(null);
     const [badges, setBadges] = useState([]);
@@ -50,7 +50,7 @@ export default function ProfilePage() {
     const loadProfile = async () => {
         try {
             setLoading(true);
-            setError(null); 
+            setError(null);
             
             const userResult = await API.getUser(userId);
             if (!userResult.ok) {
@@ -80,10 +80,10 @@ export default function ProfilePage() {
             .replace(/[^\wа-яё]/gi, '_')
             .toLowerCase();
         const result = await API.downloadBadge(badge.id, fileName);
-         if (!result) showToast('Ошибка скачивания бейджа', 'error');
+        if (!result) showToast('Ошибка скачивания бейджа', 'error');
     };
 
-     if (loading) return <Loader text="Загрузка профиля..." />;
+    if (loading) return <Loader text="Загрузка профиля..." />;
 
     if (error === '404') {
         return (
@@ -115,17 +115,6 @@ export default function ProfilePage() {
             icon={faGhost}
         />
     );
-
-    if (!isOwnProfile && !isAdmin && !isLeader) {
-        return (
-            <ErrorState 
-                code={403} 
-                title="Отказано." 
-                message="Сюда вход только по пропускам. Студсовет хранит свои секреты."
-                icon={faLock}
-            />
-        );
-    }
 
     const xpPerLevel = 250;
  
@@ -281,12 +270,59 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="info-grid">
-                            <div className="info-item"><div className="info-icon"><FontAwesomeIcon icon={faEnvelope} /></div><div className="info-content"><div className="info-label">Email</div><div className="info-value">{user.email}</div></div></div>
-                            <div className="info-item"><div className="info-icon"><FontAwesomeIcon icon={faUsers} /></div><div className="info-content"><div className="info-label">Группа</div><div className="info-value">{user.group || '—'}</div></div></div>
-                            <div className="info-item"><div className="info-icon"><FontAwesomeIcon icon={faPhone} /></div><div className="info-content"><div className="info-label">Телефон</div><div className="info-value">{user.phoneNumber || '—'}</div></div></div>
-                            <div className="info-item"><div className="info-icon"><FontAwesomeIcon icon={faComment} /></div><div className="info-content"><div className="info-label">Telegram</div><div className="info-value">{user.telegram || '—'}</div></div></div>
-                            <div className="info-item"><div className="info-icon"><FontAwesomeIcon icon={faBirthdayCake} /></div><div className="info-content"><div className="info-label">Дата рождения</div><div className="info-value">{user.birthDate ? new Date(user.birthDate).toLocaleDateString('ru-RU') : '—'}</div></div></div>
-                            <div className="info-item"><div className="info-icon"><FontAwesomeIcon icon={faCalendarAlt} /></div><div className="info-content"><div className="info-label">В совете с</div><div className="info-value">{user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('ru-RU') : '—'}</div></div></div>
+                            {canSeePrivateData && (
+                                <div className="info-item">
+                                    <div className="info-icon"><FontAwesomeIcon icon={faEnvelope} /></div>
+                                    <div className="info-content">
+                                        <div className="info-label">Email</div>
+                                        <div className="info-value">{user.email}</div>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <div className="info-item">
+                                <div className="info-icon"><FontAwesomeIcon icon={faUsers} /></div>
+                                <div className="info-content">
+                                    <div className="info-label">Группа</div>
+                                    <div className="info-value">{user.group || '—'}</div>
+                                </div>
+                            </div>
+
+                            {canSeePrivateData && (
+                                <div className="info-item">
+                                    <div className="info-icon"><FontAwesomeIcon icon={faPhone} /></div>
+                                    <div className="info-content">
+                                        <div className="info-label">Телефон</div>
+                                        <div className="info-value">{user.phoneNumber || '—'}</div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {canSeePrivateData && (
+                                <div className="info-item">
+                                    <div className="info-icon"><FontAwesomeIcon icon={faComment} /></div>
+                                    <div className="info-content">
+                                        <div className="info-label">Telegram</div>
+                                        <div className="info-value">{user.telegram || '—'}</div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="info-item">
+                                <div className="info-icon"><FontAwesomeIcon icon={faBirthdayCake} /></div>
+                                <div className="info-content">
+                                    <div className="info-label">Дата рождения</div>
+                                    <div className="info-value">{user.birthDate ? new Date(user.birthDate).toLocaleDateString('ru-RU') : '—'}</div>
+                                </div>
+                            </div>
+                            
+                            <div className="info-item">
+                                <div className="info-icon"><FontAwesomeIcon icon={faCalendarAlt} /></div>
+                                <div className="info-content">
+                                    <div className="info-label">В совете с</div>
+                                    <div className="info-value">{user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('ru-RU') : '—'}</div>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="charts-section">
