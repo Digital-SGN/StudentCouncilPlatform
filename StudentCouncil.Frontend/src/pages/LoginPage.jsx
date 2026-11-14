@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { API } from '../api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -8,7 +9,6 @@ import {
     faCalendarAlt, faUsers, faTrophy, faRocket, faLightbulb,
     faStar, faWandMagicSparkles 
 } from '@fortawesome/free-solid-svg-icons';
-import Alert from '../components/Alert';
 import '../css/LoginPage.css';
 import '../css/Bubbles.css';
 
@@ -78,6 +78,7 @@ function OtpInput({ value, onChange, disabled }) {
 
 export default function LoginPage({ setUser }) {
     const { user } = useAuth();
+    const { showToast } = useToast();
     const [step, setStep] = useState('login');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -87,7 +88,6 @@ export default function LoginPage({ setUser }) {
     const [setupToken, setSetupToken] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [capsLock, setCapsLock] = useState(false);
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -97,14 +97,13 @@ export default function LoginPage({ setUser }) {
 
     const handleLoginSubmit = async (event) => {
         event.preventDefault();
-        setError('');
         setLoading(true);
 
         try {
             const result = await API.login(email, password);
 
             if (!result.ok) {
-                setError(result.data?.error || 'Неверный email или пароль');
+                showToast(result.data?.error || 'Неверный email или пароль', 'error');
                 return;
             }
 
@@ -122,11 +121,11 @@ export default function LoginPage({ setUser }) {
                 setSetupToken(token ?? '');
                 setStep('setup');
             } else {
-                setError('Неожиданный ответ сервера');
+                showToast('Неожиданный ответ сервера', 'error');
             }
         } catch (err) {
             console.error('Login error:', err);
-            setError('Ошибка соединения с сервером');
+            showToast('Ошибка соединения с сервером', 'error');
         } finally {
             setLoading(false);
         }
@@ -134,7 +133,6 @@ export default function LoginPage({ setUser }) {
 
     const handleSetupSubmit = async (event) => {
         event.preventDefault();
-        setError('');
         setLoading(true);
         try {
             const result = await API.setupTwoFactor(email, code, setupToken);
@@ -147,12 +145,12 @@ export default function LoginPage({ setUser }) {
                 setCode('');
                 setSetupToken('');
                 setQrUri('');
-                setError('Сессия настройки истекла. Войдите заново.');
+                showToast('Сессия настройки истекла. Войдите заново.', 'error');
             } else {
-                setError(result.data?.error || 'Неверный код. Попробуйте снова.');
+                showToast(result.data?.error || 'Неверный код. Попробуйте снова.', 'error');
             }
         } catch (err) {
-            setError('Ошибка при настройке 2FA');
+            showToast('Ошибка при настройке 2FA', 'error');
         } finally {
             setLoading(false);
         }
@@ -160,7 +158,6 @@ export default function LoginPage({ setUser }) {
 
     const handleVerifySubmit = async (event) => {
         event.preventDefault();
-        setError('');
         setLoading(true);
         try {
             const result = await API.loginWithTwoFactor(code, rememberDevice);
@@ -169,10 +166,10 @@ export default function LoginPage({ setUser }) {
                 setUser(fullUser);
                 navigate('/');
             } else {
-                setError(result.data?.error || 'Неверный код двухфакторной аутентификации');
+                showToast(result.data?.error || 'Неверный код двухфакторной аутентификации', 'error');
             }
         } catch (err) {
-            setError('Ошибка при проверке кода');
+            showToast('Ошибка при проверке кода', 'error');
         } finally {
             setLoading(false);
         }
@@ -227,7 +224,6 @@ export default function LoginPage({ setUser }) {
                 )}
             </div>
 
-            {error && <Alert type="danger" message={error} />}
             <button type="submit" disabled={loading}>
                 {loading ? (
                     'Вход...'
@@ -255,7 +251,6 @@ export default function LoginPage({ setUser }) {
                     <label>Код из приложения</label>
                     <OtpInput value={code} onChange={setCode} disabled={loading} />
                 </div>
-                {error && <Alert type="danger" message={error} />}
                 <button type="submit" disabled={loading}>
                     {loading ? (
                         'Проверка...'
@@ -275,11 +270,9 @@ export default function LoginPage({ setUser }) {
             <h2 style={{ marginBottom: '12px', color: '#1e293b', fontSize: '22px' }}>
                 Подтвердите вход
             </h2>
-            
             <p style={{ marginBottom: '20px', color: '#64748b', fontSize: '15px' }}>
                 Введите код из вашего приложения-аутентификатора.
             </p>
-            
             <div className="form-group">
                 <OtpInput value={code} onChange={setCode} disabled={loading} />
             </div>
@@ -295,7 +288,6 @@ export default function LoginPage({ setUser }) {
                     Запомнить это устройство
                 </label>
             </div>
-            {error && <Alert type="danger" message={error} />}
             <button type="submit" disabled={loading}>
                 {loading ? (
                     'Вход...'
