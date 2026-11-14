@@ -367,15 +367,19 @@ export default function ProfilePage() {
                             </div>
                         </div>
 
-                        {badges.length > 0 && (
+                        {(isOwnProfile || isAdmin) && badges.length > 0 && (
                             <div className="badges-section">
                                 <div className="badges-title">Мои бейджи</div>
                                 <div className="badges-list">
                                     {badges.map(badge => (
                                         badge.filePath ? (
-                                            <a key={badge.id} href="#" className="badge-link" onClick={(e) => { e.preventDefault(); downloadBadge(badge); }}>{badge.eventTitle.toLowerCase()}_{badge.role.toLowerCase()}.pdf</a>
+                                            <a key={badge.id} href="#" className="badge-link" onClick={(e) => { e.preventDefault(); downloadBadge(badge); }}>
+                                                {badge.eventTitle.toLowerCase()}_{badge.role.toLowerCase()}.pdf
+                                            </a>
                                         ) : (
-                                            <span key={badge.id} className="badge-link pending">{badge.eventTitle.toLowerCase()}_{badge.role.toLowerCase()}.pdf (ожидает)</span>
+                                            <span key={badge.id} className="badge-link pending">
+                                                {badge.eventTitle.toLowerCase()}_{badge.role.toLowerCase()}.pdf (ожидает)
+                                            </span>
                                         )
                                     ))}
                                 </div>
