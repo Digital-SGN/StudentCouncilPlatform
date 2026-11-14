@@ -17,15 +17,7 @@
 </p>
 
 <p align="center">
-  <video 
-    src="https://github.com/user-attachments/assets/3a99b28a-564e-42c2-9ee2-0f2fdd68d2c8" 
-    autoplay 
-    loop 
-    muted 
-    playsinline 
-    width="85%" 
-    style="border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);"
-  ></video>
+  <img width="700" height="362" alt="preview" src="https://github.com/user-attachments/assets/4f4f5986-958b-4740-8f68-d19764fcc490" />
 </p>
 
 ## О проекте
