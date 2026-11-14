@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square" />
   <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square" />
   <img src="https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square" />
+  <img src="https://img.shields.io/badge/License-Internal-red?style=flat-square" />
 </p>
 
 <p align="center">
