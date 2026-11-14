@@ -1,11 +1,16 @@
-Copyright (c) Отдел цифрового развития ССФ СГН
-
+Copyright (c) 2026 Отдел цифрового развития ССФ СГН МГТУ им. Н.Э. Баумана.
 All rights reserved.
 
-This software and associated documentation files (the "Software") were developed 
-for internal use by the Student Council of the Faculty of Social and Human Sciences 
-at Bauman Moscow State Technical University (ССФ СГН МГТУ им. Н.Э. Баумана).
+1. Purpose
+This software and associated documentation files (the "Software") were developed for internal use by the Student Council of the Faculty of Social and Human Sciences at BMSTU. The source code is made publicly available solely for demonstration, educational review, and portfolio purposes.
 
-The code is made publicly available for demonstration and portfolio purposes only. 
-Copying, modifying, distributing, or using this Software for commercial purposes 
-without explicit written permission from the copyright holder is strictly prohibited.
+2. Restrictions
+Without prior explicit written permission from the copyright holder, you are strictly prohibited from:
+- Copying, reproducing, or redistributing the Software in whole or in part;
+- Modifying, adapting, or creating derivative works based on the Software;
+- Using the Software for any commercial or non-commercial production purposes.
+
+Viewing the code and creating repository forks strictly within the hosting platform (e.g., GitHub) for personal review are permitted under the platform's Terms of Service.
+
+3. Disclaimer
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THE SOFTWARE.
