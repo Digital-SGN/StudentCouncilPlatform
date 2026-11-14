@@ -17,7 +17,7 @@
 </p>
 
 <p align="center">
-  <video src="[ВСТАВЬ_СЮДА_ССЫЛКУ_ОТ_GITHUB](https://github.com/user-attachments/assets/3a99b28a-564e-42c2-9ee2-0f2fdd68d2c8)" controls width="85%"></video>
+  <video src="https://github.com/user-attachments/assets/3a99b28a-564e-42c2-9ee2-0f2fdd68d2c8" controls width="85%"></video>
 </p>
 
 ## О проекте
