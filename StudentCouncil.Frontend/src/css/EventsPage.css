@@ -558,18 +558,18 @@
     background-position: center;
     background-repeat: no-repeat;
     display: block;
-    margin: 0;               
-    border-radius: 0;        
+    margin: 0;
+    border-radius: 0;
 }
 
 @media (max-width: 768px) {
     .events-wrapper {
-        padding: 20px 12px; 
+        padding: 20px 12px;
     }
 
     .events-header {
         flex-direction: column;
-        align-items: flex-start; 
+        align-items: flex-start;
         text-align: left;
         gap: 12px;
         margin-bottom: 20px;
@@ -590,7 +590,7 @@
 
     .search-input {
         width: 100%;
-        height: 44px; 
+        height: 44px;
     }
 
     .sort-dropdown {
@@ -601,11 +601,12 @@
     .sort-dropdown-toggle {
         width: 100%;
         height: 44px;
-        min-width: 0; /* Убираем жесткие 150px */
+        min-width: 0;
+        justify-content: space-between;
     }
 
     .view-toggle {
-        flex: 0 0 auto; 
+        flex: 0 0 auto;
         height: 44px;
     }
 
@@ -618,7 +619,7 @@
     }
 
     .create-event-btn {
-        flex: 1 1 100%; 
+        flex: 1 1 100%;
         justify-content: center;
         height: 44px;
         padding: 0 15px;
@@ -626,7 +627,7 @@
     }
 
     .events-card-body {
-        padding: 12px; 
+        padding: 12px;
     }
 
     .events-grid {
@@ -635,48 +636,23 @@
     }
 
     .event-card-header {
-        padding: 16px; 
+        padding: 16px;
     }
 
     .event-card-body {
-        padding: 16px; 
+        padding: 16px;
     }
 
     .event-card-footer {
-        padding: 12px 16px; 
+        padding: 12px 16px;
     }
 
     .event-btn {
-        min-width: 0; 
+        min-width: 0;
     }
 }
 
-.sort-dropdown {
-    position: relative;
-    flex-shrink: 0;
-}
-
-.sort-dropdown-toggle {
-    height: 40px;
-    padding: 0 16px;
-    border-radius: 40px;
-    background: white;
-    color: #0CBFA1;
-    border: none;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    
-    min-width: 150px; 
-    justify-content: space-between; 
-    
-    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
-    white-space: nowrap;
-}
-
 .sort-dropdown-label {
-    flex: 1; 
-    text-align: center; 
+    flex: 1;
+    text-align: center;
 }
