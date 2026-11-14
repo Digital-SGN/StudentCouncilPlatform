@@ -18,7 +18,7 @@ public class UserController : BaseController
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,Leader")]
+    [Authorize]
     public async Task<IActionResult> GetAllAsync()
     {
         UserListResponseDTO result = await _userService.GetAllUsersAsync(User);

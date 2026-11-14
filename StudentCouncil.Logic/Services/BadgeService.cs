@@ -30,11 +30,6 @@ public class BadgeService : IBadgeService
 
     public async Task<BadgeListResponseDTO> GetBadgesByUserAsync(int userId, ClaimsPrincipal currentUser)
     {
-        int currentUserId = currentUser.GetUserId();
-
-        if (userId != currentUserId && !currentUser.IsAdminOrLeader())
-            throw new ForbiddenException("У вас нет прав на просмотр бейджей этого пользователя");
-
         List<Badge> badges = await _context.Badges
             .Include(b => b.User)
             .Include(b => b.Event)
@@ -51,9 +46,6 @@ public class BadgeService : IBadgeService
 
     public async Task<BadgeListResponseDTO> GetBadgesByEventAsync(int eventId, ClaimsPrincipal currentUser)
     {
-        if (!currentUser.IsAdminOrLeader())
-            throw new ForbiddenException("У вас нет прав на просмотр бейджей мероприятия");
-
         Event? eventEntity = await _context.Events
             .Where(e => !e.IsDeleted)
             .FirstOrDefaultAsync(e => e.Id == eventId);

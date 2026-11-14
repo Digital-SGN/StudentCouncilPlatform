@@ -272,7 +272,14 @@ export default function LoginPage({ setUser }) {
 
     const renderVerifyForm = () => (
         <form onSubmit={handleVerifySubmit}>
-            <p>Введите код из вашего приложения-аутентификатора.</p>
+            <h2 style={{ marginBottom: '12px', color: '#1e293b', fontSize: '22px' }}>
+                Подтвердите вход
+            </h2>
+            
+            <p style={{ marginBottom: '20px', color: '#64748b', fontSize: '15px' }}>
+                Введите код из вашего приложения-аутентификатора.
+            </p>
+            
             <div className="form-group">
                 <OtpInput value={code} onChange={setCode} disabled={loading} />
             </div>
@@ -326,10 +333,14 @@ export default function LoginPage({ setUser }) {
                 </div>
 
                 <div className="login-container">
-                    <div className="login-logo">
-                        <img src="/logo.svg" alt="Лого" />
-                    </div>
-                    <h1>Добро пожаловать!</h1>
+                    {step === 'login' && (
+                        <>
+                            <div className="login-logo">
+                                <img src="/logo.svg" alt="Лого" />
+                            </div>
+                            <h1>Добро пожаловать!</h1>
+                        </>
+                    )}
 
                     {step === 'login' && renderLoginForm()}
                     {step === 'setup' && renderSetupForm()}

@@ -35,9 +35,6 @@ public class UserService : IUserService
 
     public async Task<UserListResponseDTO> GetAllUsersAsync(ClaimsPrincipal currentUser)
     {
-        if (!currentUser.IsAdminOrLeader())
-            throw new ForbiddenException("У вас нет прав на просмотр списка пользователей");
-
         List<User> users = await _userManager.Users.ToListAsync();
 
         HashSet<int> adminIds = (await _userManager.GetUsersInRoleAsync("Admin")).Select(u => u.Id).ToHashSet();
@@ -61,16 +58,9 @@ public class UserService : IUserService
 
     public async Task<UserDTO> GetUserByIdAsync(int id, ClaimsPrincipal currentUser)
     {
-        int currentUserId = currentUser.GetUserId();
-
         User? user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null)
             throw new NotFoundException("Пользователь не найден");
-
-        bool isOwnProfile = currentUserId == user.Id;
-
-        if (!isOwnProfile && !currentUser.IsAdminOrLeader())
-            throw new ForbiddenException("У вас нет прав на просмотр этого профиля");
 
         IList<string> roles = await _userManager.GetRolesAsync(user);
         return Mapper.ToUserDTO(user, roles.FirstOrDefault() ?? "Member");

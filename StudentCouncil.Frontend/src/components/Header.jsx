@@ -29,8 +29,6 @@ export default function Header({ onLogout }) {
         }
     };
 
-    const displayEmail = user?.email && user.email.length > 25 ? user.email.substring(0, 17) + '...' : user?.email;
-
     return (
         <header className="custom-header">
             <div className="header-container">
@@ -48,14 +46,13 @@ export default function Header({ onLogout }) {
                     <span></span>
                 </button>
 
-                {/* Меню */}
                 <div className={`header-collapse ${isMenuOpen ? 'show' : ''}`}>
                     <ul className="header-nav">
                         {user && (
                             <li className="nav-item">
                                 <span className="nav-text">
                                     <img src="/cat.gif" alt="кот" onClick={playMeow} className="cat-in-header" />
-                                    Привет, {displayEmail}!
+                                    Привет, {user.firstName || 'участник'}!
                                 </span>
                             </li>
                         )}
@@ -79,25 +76,25 @@ export default function Header({ onLogout }) {
                                         <FontAwesomeIcon icon={faUser} /> <span>Мой профиль</span>
                                     </Link>
                                 </li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/users" onClick={closeMenu}>
+                                        <FontAwesomeIcon icon={faUsers} /> <span>Участники</span>
+                                    </Link>
+                                </li>
+                                <li className="nav-item">
+                                    <Link className="nav-link" to="/events" onClick={closeMenu}>
+                                        <FontAwesomeIcon icon={faCalendarAlt} /> <span>Мероприятия</span>
+                                    </Link>
+                                </li>
+
                                 {(user.role === "Admin" || user.role === "Leader") && (
-                                    <>
-                                        <li className="nav-item">
-                                            <Link className="nav-link" to="/users" onClick={closeMenu}>
-                                                <FontAwesomeIcon icon={faUsers} /> <span>Участники</span>
-                                            </Link>
-                                        </li>
-                                        <li className="nav-item">
-                                            <Link className="nav-link" to="/events" onClick={closeMenu}>
-                                                <FontAwesomeIcon icon={faCalendarAlt} /> <span>Мероприятия</span>
-                                            </Link>
-                                        </li>
-                                        <li className="nav-item">
-                                            <Link className="nav-link" to="/analytics" onClick={closeMenu}>
-                                                <FontAwesomeIcon icon={faChartLine} /> <span>Аналитика</span>
-                                            </Link>
-                                        </li>
-                                    </>
+                                    <li className="nav-item">
+                                        <Link className="nav-link" to="/analytics" onClick={closeMenu}>
+                                            <FontAwesomeIcon icon={faChartLine} /> <span>Аналитика</span>
+                                        </Link>
+                                    </li>
                                 )}
+
                                 <li className="nav-item">
                                     <button className="nav-link logout-btn" onClick={() => { closeMenu(); onLogout(); }}>
                                         <FontAwesomeIcon icon={faSignOutAlt} /> <span>Выйти</span>

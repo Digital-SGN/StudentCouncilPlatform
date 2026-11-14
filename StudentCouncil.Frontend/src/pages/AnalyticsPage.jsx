@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faUsers, faCalendarAlt, faChartLine, faMoneyBillWave, 
-    faTrophy, faUserCheck, faArrowTrendUp
+    faTrophy, faUserCheck, faArrowTrendUp, faLock
 } from '@fortawesome/free-solid-svg-icons';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement
@@ -11,6 +11,7 @@ import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
+import ErrorState from '../components/ErrorState';
 import '../css/AnalyticsPage.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement);
@@ -131,9 +132,24 @@ export default function AnalyticsPage() {
         }
     };
 
-    if (!canView) return <div className="alert alert-danger">Доступ запрещён</div>;
+    if (!canView) return (
+        <ErrorState 
+            code={403} 
+            title="Отказано." 
+            message="Аналитика доступна только руководству студсовета."
+            icon={faLock}
+        />
+    );
+
     if (loading) return <div className="loading-container"><div className="spinner"></div><p>Сбор аналитики...</p></div>;
-    if (error) return <div className="alert alert-danger">{error}</div>;
+    if (error) return (
+        <ErrorState 
+            code={500} 
+            title="Сервер ушёл на обед" 
+            message="Мы не смогли собрать аналитику. Попробуйте обновить страницу через пару минут."
+            icon={faServer}
+        />
+    );
 
     
     const lineData = {

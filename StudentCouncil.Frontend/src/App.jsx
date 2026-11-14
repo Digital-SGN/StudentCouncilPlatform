@@ -1,12 +1,15 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { faFish } from '@fortawesome/free-solid-svg-icons';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import { API } from './api';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import CustomCursor from './components/CustomCursor'; 
 import Loader from './components/Loader'; 
+import ErrorState from './components/ErrorState'; // <-- ДОБАВИЛИ
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const HelpPage = lazy(() => import('./pages/HelpPage'));
@@ -18,11 +21,11 @@ const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
 const EventsPage = lazy(() => import('./pages/EventsPage'));
 const EventDetailPage = lazy(() => import('./pages/EventDetailPage'));
 const FishingGamePage = lazy(() => import('./pages/FishingGamePage'));
-const NotFoundPage = lazy(() => import('./pages/NotFoundPage')); // 404
 
 import './css/Index.css';
 import './css/LoginPage.css';
 import './css/Bubbles.css';
+import './css/Toast.css';
 
 function AppContent() {
     const { user, setUser, loading } = useAuth();
@@ -59,7 +62,14 @@ function AppContent() {
                             <Route path="/privacy" element={<PrivacyPage />} /> 
                             <Route path="/fishing" element={<FishingGamePage />} />
                             
-                            <Route path="*" element={<NotFoundPage />} /> 
+                            <Route path="*" element={
+                                <ErrorState 
+                                    code={404} 
+                                    title="Страница уплыла..." 
+                                    message="Кажется, рыба сорвалась с крючка, а страница не найдена. Возможно, она была удалена или вы ошиблись адресом."
+                                    icon={faFish}
+                                />
+                            } /> 
                         </Routes>
                     </Suspense>
                 )}
@@ -73,7 +83,9 @@ function App() {
     return (
         <BrowserRouter>
             <AuthProvider>
-                <AppContent />
+                <ToastProvider> 
+                    <AppContent/>
+                </ToastProvider>
             </AuthProvider>
         </BrowserRouter>
     );
