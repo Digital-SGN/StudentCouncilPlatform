@@ -26,11 +26,13 @@
 
 **Основные возможности:**
 
+- <img src="https://cdn.simpleicons.org/shieldsdotio/0CBFA1" width="16" /> **Ролевая модель (RBAC):** Гибкое разграничение прав (Admin, Leader, Member) на уровне API и интерфейса.
 - <img src="https://cdn.simpleicons.org/dotnet/0CBFA1" width="16" /> **Пользователи:** учёт участников, роли, система уровней и баллов.
 - <img src="https://cdn.simpleicons.org/googlecalendar/0CBFA1" width="16" /> **Мероприятия:** создание, регистрация, учёт явки, бюджетирование.
 - <img src="https://cdn.simpleicons.org/openbadges/0CBFA1" width="16" /> **Бейджи:** выдача цифровых подтверждений с возможностью загрузки PDF.
 - <img src="https://cdn.simpleicons.org/chartdotjs/0CBFA1" width="16" /> **Аналитика:** дашборды со статистикой, топами и динамикой по месяцам.
-- <img src="https://cdn.simpleicons.org/letsencrypt/0CBFA1" width="16" /> **Безопасность:** Cookie-аутентификация, поддержка 2FA (TOTP).
+- <img src="https://cdn.simpleicons.org/letsencrypt/0CBFA1" width="16" /> **Безопасность:** Cookie-аутентификация, поддержка TOTP (2FA), защита от брутфорса (Lockout).
+- <img src="https://cdn.simpleicons.org/gamepad/0CBFA1" width="16" /> **Геймификация:** Система уровней (XP), баланс баллов, кастомные баннеры профиля.
 
 ---
 
@@ -212,3 +214,9 @@ flowchart LR
 <p align="center">
   <sub>Отдел цифрового развития ССФ СГН · 2026</sub>
 </p>
+
+
+## Лицензия
+
+Проект разработан для внутреннего использования ССФ СГН МГТУ им. Н.Э. Баумана. 
+Код открыт для ознакомления. Коммерческое использование без согласия автора запрещено.
