@@ -33,7 +33,7 @@
 - <img src="https://cdn.simpleicons.org/openbadges/0CBFA1" width="16" /> **Бейджи:** выдача цифровых подтверждений с возможностью загрузки PDF.
 - <img src="https://cdn.simpleicons.org/chartdotjs/0CBFA1" width="16" /> **Аналитика:** дашборды со статистикой, топами и динамикой по месяцам.
 - <img src="https://cdn.simpleicons.org/letsencrypt/0CBFA1" width="16" /> **Безопасность:** Cookie-аутентификация, поддержка TOTP (2FA), защита от брутфорса (Lockout).
-- <img src="https://cdn.simpleicons.org/gamepad/0CBFA1" width="16" /> **Геймификация:** Система уровней (XP), баланс баллов, кастомные баннеры профиля.
+- <img src="https://api.iconify.design/fa6-solid/trophy.svg?color=%230CBFA1" width="16" /> **Геймификация:** Система уровней (XP), баланс баллов, кастомные баннеры профиля.
 
 ---
 
