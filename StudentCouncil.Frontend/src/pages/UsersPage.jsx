@@ -28,7 +28,7 @@ function escapeHtml(str) {
 
 export default function UsersPage() {
     const { user } = useAuth();
-     const { showToast } = useToast();
+    const { showToast } = useToast();
     const isAdmin = user?.role === 'Admin';
     const isLeader = user?.role === 'Leader';
 

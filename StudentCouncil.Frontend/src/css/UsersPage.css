@@ -1,4 +1,4 @@
-﻿.users-page {
+.users-page {
     min-height: 100vh;
     background: transparent;
     position: relative;
@@ -8,18 +8,18 @@
     position: relative;
     z-index: 1;
     padding: 20px 20px;
-    max-width: 1200px; 
-    margin: 0 auto;   
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .users-header {
     display: flex;
     justify-content: space-between;
-    align-items: center; 
+    align-items: center;
     margin-bottom: 30px;
     flex-wrap: wrap;
     gap: 20px;
-    min-height: 48px; 
+    min-height: 48px;
 }
 
 .users-header h1 {
@@ -27,7 +27,7 @@
     font-size: 32px;
     font-weight: 700;
     color: white;
-    line-height: 1.2; 
+    line-height: 1.2;
 }
 
 .users-card {
@@ -74,7 +74,7 @@ th:hover .sort-icon {
     opacity: 1;
 }
 
-.role-badge, 
+.role-badge,
 .status-badge {
     display: inline-block;
     padding: 4px 12px;
@@ -85,31 +85,31 @@ th:hover .sort-icon {
     white-space: nowrap;
 }
 
-.role-badge.admin { 
-    background: linear-gradient(135deg, #dc3545, #c82333); 
-    color: white; 
+.role-badge.admin {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
 }
 
-.role-badge.leader { 
+.role-badge.leader {
     background: linear-gradient(135deg, #ffc107, #e0a800);
     color: #1a202c;
 }
 
-.role-badge.member { 
-    background: linear-gradient(135deg, #0CBFA1, #04b194); 
-    color: white; 
+.role-badge.member {
+    background: linear-gradient(135deg, #0CBFA1, #04b194);
+    color: white;
 }
 
-.status-badge.active { 
-    background: #c6f6d5; 
-    color: #22543d; 
-    border: 1px solid #9ae6b4; 
+.status-badge.active {
+    background: #c6f6d5;
+    color: #22543d;
+    border: 1px solid #9ae6b4;
 }
 
-.status-badge.inactive { 
-    background: #fed7d7; 
-    color: #742a2a; 
-    border: 1px solid #fc8181; 
+.status-badge.inactive {
+    background: #fed7d7;
+    color: #742a2a;
+    border: 1px solid #fc8181;
 }
 
 .action-buttons {
@@ -120,7 +120,7 @@ th:hover .sort-icon {
     gap: 8px;
 }
 
-.action-btn, 
+.action-btn,
 .dropdown summary {
     height: 34px;
     box-sizing: border-box;
@@ -141,38 +141,37 @@ th:hover .sort-icon {
     text-decoration: none;
 }
 
-.action-btn:hover, 
+.action-btn:hover,
 .dropdown summary:hover {
     transform: translateY(-1px);
     background: #e2e8f0;
 }
 
-.action-btn.view { 
-    background: #0CBFA1; 
-    color: white; 
+.action-btn.view {
+    background: #0CBFA1;
+    color: white;
 }
 
 .action-btn.edit {
-    background: #fef3c7; 
-    color: #92400e; 
+    background: #fef3c7;
+    color: #92400e;
 }
 
-.action-btn.delete { 
-    background: #fee2e2; 
-    color: #dc2626; 
+.action-btn.delete {
+    background: #fee2e2;
+    color: #dc2626;
 }
 
-.action-btn.reset-pwd { 
-    background: #f59e0b; 
-    color: white; 
+.action-btn.reset-pwd {
+    background: #f59e0b;
+    color: white;
 }
 
 .action-btn.reset-2fa {
-    background: #ef4444; 
-    color: white; 
+    background: #ef4444;
+    color: white;
 }
 
-/* Обновленный дропдаун */
 .dropdown {
     position: relative;
     display: inline-block;
@@ -212,16 +211,16 @@ th:hover .sort-icon {
 .dropdown-item.delete { color: #dc2626; }
 .dropdown-item.delete:hover { background-color: #fee2e2; }
 
-.users-table tr.admin-row { 
-    background: #fff5f5; 
+.users-table tr.admin-row {
+    background: #fff5f5;
 }
 
-.users-table tr.leader-row { 
-    background: #fffaf0; 
+.users-table tr.leader-row {
+    background: #fffaf0;
 }
 
-.users-table tr:hover { 
-    background: #f7fafc; 
+.users-table tr:hover {
+    background: #f7fafc;
 }
 
 .header-actions {
@@ -229,15 +228,15 @@ th:hover .sort-icon {
     align-items: center;
     flex-wrap: wrap;
     gap: 16px;
-    height: 40px; 
+    height: 40px;
 }
 
-.search-box { 
-    position: relative; 
-    margin-right: auto; 
+.search-box {
+    position: relative;
+    margin-right: auto;
 }
 
-.search-icon { 
+.search-icon {
     position: absolute;
     left: 12px;
     top: 50%;
@@ -283,7 +282,7 @@ th:hover .sort-icon {
     cursor: pointer;
     color: white;
     opacity: 0.7;
-    border-radius: 32px;           
+    border-radius: 32px;
     transition: all 0.2s;
 }
 
@@ -292,7 +291,7 @@ th:hover .sort-icon {
     color: #0CBFA1;
     opacity: 1;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    border-radius: 32px;            
+    border-radius: 32px;
 }
 
 .view-btn:hover {
@@ -300,7 +299,7 @@ th:hover .sort-icon {
     transform: translateY(-1px);
 }
 
-.export-btn, 
+.export-btn,
 .create-btn {
     height: 40px;
     padding: 0 20px;
@@ -320,7 +319,7 @@ th:hover .sort-icon {
     transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
-.export-btn:hover, 
+.export-btn:hover,
 .create-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -440,7 +439,7 @@ th:hover .sort-icon {
     min-width: 0;
 }
 
-.user-card-footer .action-btn.edit, 
+.user-card-footer .action-btn.edit,
 .user-card-footer .dropdown {
     flex: 0 0 auto;
 }
@@ -450,7 +449,6 @@ th:hover .sort-icon {
     min-width: 40px;
 }
 
-/* Заглушка (Empty state) */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
@@ -478,44 +476,45 @@ th:hover .sort-icon {
 
     .users-header {
         flex-direction: column;
-        align-items: flex-start; 
+        align-items: flex-start;
         text-align: left;
         gap: 12px;
-        margin-bottom: 20px; 
+        margin-bottom: 20px;
     }
 
     .header-actions {
         width: 100%;
-        height: auto; 
+        height: auto;
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        justify-content: flex-start; 
+        justify-content: flex-start;
     }
 
     .search-box {
-        flex: 1 1 100%; 
+        flex: 1 1 100%;
         margin-right: 0;
     }
 
     .search-input {
         width: 100%;
-        height: 44px; 
+        height: 44px;
     }
 
     .sort-dropdown {
-        flex: 1 1 auto; 
+        flex: 1 1 auto;
         min-width: 0;
     }
 
     .sort-dropdown-toggle {
         width: 100%;
         height: 44px;
-        min-width: 0; 
+        min-width: 0;
+        justify-content: space-between;
     }
 
     .view-toggle {
-        flex: 0 0 auto; 
+        flex: 0 0 auto;
         height: 44px;
     }
 
@@ -526,7 +525,7 @@ th:hover .sort-icon {
     }
 
     .create-btn {
-        flex: 1 1 100%; 
+        flex: 1 1 100%;
         height: 44px;
         justify-content: center;
     }
@@ -567,15 +566,13 @@ th:hover .sort-icon {
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    
-    min-width: 150px; 
+    min-width: 150px;
     justify-content: space-between;
-    
     transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
     white-space: nowrap;
 }
 
 .sort-dropdown-label {
-    flex: 1; 
-    text-align: center; 
+    flex: 1;
+    text-align: center;
 }
