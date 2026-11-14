@@ -24,7 +24,7 @@ html::-webkit-scrollbar {
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     min-height: 100vh;
     background: linear-gradient(135deg, #0CBFA1 0%, #148C9C 50%, #09707C 100%);
     overflow-x: hidden; 
@@ -547,4 +547,8 @@ input, textarea, select, [contenteditable="true"] {
 .disabled, [disabled], .pending, .badge-link.pending {
     cursor: default !important;
     pointer-events: none;
+}
+
+button, input, select, textarea {
+    font-family: inherit;
 }
