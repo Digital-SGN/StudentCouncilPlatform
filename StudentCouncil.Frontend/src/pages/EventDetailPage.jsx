@@ -4,23 +4,24 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faCalendar, faMapMarkerAlt, faUser, faLink,
     faEdit, faTrashAlt, faEye, faDownload, faUpload, faFileAlt, faUsers, faMoneyBillWave,
-    faArrowLeft
+    faArrowLeft, faCalendarXmark
 } from '@fortawesome/free-solid-svg-icons';
 import { API } from '../api';
 import { ROLES, ROLE_STYLES, roleOrder } from '../constants/roles';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import Bubbles from '../components/Bubbles';
-import Alert from '../components/Alert';
+import ErrorState from '../components/ErrorState';
 import EventFormModal from '../components/modals/EventFormModal';
 import ConfirmModal from '../components/modals/ConfirmDialogModal';
 import AddMemberModal from '../components/modals/AddMemberModal';
-
 import '../css/EventDetailPage.css';
 
 export default function EventDetailPage() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { showToast } = useToast();
     const isAdmin = user?.role === 'Admin';
     const isLeader = user?.role === 'Leader';
     const canView = isAdmin || isLeader;
@@ -44,12 +45,10 @@ export default function EventDetailPage() {
     const [confirmDeleteBadge, setConfirmDeleteBadge] = useState({ isOpen: false, badgeId: null });
 
     useEffect(() => {
-        if (canView && id) {
+        if (id) {
             loadData();
-        } else {
-            setLoading(false);
         }
-    }, [id, canView]);
+    }, [id]);
 
     const loadData = async () => {
         try {
@@ -97,11 +96,9 @@ export default function EventDetailPage() {
     };
 
     const downloadBadge = async (badgeId, eventTitle, userName, role) => {
-        const fileName = `${eventTitle}_${userName}_${role}`
-            .replace(/[^\wа-яё]/gi, '_')
-            .toLowerCase();
+        const fileName = `${eventTitle}_${userName}_${role}`.replace(/[^\wа-яё]/gi, '_').toLowerCase();
         const result = await API.downloadBadge(badgeId, fileName);
-        if (!result) alert('Ошибка скачивания бейджа');
+        if (!result) showToast('Ошибка скачивания бейджа', 'error');
     };
 
     const viewBadge = async (badgeId) => {
@@ -114,7 +111,7 @@ export default function EventDetailPage() {
             window.open(url, '_blank');
             URL.revokeObjectURL(url);
         } else {
-            alert('Не удалось открыть бейдж');
+            showToast('Не удалось открыть бейдж', 'error');
         }
     };
 
@@ -129,10 +126,10 @@ export default function EventDetailPage() {
             formData.append('file', file);
             const result = await API.uploadBadgeFile(badgeId, formData);
             if (result.ok) {
-                alert('Файл успешно загружен');
+                showToast('Файл успешно загружен', 'success');
                 loadData();
             } else {
-                alert(result.error || 'Ошибка загрузки');
+                showToast(result.error || 'Ошибка загрузки', 'error');
             }
         };
         fileInput.click();
@@ -147,8 +144,9 @@ export default function EventDetailPage() {
         const result = await API.deleteBadge(badgeId);
         if (result.ok) {
             setBadges(badges.filter(b => b.id !== badgeId));
+            showToast('Участник удалён из мероприятия', 'success');
         } else {
-            alert(result.data?.error || 'Ошибка удаления');
+            showToast(result.data?.error || 'Ошибка удаления', 'error');
         }
         setConfirmDeleteBadge({ isOpen: false, badgeId: null });
     };
@@ -165,20 +163,31 @@ export default function EventDetailPage() {
     const confirmDeleteEventAction = async () => {
         const result = await API.deleteEvent(id);
         if (result.ok) {
+            showToast('Мероприятие удалено', 'success');
             navigate('/events');
         } else {
-            alert(result.data?.error || 'Ошибка удаления');
+            showToast(result.data?.error || 'Ошибка удаления', 'error');
         }
         setConfirmDeleteEvent(false);
     };
 
-    if (!canView) {
-        return <div className="alert alert-danger">Доступ запрещён</div>;
-    }
-
     if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
-    if (error) return <Alert type="danger" message={error} />;
-    if (!event) return <div className="alert alert-danger">Мероприятие не найдено</div>;
+    if (error) return (
+        <ErrorState 
+            code={404} 
+            title="Мероприятие испарилось" 
+            message="Мы не смогли найти это событие. Возможно, оно уже прошло или было отменено."
+            icon={faCalendarXmark}
+        />
+    );
+    if (!event) return (
+        <ErrorState 
+            code={404} 
+            title="Мероприятие испарилось" 
+            message="Мы не смогли найти это событие. Возможно, оно уже прошло или было отменено."
+            icon={faCalendarXmark}
+        />
+    );
 
     const eventDate = new Date(event.eventDate);
     const formattedDate = eventDate.toLocaleDateString('ru-RU', {
@@ -265,7 +274,7 @@ export default function EventDetailPage() {
                                 )}
                                 </span>
                             </div>
-                            {event.budget != null && (
+                            {(isAdmin || isLeader) && event.budget != null && (
                                 <div className="event-info-row">
                                     <span className="event-info-icon"><FontAwesomeIcon icon={faMoneyBillWave} /></span>
                                     <span className="event-info-label">Бюджет:</span>

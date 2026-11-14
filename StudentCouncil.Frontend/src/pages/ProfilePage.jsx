@@ -5,7 +5,7 @@ import {
     faLeaf, faChartSimple, faGem, faCrown, faDiamond, faInfinity,
     faEnvelope, faUsers, faPhone, faComment, 
     faBirthdayCake, faCalendarAlt,
-    faMoneyBillWave, faCog, faQuoteLeft, faChartLine
+    faMoneyBillWave, faCog, faQuoteLeft, faChartLine, faGhost, faLock
 } from '@fortawesome/free-solid-svg-icons';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend
@@ -17,7 +17,8 @@ import { AVAILABLE_BANNERS } from '../constants/banners';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
 import Loader from '../components/Loader';
-import Alert from '../components/Alert';
+import { useToast } from '../context/ToastContext';
+import ErrorState from '../components/ErrorState';
 import UserFormModal from '../components/modals/UserFormModal';
 import '../css/ProfilePage.css';
 
@@ -27,6 +28,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 export default function ProfilePage() {
     const { id } = useParams();
     const { user: currentUser } = useAuth();
+    const { showToast } = useToast();
 
     const userId = id ?? currentUser?.id;
     const isAdmin = currentUser?.role === 'Admin';
@@ -48,9 +50,15 @@ export default function ProfilePage() {
     const loadProfile = async () => {
         try {
             setLoading(true);
+            setError(null); 
+            
             const userResult = await API.getUser(userId);
             if (!userResult.ok) {
-                setError(userResult.data?.error || 'Ошибка загрузки');
+                if (userResult.status === 404) {
+                    setError('404'); 
+                } else {
+                    setError(userResult.data?.error || 'Ошибка загрузки');
+                }
                 return;
             }
             setUser(userResult.data);
@@ -61,7 +69,7 @@ export default function ProfilePage() {
             const eventsResult = await API.getEvents();
             if (eventsResult.ok) setAllEvents(eventsResult.data.events || []);
         } catch (err) {
-            setError('Ошибка загрузки профиля');
+            setError('500');
         } finally {
             setLoading(false);
         }
@@ -72,13 +80,52 @@ export default function ProfilePage() {
             .replace(/[^\wа-яё]/gi, '_')
             .toLowerCase();
         const result = await API.downloadBadge(badge.id, fileName);
-        if (!result) alert('Ошибка скачивания бейджа');
+         if (!result) showToast('Ошибка скачивания бейджа', 'error');
     };
 
-    if (loading) return <Loader text="Загрузка профиля..." />;
-    if (error) return <Alert type="danger" message={error} />;
-    if (!user) return <div className="alert alert-danger">Пользователь не найден</div>;
-    if (!isOwnProfile && !isAdmin && !isLeader) return <div className="alert alert-danger">Нет прав на просмотр</div>;
+     if (loading) return <Loader text="Загрузка профиля..." />;
+
+    if (error === '404') {
+        return (
+            <ErrorState 
+                code={404} 
+                title="Призрак в студсовете" 
+                message="Такого участника не существует. Возможно, он ушёл на другое мероприятие."
+                icon={faGhost}
+            />
+        );
+    }
+
+    if (error) {
+        return (
+            <ErrorState 
+                code={500} 
+                title="Упс, что-то сломалось" 
+                message="Не удалось загрузить профиль. Попробуйте обновить страницу позже."
+                icon={faGhost} 
+            />
+        );
+    }
+
+    if (!user) return (
+        <ErrorState 
+            code={404} 
+            title="Призрак в студсовете" 
+            message="Такого участника не существует. Возможно, он ушёл на другое мероприятие."
+            icon={faGhost}
+        />
+    );
+
+    if (!isOwnProfile && !isAdmin && !isLeader) {
+        return (
+            <ErrorState 
+                code={403} 
+                title="Отказано." 
+                message="Сюда вход только по пропускам. Студсовет хранит свои секреты."
+                icon={faLock}
+            />
+        );
+    }
 
     const xpPerLevel = 250;
  

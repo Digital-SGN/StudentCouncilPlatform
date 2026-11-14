@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faTable, faIdCard, faGraduationCap, faEnvelope, 
     faChartLine, faCircle, faEdit, faTrashAlt,
     faEye, faPlus, faCheckCircle, faKey, faShieldAlt, faEllipsisV,
-    faSort, faSortUp, faSortDown, faFileExport, faSearch, faUserSlash
+    faSort, faSortUp, faSortDown, faFileExport, faSearch, faUserSlash, faServer
 } from '@fortawesome/free-solid-svg-icons';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import Bubbles from '../components/Bubbles';
-import Alert from '../components/Alert';
+import ErrorState from '../components/ErrorState';
 import UserFormModal from '../components/modals/UserFormModal';
 import ConfirmModal from '../components/modals/ConfirmDialogModal';
 import '../css/UsersPage.css';
@@ -27,6 +28,7 @@ function escapeHtml(str) {
 
 export default function UsersPage() {
     const { user } = useAuth();
+     const { showToast } = useToast();
     const isAdmin = user?.role === 'Admin';
     const isLeader = user?.role === 'Leader';
 
@@ -38,6 +40,8 @@ export default function UsersPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortField, setSortField] = useState('lastName');
     const [sortOrder, setSortOrder] = useState('asc');
+    const [sortOpen, setSortOpen] = useState(false);
+    const sortRef = useRef(null);
 
     const [modalState, setModalState] = useState({ isOpen: false, userId: null });
     const [resetPasswordModal, setResetPasswordModal] = useState({ isOpen: false, userId: null, newPassword: '' });
@@ -59,6 +63,24 @@ export default function UsersPage() {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (!sortOpen) return;
+        const handleClick = (e) => {
+            if (sortRef.current && !sortRef.current.contains(e.target)) {
+                setSortOpen(false);
+            }
+        };
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') setSortOpen(false);
+        };
+        document.addEventListener('mousedown', handleClick);
+        document.addEventListener('keydown', handleEsc);
+        return () => {
+            document.removeEventListener('mousedown', handleClick);
+            document.removeEventListener('keydown', handleEsc);
+        };
+    }, [sortOpen]);
 
     const loadUsers = async () => {
         try {
@@ -101,6 +123,15 @@ export default function UsersPage() {
         }
     };
 
+    const getSortLabel = (field) => {
+        switch (field) {
+            case 'lastName': return 'Фамилия';
+            case 'role': return 'Роль';
+            case 'isActive': return 'Статус';
+            default: return 'Сортировка';
+        }
+    };
+
     const renderSortIcon = (field) => {
         if (sortField !== field) return <FontAwesomeIcon icon={faSort} className="sort-icon" />;
         return sortOrder === 'asc' 
@@ -117,13 +148,13 @@ export default function UsersPage() {
     
     const confirmResetPassword = async () => {
         const { userId, newPassword } = resetPasswordModal;
-        if (!newPassword) return alert('Введите новый пароль');
+        if (!newPassword) return showToast('Введите новый пароль', 'error');
         const result = await API.resetPassword(userId, newPassword);
         if (result.ok) {
-            alert('Пароль успешно изменён');
+            showToast('Пароль успешно изменён', 'success');
             closeResetPasswordModal();
         } else {
-            alert(result.data?.error || 'Ошибка сброса пароля');
+            showToast(result.data?.error || 'Ошибка сброса пароля', 'error');
         }
     };
 
@@ -134,10 +165,10 @@ export default function UsersPage() {
         const { userId } = reset2FAModal;
         const result = await API.resetTwoFactor(userId);
         if (result.ok) {
-            alert('2FA успешно сброшена');
+            showToast('2FA успешно сброшена', 'success');
             closeReset2FAModal();
         } else {
-            alert(result.data?.error || 'Ошибка сброса 2FA');
+            showToast(result.data?.error || 'Ошибка сброса 2FA', 'error');
         }
     };
 
@@ -150,7 +181,7 @@ export default function UsersPage() {
             'Группа': user.group || '',
             'Роль': user.role === 'Admin' ? 'Админ' : (user.role === 'Leader' ? 'Руководство' : 'Участник'),
             'Статус': user.isActive ? 'Активен' : 'Заблокирован',
-            'Уровень': user.level,
+            'Уровень': Math.floor((user.experiencePoints || 0) / 250) + 1,
             'Опыт (XP)': user.experiencePoints,
             'Баланс (баллы)': user.balance,
             'Дата вступления': user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('ru-RU') : '',
@@ -161,7 +192,7 @@ export default function UsersPage() {
         }));
 
         if (dataToExport.length === 0) {
-            alert('Нет данных для экспорта');
+            showToast('Нет данных для экспорта', 'info');
             return;
         }
 
@@ -192,22 +223,28 @@ export default function UsersPage() {
     };
 
     const handleDeleteClick = (userId) => setConfirmDelete({ isOpen: true, userId });
+
     const confirmDeleteUser = async () => {
         const { userId } = confirmDelete;
         const result = await API.deleteUser(userId);
         if (result.ok) {
             setUsers(users.filter(u => u.id !== userId));
+            showToast('Участник успешно удалён', 'success');
         } else {
-            alert(result.data?.error || 'Ошибка удаления');
+            showToast(result.data?.error || 'Ошибка удаления', 'error');
         }
         setConfirmDelete({ isOpen: false, userId: null });
     };
 
-    if (!isAdmin && !isLeader) {
-        return <div className="alert alert-danger">Доступ запрещён</div>;
-    }
     if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
-    if (error) return <Alert type="danger" message={error} />;
+    if (error) return (
+        <ErrorState 
+            code={500} 
+            title="Сервер ушёл на обед" 
+            message="Мы не смогли загрузить список участников. Попробуйте обновить страницу через пару минут."
+            icon={faServer}
+        />
+    );
 
     return (
         <div className="users-page fade-in">
@@ -226,6 +263,52 @@ export default function UsersPage() {
                                 className="search-input"
                             />
                         </div>
+
+                        <div className="sort-dropdown" ref={sortRef}>
+                            <button
+                                type="button"
+                                className="sort-dropdown-toggle"
+                                onClick={() => setSortOpen(v => !v)}
+                                aria-expanded={sortOpen}
+                            >
+                                <FontAwesomeIcon icon={faSort} />
+                                <span className="sort-dropdown-label">
+                                    {getSortLabel(sortField)}
+                                </span>
+                                <FontAwesomeIcon
+                                    icon={sortOrder === 'asc' ? faSortUp : faSortDown}
+                                    className="sort-direction-icon"
+                                />
+                            </button>
+
+                            {sortOpen && (
+                                <div className="sort-menu">
+                                    {[
+                                        { field: 'lastName', label: 'Фамилия' },
+                                        { field: 'role', label: 'Роль' },
+                                        { field: 'isActive', label: 'Статус' },
+                                    ].map(({ field, label }) => (
+                                        <button
+                                            key={field}
+                                            type="button"
+                                            className={`sort-menu-item ${sortField === field ? 'active' : ''}`}
+                                            onClick={() => {
+                                                handleSort(field);
+                                                setSortOpen(false);
+                                            }}
+                                        >
+                                            <span>{label}</span>
+                                            {sortField === field && (
+                                                <FontAwesomeIcon
+                                                    icon={sortOrder === 'asc' ? faSortUp : faSortDown}
+                                                />
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         <div className="view-toggle">
                             <button className={`view-btn ${viewMode === 'table' ? 'active' : ''}`} onClick={() => setViewMode('table')}>
                                 <FontAwesomeIcon icon={faTable} />
@@ -234,9 +317,13 @@ export default function UsersPage() {
                                 <FontAwesomeIcon icon={faIdCard} />
                             </button>
                         </div>
-                        <button onClick={exportToCSV} className="export-btn">
-                            <FontAwesomeIcon icon={faFileExport} /> Экспорт
-                        </button>
+
+                        {(isAdmin || isLeader) && (
+                            <button onClick={exportToCSV} className="export-btn">
+                                <FontAwesomeIcon icon={faFileExport} /> Экспорт
+                            </button>
+                        )}
+
                         {isAdmin && (
                             <button onClick={openCreateModal} className="create-btn">
                                 <FontAwesomeIcon icon={faPlus} /> Создать
@@ -277,7 +364,10 @@ export default function UsersPage() {
                                         <div className="user-card-body">
                                             <div><FontAwesomeIcon icon={faGraduationCap} /> {user.group || '—'}</div>
                                             <div><FontAwesomeIcon icon={faEnvelope} /> {user.email}</div>
-                                            <div><FontAwesomeIcon icon={faChartLine} /> Уровень {user.level}</div>
+                                            <div>
+                                                <FontAwesomeIcon icon={faChartLine} /> 
+                                                Уровень {Math.floor((user.experiencePoints || 0) / 250) + 1}
+                                            </div>
                                             <div>
                                                 <FontAwesomeIcon icon={user.isActive ? faCheckCircle : faCircle} style={{ color: user.isActive ? '#10b981' : '#ef4444' }} />
                                                 {user.isActive ? 'Активен' : 'Заблокирован'}

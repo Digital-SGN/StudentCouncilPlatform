@@ -478,14 +478,10 @@ th:hover .sort-icon {
 
     .users-header {
         flex-direction: column;
-        align-items: center; 
-        text-align: center;
+        align-items: flex-start; 
+        text-align: left;
         gap: 12px;
         margin-bottom: 20px; 
-    }
-
-    .users-header h1 {
-        font-size: 26px; 
     }
 
     .header-actions {
@@ -494,7 +490,7 @@ th:hover .sort-icon {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        justify-content: center; 
+        justify-content: flex-start; 
     }
 
     .search-box {
@@ -507,7 +503,18 @@ th:hover .sort-icon {
         height: 44px; 
     }
 
-     .view-toggle {
+    .sort-dropdown {
+        flex: 1 1 auto; 
+        min-width: 0;
+    }
+
+    .sort-dropdown-toggle {
+        width: 100%;
+        height: 44px;
+        min-width: 0; 
+    }
+
+    .view-toggle {
         flex: 0 0 auto; 
         height: 44px;
     }
@@ -515,11 +522,13 @@ th:hover .sort-icon {
     .export-btn {
         flex: 1 1 auto;
         height: 44px;
+        justify-content: center;
     }
 
     .create-btn {
         flex: 1 1 100%; 
         height: 44px;
+        justify-content: center;
     }
 
     .users-cards {
@@ -539,4 +548,34 @@ th:hover .sort-icon {
     .action-buttons { overflow-x: auto; white-space: nowrap; }
     .action-buttons .action-btn,
     .action-buttons .dropdown { flex-shrink: 0; }
+}
+
+.sort-dropdown {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.sort-dropdown-toggle {
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 40px;
+    background: white;
+    color: #0CBFA1;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    
+    min-width: 150px; 
+    justify-content: space-between;
+    
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    white-space: nowrap;
+}
+
+.sort-dropdown-label {
+    flex: 1; 
+    text-align: center; 
 }

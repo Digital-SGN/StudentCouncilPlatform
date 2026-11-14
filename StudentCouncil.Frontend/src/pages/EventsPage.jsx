@@ -4,25 +4,28 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faCalendar, faMapMarkerAlt, faUser, faLink,
     faEdit, faTrashAlt, faEye, faPlus, faCalendarDay, faMoneyBillWave,
-    faSort, faSortUp, faSortDown, faSearch, faFileExport, faUsers
+    faSort, faSortUp, faSortDown, faSearch, faFileExport, faUsers,
+    faTable, faIdCard, faServer
 } from '@fortawesome/free-solid-svg-icons';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import Bubbles from '../components/Bubbles';
-import Alert from '../components/Alert';
+import ErrorState from '../components/ErrorState';
 import EventFormModal from '../components/modals/EventFormModal';
 import ConfirmModal from '../components/modals/ConfirmDialogModal';
 import '../css/EventsPage.css';
 
 export default function EventsPage() {
     const { user } = useAuth();
+    const { showToast } = useToast();
     const isAdmin = user?.role === 'Admin';
     const isLeader = user?.role === 'Leader';
-    const canView = isAdmin || isLeader;
 
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [viewMode, setViewMode] = useState('cards');
 
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -35,11 +38,7 @@ export default function EventsPage() {
     const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, eventId: null });
 
     useEffect(() => {
-        if (canView) {
-            loadEvents();
-        } else {
-            setLoading(false);
-        }
+        loadEvents();
     }, []);
 
     useEffect(() => {
@@ -115,8 +114,17 @@ export default function EventsPage() {
             case 'eventDate': return 'Дата';
             case 'budget': return 'Бюджет';
             case 'status': return 'Статус';
+            case 'title': return 'Название';
+            case 'location': return 'Место';
             default: return 'Сортировка';
         }
+    };
+
+    const renderSortIcon = (field) => {
+        if (sortField !== field) return <FontAwesomeIcon icon={faSort} className="sort-icon" />;
+        return sortOrder === 'asc' 
+            ? <FontAwesomeIcon icon={faSortUp} className="sort-icon" />
+            : <FontAwesomeIcon icon={faSortDown} className="sort-icon" />;
     };
 
     const openCreateModal = () => setModalState({ isOpen: true, eventId: null });
@@ -124,13 +132,15 @@ export default function EventsPage() {
     const closeModal = () => setModalState({ isOpen: false, eventId: null });
 
     const handleDeleteClick = (eventId) => setConfirmDelete({ isOpen: true, eventId });
+
     const confirmDeleteEvent = async () => {
         const { eventId } = confirmDelete;
         const result = await API.deleteEvent(eventId);
         if (result.ok) {
             setEvents(events.filter(e => e.id !== eventId));
+            showToast('Мероприятие успешно удалено', 'success');
         } else {
-            alert(result.data?.error || 'Ошибка удаления');
+            showToast(result.data?.error || 'Ошибка удаления', 'error');
         }
         setConfirmDelete({ isOpen: false, eventId: null });
     };
@@ -148,7 +158,7 @@ export default function EventsPage() {
         }));
 
         if (dataToExport.length === 0) {
-            alert('Нет данных для экспорта');
+            showToast('Нет данных для экспорта', 'info');
             return;
         }
 
@@ -179,11 +189,15 @@ export default function EventsPage() {
         URL.revokeObjectURL(url);
     };
 
-    if (!canView) {
-        return <div className="alert alert-danger">Доступ запрещён</div>;
-    }
     if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
-    if (error) return <Alert type="danger" message={error} />;
+    if (error) return (
+        <ErrorState 
+            code={500} 
+            title="Сервер ушёл на обед" 
+            message="Мы не смогли загрузить список мероприятий. Попробуйте обновить страницу через пару минут."
+            icon={faServer}
+        />
+    );
 
     return (
         <div className="events-page fade-in">
@@ -224,7 +238,9 @@ export default function EventsPage() {
                                 <div className="sort-menu">
                                     {[
                                         { field: 'eventDate', label: 'Дата' },
-                                        { field: 'budget', label: 'Бюджет' },
+                                        { field: 'title', label: 'Название' },
+                                        { field: 'location', label: 'Место' },
+                                        ...((isAdmin || isLeader) ? [{ field: 'budget', label: 'Бюджет' }] : []),
                                         { field: 'status', label: 'Статус' },
                                     ].map(({ field, label }) => (
                                         <button
@@ -248,9 +264,20 @@ export default function EventsPage() {
                             )}
                         </div>
 
-                        <button onClick={exportEventsToCSV} className="export-btn">
-                            <FontAwesomeIcon icon={faFileExport} /> Экспорт
-                        </button>
+                        <div className="view-toggle">
+                            <button className={`view-btn ${viewMode === 'table' ? 'active' : ''}`} onClick={() => setViewMode('table')}>
+                                <FontAwesomeIcon icon={faTable} />
+                            </button>
+                            <button className={`view-btn ${viewMode === 'cards' ? 'active' : ''}`} onClick={() => setViewMode('cards')}>
+                                <FontAwesomeIcon icon={faIdCard} />
+                            </button>
+                        </div>
+
+                        {(isAdmin || isLeader) && (
+                            <button onClick={exportEventsToCSV} className="export-btn">
+                                <FontAwesomeIcon icon={faFileExport} /> Экспорт
+                            </button>
+                        )}
 
                         {isAdmin && (
                             <button onClick={openCreateModal} className="create-event-btn">
@@ -267,7 +294,7 @@ export default function EventsPage() {
                                 <h3>Нет мероприятий</h3>
                                 <p>Пока нет мероприятий, соответствующих критериям</p>
                             </div>
-                        ) : (
+                        ) : viewMode === 'cards' ? (
                             <div className="events-grid">
                                 {sortedEvents.map(event => (
                                     <div key={event.id} className="event-card">
@@ -294,7 +321,7 @@ export default function EventsPage() {
                                                         })}
                                                     </span>
                                                 </div>
-                                                {event.budget != null && (
+                                                {(isAdmin || isLeader) && event.budget != null && (
                                                     <div className="event-info-item">
                                                         <span className="event-info-icon"><FontAwesomeIcon icon={faMoneyBillWave} /></span>
                                                         <span className="event-info-text">{event.budget.toLocaleString()} ₽</span>
@@ -368,6 +395,51 @@ export default function EventsPage() {
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        ) : (
+                            <div className="table-responsive">
+                                <table className="users-table">
+                                    <thead>
+                                        <tr>
+                                            <th onClick={() => handleSort('title')}>Название{renderSortIcon('title')}</th>
+                                            <th onClick={() => handleSort('eventDate')}>Дата{renderSortIcon('eventDate')}</th>
+                                            <th onClick={() => handleSort('location')}>Место{renderSortIcon('location')}</th>
+                                            {(isAdmin || isLeader) && <th onClick={() => handleSort('budget')}>Бюджет{renderSortIcon('budget')}</th>}
+                                            <th onClick={() => handleSort('status')}>Статус{renderSortIcon('status')}</th>
+                                            <th>Действия</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {sortedEvents.map(event => (
+                                            <tr key={event.id}>
+                                                <td><strong>{event.title}</strong></td>
+                                                <td>{new Date(event.eventDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                                                <td>{event.location}</td>
+                                                {(isAdmin || isLeader) && <td>{event.budget ? `${event.budget.toLocaleString()} ₽` : '—'}</td>}
+                                                <td>
+                                                    <span className={`event-status ${getStatusClass(event.status)}`} style={{ display: 'inline-block', padding: '4px 10px', fontSize: '12px' }}>
+                                                        {getStatusText(event.status)}
+                                                    </span>
+                                                </td>
+                                                <td className="action-buttons">
+                                                    <Link to={`/events/${event.id}`} className="action-btn view">
+                                                        <FontAwesomeIcon icon={faEye} /> Профиль
+                                                    </Link>
+                                                    {isAdmin && (
+                                                        <>
+                                                            <button onClick={() => openEditModal(event.id)} className="action-btn edit">
+                                                                <FontAwesomeIcon icon={faEdit} /> Ред.
+                                                            </button>
+                                                            <button onClick={() => handleDeleteClick(event.id)} className="action-btn delete">
+                                                                <FontAwesomeIcon icon={faTrashAlt} />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         )}
                     </div>
