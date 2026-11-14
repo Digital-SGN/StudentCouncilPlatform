@@ -25,7 +25,7 @@ public class BadgeController : BaseController
     }
 
     [HttpGet("~/api/events/{eventId}/badges")]
-    [Authorize(Roles = "Admin,Leader")]
+    [Authorize]
     public async Task<IActionResult> GetByEvent(int eventId)
     {
         BadgeListResponseDTO result = await _badgeService.GetBadgesByEventAsync(eventId, User);

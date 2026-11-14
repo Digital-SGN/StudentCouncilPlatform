@@ -6,6 +6,7 @@ using StudentCouncil.Logic.Interfaces;
 namespace StudentCouncil.Web.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/events")]
 public class EventController : BaseController
 {
@@ -17,7 +18,7 @@ public class EventController : BaseController
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,Leader")]
+    [Authorize]
     public async Task<IActionResult> GetAllAsync()
     {
         EventListResponseDTO result = await _eventService.GetAllEventsAsync();
@@ -33,7 +34,7 @@ public class EventController : BaseController
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin,Leader")]
+    [Authorize]
     public async Task<IActionResult> GetByIdAsync(int id)
     {
         EventResponseDTO result = await _eventService.GetEventByIdAsync(id);
