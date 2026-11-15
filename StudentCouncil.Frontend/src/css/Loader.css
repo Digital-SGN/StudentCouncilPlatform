@@ -1,51 +1,79 @@
-.loader-container {
+.loader-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 20px;
+}
+
+.loader-card {
+    background: white;
+    border-radius: 32px;
+    padding: 50px 60px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    min-height: 50vh;
-    width: 100%;
+    gap: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    position: relative;
+    z-index: 2;
 }
 
-.loader-spinner {
-    display: inline-block;
+.loader-animation {
     position: relative;
     width: 80px;
     height: 80px;
-    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.loader-spinner div {
-    box-sizing: border-box;
-    display: block;
+.loader-ring {
     position: absolute;
-    width: 64px;
-    height: 64px;
-    margin: 8px;
-    border: 6px solid #fff;
+    inset: 0;
+    border: 4px solid rgba(12, 191, 161, 0.1);
+    border-top: 4px solid #0CBFA1;
     border-radius: 50%;
-    animation: loader-spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-color: #fff transparent transparent transparent;
+    animation: spinRing 1s linear infinite;
 }
 
-.loader-spinner div:nth-child(1) { animation-delay: -0.45s; }
-.loader-spinner div:nth-child(2) { animation-delay: -0.3s; }
-.loader-spinner div:nth-child(3) { animation-delay: -0.15s; }
+.loader-ring-inner {
+    position: absolute;
+    inset: 15px;
+    border: 3px solid rgba(20, 140, 156, 0.1);
+    border-bottom: 3px solid #148C9C;
+    border-radius: 50%;
+    animation: spinRingReverse 1.5s linear infinite;
+}
 
-@keyframes loader-spin {
+.loader-dot {
+    width: 12px;
+    height: 12px;
+    background: #0CBFA1;
+    border-radius: 50%;
+    animation: pulseDot 1s ease-in-out infinite alternate;
+}
+
+.loader-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+@keyframes spinRing {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-.loader-text {
-    color: #fff;
-    font-size: 1.2rem;
-    font-weight: 600;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    animation: pulse-text 1.5s ease-in-out infinite;
+@keyframes spinRingReverse {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-360deg); }
 }
 
-@keyframes pulse-text {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 1; }
+@keyframes pulseDot {
+    0% { transform: scale(0.8); opacity: 0.6; }
+    100% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 15px #0CBFA1; }
 }
