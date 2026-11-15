@@ -5,13 +5,14 @@ import {
     faCalendar, faMapMarkerAlt, faUser, faLink,
     faEdit, faTrashAlt, faEye, faPlus, faCalendarDay, faMoneyBillWave,
     faSort, faSortUp, faSortDown, faSearch, faFileExport, faUsers,
-    faTable, faIdCard, faServer
+    faTable, faIdCard
 } from '@fortawesome/free-solid-svg-icons';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import Bubbles from '../components/Bubbles';
 import ErrorState from '../components/ErrorState';
+import Loader from '../components/Loader';
 import EventFormModal from '../components/modals/EventFormModal';
 import ConfirmModal from '../components/modals/ConfirmDialogModal';
 import '../css/EventsPage.css';
@@ -24,7 +25,7 @@ export default function EventsPage() {
 
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [errorCode, setErrorCode] = useState(null);
     const [viewMode, setViewMode] = useState('cards');
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -60,17 +61,21 @@ export default function EventsPage() {
     }, [sortOpen]);
 
     const loadEvents = async () => {
+        const start = Date.now();
         try {
             setLoading(true);
+            setErrorCode(null);
             const result = await API.getEvents();
             if (result.ok) {
                 setEvents(result.data.events || []);
             } else {
-                setError(result.data?.error || 'Ошибка загрузки');
+                setErrorCode(result.status || 500);
             }
         } catch (err) {
-            setError('Ошибка загрузки мероприятий');
+            setErrorCode(500);
         } finally {
+            const elapsed = Date.now() - start;
+            if (elapsed < 500) await new Promise(r => setTimeout(r, 500 - elapsed));
             setLoading(false);
         }
     };
@@ -189,15 +194,8 @@ export default function EventsPage() {
         URL.revokeObjectURL(url);
     };
 
-    if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
-    if (error) return (
-        <ErrorState 
-            code={500} 
-            title="Сервер ушёл на обед" 
-            message="Мы не смогли загрузить список мероприятий. Попробуйте обновить страницу через пару минут."
-            icon={faServer}
-        />
-    );
+    if (loading) return <Loader text="Загрузка мероприятий..." />;
+    if (errorCode) return <ErrorState code={errorCode} message="Мы не смогли загрузить список мероприятий. Попробуйте обновить страницу через пару минут." />;
 
     return (
         <div className="events-page fade-in">

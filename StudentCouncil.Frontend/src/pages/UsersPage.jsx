@@ -5,13 +5,14 @@ import {
     faTable, faIdCard, faGraduationCap, faEnvelope, 
     faChartLine, faCircle, faEdit, faTrashAlt,
     faEye, faPlus, faCheckCircle, faKey, faShieldAlt, faEllipsisV,
-    faSort, faSortUp, faSortDown, faFileExport, faSearch, faUserSlash, faServer
+    faSort, faSortUp, faSortDown, faFileExport, faSearch, faUserSlash
 } from '@fortawesome/free-solid-svg-icons';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import Bubbles from '../components/Bubbles';
 import ErrorState from '../components/ErrorState';
+import Loader from '../components/Loader';
 import UserFormModal from '../components/modals/UserFormModal';
 import ConfirmModal from '../components/modals/ConfirmDialogModal';
 import '../css/UsersPage.css';
@@ -34,7 +35,7 @@ export default function UsersPage() {
 
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [errorCode, setErrorCode] = useState(null);
     const [viewMode, setViewMode] = useState('cards');
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -83,17 +84,21 @@ export default function UsersPage() {
     }, [sortOpen]);
 
     const loadUsers = async () => {
+        const start = Date.now();
         try {
             setLoading(true);
+            setErrorCode(null);
             const result = await API.getUsers();
             if (result.ok) {
                 setUsers(result.data.users || []);
             } else {
-                setError(result.data?.error || 'Ошибка загрузки');
+                setErrorCode(result.status || 500);
             }
         } catch (err) {
-            setError('Ошибка загрузки пользователей');
+            setErrorCode(500);
         } finally {
+            const elapsed = Date.now() - start;
+            if (elapsed < 500) await new Promise(r => setTimeout(r, 500 - elapsed));
             setLoading(false);
         }
     };
@@ -236,15 +241,8 @@ export default function UsersPage() {
         setConfirmDelete({ isOpen: false, userId: null });
     };
 
-    if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
-    if (error) return (
-        <ErrorState 
-            code={500} 
-            title="Сервер ушёл на обед" 
-            message="Мы не смогли загрузить список участников. Попробуйте обновить страницу через пару минут."
-            icon={faServer}
-        />
-    );
+    if (loading) return <Loader text="Загрузка участников..." />;
+    if (errorCode) return <ErrorState code={errorCode} message="Мы не смогли загрузить список участников. Попробуйте обновить страницу через пару минут." />;
 
     return (
         <div className="users-page fade-in">

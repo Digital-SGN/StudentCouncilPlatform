@@ -40,7 +40,7 @@ export default function ProfilePage() {
     const [badges, setBadges] = useState([]);
     const [allEvents, setAllEvents] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [errorCode, setErrorCode] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
 
     useEffect(() => {
@@ -48,17 +48,14 @@ export default function ProfilePage() {
     }, [userId]);
 
     const loadProfile = async () => {
+        const start = Date.now();
         try {
             setLoading(true);
-            setError(null);
+            setErrorCode(null);
             
             const userResult = await API.getUser(userId);
             if (!userResult.ok) {
-                if (userResult.status === 404) {
-                    setError('404'); 
-                } else {
-                    setError(userResult.data?.error || 'Ошибка загрузки');
-                }
+                setErrorCode(userResult.status || 500);
                 return;
             }
             setUser(userResult.data);
@@ -69,8 +66,10 @@ export default function ProfilePage() {
             const eventsResult = await API.getEvents();
             if (eventsResult.ok) setAllEvents(eventsResult.data.events || []);
         } catch (err) {
-            setError('500');
+            setErrorCode(500);
         } finally {
+            const elapsed = Date.now() - start;
+            if (elapsed < 500) await new Promise(r => setTimeout(r, 500 - elapsed));
             setLoading(false);
         }
     };
@@ -85,7 +84,7 @@ export default function ProfilePage() {
 
     if (loading) return <Loader text="Загрузка профиля..." />;
 
-    if (error === '404') {
+    if (errorCode === 404) {
         return (
             <ErrorState 
                 code={404} 
@@ -96,25 +95,9 @@ export default function ProfilePage() {
         );
     }
 
-    if (error) {
-        return (
-            <ErrorState 
-                code={500} 
-                title="Упс, что-то сломалось" 
-                message="Не удалось загрузить профиль. Попробуйте обновить страницу позже."
-                icon={faGhost} 
-            />
-        );
-    }
+    if (errorCode) return <ErrorState code={errorCode} />;
 
-    if (!user) return (
-        <ErrorState 
-            code={404} 
-            title="Призрак в студсовете" 
-            message="Такого участника не существует. Возможно, он ушёл на другое мероприятие."
-            icon={faGhost}
-        />
-    );
+    if (!user) return <ErrorState code={404} title="Призрак в студсовете" message="Такого участника не существует." icon={faGhost} />;
 
     const xpPerLevel = 250;
  

@@ -12,6 +12,7 @@ import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
 import ErrorState from '../components/ErrorState';
+import Loader from '../components/Loader';
 import '../css/AnalyticsPage.css';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement);
@@ -23,7 +24,7 @@ export default function AnalyticsPage() {
     const canView = isAdmin || isLeader;
 
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [errorCode, setErrorCode] = useState(null);
     const [stats, setStats] = useState({
         totalUsers: 0, activeUsers: 0, totalEvents: 0, totalRegistered: 0, totalActual: 0,
         averageAttendanceRate: 0, totalBudget: 0, avgBudget: 0,
@@ -36,14 +37,23 @@ export default function AnalyticsPage() {
     }, [canView]);
 
     const loadAnalytics = async () => {
+        const start = Date.now();
         try {
             setLoading(true);
+            setErrorCode(null);
             const [usersResult, eventsResult] = await Promise.all([
                 API.getUsers(),
                 API.getEvents()
             ]);
 
-            if (!usersResult.ok || !eventsResult.ok) throw new Error('Ошибка загрузки данных');
+            if (!usersResult.ok) {
+                setErrorCode(usersResult.status || 500);
+                return;
+            }
+            if (!eventsResult.ok) {
+                setErrorCode(eventsResult.status || 500);
+                return;
+            }
 
             const users = usersResult.data.users || [];
             const events = eventsResult.data.events || [];
@@ -126,8 +136,10 @@ export default function AnalyticsPage() {
             });
 
         } catch (err) {
-            setError(err.message || 'Ошибка загрузки аналитики');
+            setErrorCode(500);
         } finally {
+            const elapsed = Date.now() - start;
+            if (elapsed < 500) await new Promise(r => setTimeout(r, 500 - elapsed));
             setLoading(false);
         }
     };
@@ -141,17 +153,9 @@ export default function AnalyticsPage() {
         />
     );
 
-    if (loading) return <div className="loading-container"><div className="spinner"></div><p>Сбор аналитики...</p></div>;
-    if (error) return (
-        <ErrorState 
-            code={500} 
-            title="Сервер ушёл на обед" 
-            message="Мы не смогли собрать аналитику. Попробуйте обновить страницу через пару минут."
-            icon={faServer}
-        />
-    );
+    if (loading) return <Loader text="Сбор аналитики..." />;
+    if (errorCode) return <ErrorState code={errorCode} message="Мы не смогли собрать аналитику. Попробуйте обновить страницу через пару минут." />;
 
-    
     const lineData = {
         labels: stats.eventsPerMonth.map(i => i.month),
         datasets: [{
@@ -160,7 +164,7 @@ export default function AnalyticsPage() {
             borderColor: '#0CBFA1',
             backgroundColor: 'rgba(12, 191, 161, 0.1)',
             fill: true,
-            tension: 0.4, // Плавные изгибы
+            tension: 0.4,
             pointBackgroundColor: '#fff',
             pointBorderColor: '#0CBFA1',
             pointBorderWidth: 2,
@@ -190,7 +194,7 @@ export default function AnalyticsPage() {
     const doughnutOptions = {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '75%', // Делает из пирога пончик
+        cutout: '75%',
         plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } }
     };
 
@@ -297,7 +301,6 @@ export default function AnalyticsPage() {
                         </div>
                     </div>
 
-                    {/* Топ мероприятий */}
                     <div className="table-card">
                         <div className="chart-header">
                             <h3><FontAwesomeIcon icon={faCalendarAlt} /> Лучшие мероприятия</h3>
