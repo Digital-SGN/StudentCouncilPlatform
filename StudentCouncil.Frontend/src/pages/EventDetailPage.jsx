@@ -12,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import Bubbles from '../components/Bubbles';
 import ErrorState from '../components/ErrorState';
+import Loader from '../components/Loader';
 import EventFormModal from '../components/modals/EventFormModal';
 import ConfirmModal from '../components/modals/ConfirmDialogModal';
 import AddMemberModal from '../components/modals/AddMemberModal';
@@ -24,14 +25,13 @@ export default function EventDetailPage() {
     const { showToast } = useToast();
     const isAdmin = user?.role === 'Admin';
     const isLeader = user?.role === 'Leader';
-    const canView = isAdmin || isLeader;
 
     const [event, setEvent] = useState(null);
     const [badges, setBadges] = useState([]);
     const [avatarsMap, setAvatarsMap] = useState(new Map());   
     const [usersList, setUsersList] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [errorCode, setErrorCode] = useState(null);
 
     const [showEditModal, setShowEditModal] = useState(false);
     const [showRoleModal, setShowRoleModal] = useState(false);
@@ -51,12 +51,14 @@ export default function EventDetailPage() {
     }, [id]);
 
     const loadData = async () => {
+        const start = Date.now();
         try {
             setLoading(true);
+            setErrorCode(null);
 
             const eventResult = await API.getEvent(id);
             if (!eventResult.ok) {
-                setError(eventResult.data?.error || 'Мероприятие не найдено');
+                setErrorCode(eventResult.status || 500);
                 return;
             }
             setEvent(eventResult.data);
@@ -89,8 +91,10 @@ export default function EventDetailPage() {
                 setAvatarsMap(avatars);
             }
         } catch (err) {
-            setError('Ошибка загрузки');
+            setErrorCode(500);
         } finally {
+            const elapsed = Date.now() - start;
+            if (elapsed < 500) await new Promise(r => setTimeout(r, 500 - elapsed));
             setLoading(false);
         }
     };
@@ -171,8 +175,8 @@ export default function EventDetailPage() {
         setConfirmDeleteEvent(false);
     };
 
-    if (loading) return <div className="loading-container"><div className="spinner"></div><p>Загрузка...</p></div>;
-    if (error) return (
+    if (loading) return <Loader text="Загрузка мероприятия..." />;
+    if (errorCode === 404) return (
         <ErrorState 
             code={404} 
             title="Мероприятие испарилось" 
@@ -180,14 +184,7 @@ export default function EventDetailPage() {
             icon={faCalendarXmark}
         />
     );
-    if (!event) return (
-        <ErrorState 
-            code={404} 
-            title="Мероприятие испарилось" 
-            message="Мы не смогли найти это событие. Возможно, оно уже прошло или было отменено."
-            icon={faCalendarXmark}
-        />
-    );
+    if (errorCode) return <ErrorState code={errorCode} />;
 
     const eventDate = new Date(event.eventDate);
     const formattedDate = eventDate.toLocaleDateString('ru-RU', {
@@ -204,7 +201,6 @@ export default function EventDetailPage() {
         return (a.userName || '').localeCompare(b.userName || '', 'ru');
     });
 
-
     return (
         <div className="event-detail-page fade-in">
             <Bubbles />
@@ -214,12 +210,10 @@ export default function EventDetailPage() {
                         <div className="event-detail-hero">
                             <img src={event.photoPath} alt={event.title} className="event-detail-hero-img" />
                             <div className="event-detail-hero-overlay" />
-
                             <Link to="/events" className="event-back-floating" aria-label="Назад к списку">
                                 <FontAwesomeIcon icon={faArrowLeft} />
                                 <span>Назад</span>
                             </Link>
-
                             <div className="event-detail-hero-content">
                                 <h1>{event.title}</h1>
                                 <span className={`event-status-badge ${statusClass}`}>{statusText}</span>
@@ -231,7 +225,6 @@ export default function EventDetailPage() {
                                 <FontAwesomeIcon icon={faArrowLeft} />
                                 <span>Назад к списку</span>
                             </Link>
-
                             <div className="event-detail-title-plain">
                                 <h1>{event.title}</h1>
                                 <span className={`event-status-badge ${statusClass}`}>{statusText}</span>
@@ -281,7 +274,6 @@ export default function EventDetailPage() {
                                     <span className="event-info-value">{event.budget.toLocaleString()} ₽</span>
                                 </div>
                             )}
-
                             {event.registrationLink && (
                                 <div className="event-info-row">
                                     <span className="event-info-icon"><FontAwesomeIcon icon={faLink} /></span>
