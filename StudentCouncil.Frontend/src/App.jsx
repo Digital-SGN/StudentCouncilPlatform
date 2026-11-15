@@ -1,6 +1,4 @@
-import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-import { faFish } from '@fortawesome/free-solid-svg-icons';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
@@ -9,19 +7,19 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import CustomCursor from './components/CustomCursor'; 
 import Loader from './components/Loader'; 
-import ErrorState from './components/ErrorState'; // <-- ДОБАВИЛИ
+import ErrorState from './components/ErrorState';
+import { faFish } from '@fortawesome/free-solid-svg-icons';
 
-const HomePage = lazy(() => import('./pages/HomePage'));
-const HelpPage = lazy(() => import('./pages/HelpPage'));
-const PrivacyPage = lazy(() => import('./pages/PrivacyPage')); 
-const LoginPage = lazy(() => import('./pages/LoginPage'));
-const UsersPage = lazy(() => import('./pages/UsersPage'));
-const ProfilePage = lazy(() => import('./pages/ProfilePage'));
-const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
-const EventsPage = lazy(() => import('./pages/EventsPage'));
-const EventDetailPage = lazy(() => import('./pages/EventDetailPage'));
-const FishingGamePage = lazy(() => import('./pages/FishingGamePage'));
-
+import HomePage from './pages/HomePage';
+import HelpPage from './pages/HelpPage';
+import PrivacyPage from './pages/PrivacyPage'; 
+import LoginPage from './pages/LoginPage';
+import UsersPage from './pages/UsersPage';
+import ProfilePage from './pages/ProfilePage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import EventsPage from './pages/EventsPage';
+import EventDetailPage from './pages/EventDetailPage';
+import FishingGamePage from './pages/FishingGamePage';
 import './css/Index.css';
 import './css/LoginPage.css';
 import './css/Bubbles.css';
@@ -50,7 +48,6 @@ function AppContent() {
                 {isLoginPage ? (
                     <LoginPage setUser={setUser} />
                 ) : (
-                    <Suspense fallback={<Loader text="Загрузка страницы..." />}>
                         <Routes>
                             <Route path="/" element={<HomePage />} />
                             <Route path="/users" element={<UsersPage />} />
@@ -71,7 +68,6 @@ function AppContent() {
                                 />
                             } /> 
                         </Routes>
-                    </Suspense>
                 )}
             </main>
             <Footer />
