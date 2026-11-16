@@ -8,13 +8,16 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'apple-touch-icon.png'],
+      workbox: {
+        navigateFallbackDenylist: [/^\/api/] 
+      },
       manifest: {
         name: 'Студсовет СГН',
         short_name: 'Студсовет',
         description: 'Платформа для управления студенческим советом',
-        theme_color: '#0CBFA1',
-        background_color: '#0CBFA1',
-        display: 'standalone', // Скрывает адресную строку браузера
+        theme_color: '#ffffff',      
+        background_color: '#f8fafc', 
+        display: 'standalone',
         start_url: '/',
         icons: [
           {
