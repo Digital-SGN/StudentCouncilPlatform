@@ -46,8 +46,14 @@ export default function AnalyticsPage() {
                 API.getEvents()
             ]);
 
-            if (!usersResult.ok) { setErrorCode(usersResult.status || 500); return; }
-            if (!eventsResult.ok) { setErrorCode(eventsResult.status || 500); return; }
+            if (!usersResult.ok) {
+                setErrorCode(usersResult.status || 500);
+                return;
+            }
+            if (!eventsResult.ok) {
+                setErrorCode(eventsResult.status || 500);
+                return;
+            }
 
             const users = usersResult.data.users || [];
             const events = eventsResult.data.events || [];
