@@ -19,8 +19,7 @@ public class Event
     public string Title { get; set; } = string.Empty;
     [MaxLength(400)]
     public string Description { get; set; } = string.Empty;
-    [Required]
-    public DateTimeOffset EventDate { get; set; }
+    public DateTimeOffset? EventDate { get; set; }
     public decimal? Budget { get; set; }
     [Required]
     [MaxLength(100)]

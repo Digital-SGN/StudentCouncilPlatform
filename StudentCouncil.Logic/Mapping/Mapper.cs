@@ -104,13 +104,13 @@ public static class Mapper
         return new Event
         {
             Title = dto.Title,
-            Description = dto.Description,
+            Description = dto.Description ?? string.Empty,
             Budget = dto.Budget,
             EventDate = dto.EventDate,
-            Location = dto.Location,
+            Location = dto.Location ?? string.Empty ,
             RegisteredParticipants = dto.RegisteredParticipants,
             ActualParticipants = dto.ActualParticipants,
-            RegistrationLink = dto.RegistrationLink,
+            RegistrationLink = dto.RegistrationLink ?? string.Empty, 
             ResponsibleUserId = dto.ResponsibleUserId,
             CreatedAt = DateTimeOffset.UtcNow,
             IsDeleted = false,
@@ -121,13 +121,13 @@ public static class Mapper
     public static void UpdateEventEntity(Event ev, UpdateEventDTO dto)
     {
         ev.Title = dto.Title;
-        ev.Description = dto.Description;
+        ev.Description = dto.Description ?? string.Empty; 
         ev.Budget = dto.Budget;
         ev.EventDate = dto.EventDate;
-        ev.Location = dto.Location;
+        ev.Location = dto.Location ?? string.Empty;
         ev.RegisteredParticipants = dto.RegisteredParticipants;
         ev.ActualParticipants = dto.ActualParticipants;
-        ev.RegistrationLink = dto.RegistrationLink;
+        ev.RegistrationLink = dto.RegistrationLink ?? string.Empty; 
         ev.Status = dto.Status;
         ev.ResponsibleUserId = dto.ResponsibleUserId;
     }

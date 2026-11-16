@@ -49,7 +49,7 @@ public class EventService : IEventService
     {
         List<Event> events = await _context.Events
             .Where(e => !e.IsDeleted && e.Status == EventStatus.Upcoming)
-            .OrderBy(e => e.EventDate) 
+            .OrderBy(e => e.EventDate ?? DateTimeOffset.MaxValue)
             .AsNoTracking()
             .ToListAsync();
 
