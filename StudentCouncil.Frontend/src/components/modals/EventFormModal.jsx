@@ -235,7 +235,7 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
 
                             <div className="form-row">
                                 <div className="form-group">
-                                    <label>Дата и время *</label>
+                                    <label>Дата и время</label>
                                     <input type="datetime-local" name="eventDate" value={formData.eventDate} onChange={handleChange} />
                                 </div>
                                 <div className="form-group">
