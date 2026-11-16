@@ -254,3 +254,164 @@
     .analytics-header h1 { font-size: 28px; }
     .chart-header-stats { width: 100%; justify-content: space-between; font-size: 12px; }
 }
+
+.user-rank-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0CBFA1, #148C9C);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.user-avatar-mini img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-name-text {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+}
+
+.xp-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.xp-value {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.xp-mini-bar {
+    width: 80px;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.xp-mini-fill {
+    height: 100%;
+    background: #0CBFA1;
+    border-radius: 2px;
+}
+
+.event-attendance-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.event-attendance-cell span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.event-mini-bar {
+    width: 80px;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.event-mini-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.analytics-table td {
+    vertical-align: middle;
+    padding: 12px 0; 
+}
+
+@media (max-width: 768px) {
+    .analytics-page {
+        overflow-x: hidden; 
+    }
+
+    .tables-grid { 
+        grid-template-columns: 1fr; 
+    }
+    
+    .kpi-grid { 
+        grid-template-columns: 1fr; 
+    }
+
+    .kpi-card { 
+        padding: 16px; 
+    }
+
+    .analytics-header h1 { 
+        font-size: 28px; 
+    }
+
+    .chart-header-stats { 
+        width: 100%; 
+        justify-content: space-between; 
+        font-size: 12px; 
+    }
+
+    .charts-grid {
+        grid-template-columns: minmax(0, 1fr); 
+    }
+
+    .chart-card, .table-card {
+        padding: 16px; 
+        min-width: 0; 
+    }
+
+    .chart-container, .doughnut-container {
+        min-height: 260px;
+        width: 100%;
+        position: relative;
+        overflow: hidden; 
+    }
+
+    .chart-container canvas, 
+    .doughnut-container canvas {
+        max-width: 100% !important;
+        height: 100% !important;
+    }
+
+    .xp-mini-bar, .event-mini-bar {
+        display: none; 
+    }
+
+    .analytics-table td {
+        font-size: 13px;
+        padding: 10px 0;
+    }
+    
+    .user-name-text {
+        max-width: 100px; 
+        font-size: 13px;
+    }
+    
+    .user-avatar-mini {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+}
