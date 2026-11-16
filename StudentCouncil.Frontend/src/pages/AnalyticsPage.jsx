@@ -122,9 +122,11 @@ export default function AnalyticsPage() {
             });
 
             const topUsers = users
+                .filter(u => (u.experiencePoints || 0) > 0)
                 .map(u => ({
                     id: u.id,
                     name: `${u.lastName} ${u.firstName}`,
+                    avatarPath: u.avatarPath,
                     badgeCount: userBadgeCount.get(u.id) || 0,
                     level: Math.floor((u.experiencePoints || 0) / 250) + 1,
                     experience: u.experiencePoints || 0
@@ -175,7 +177,7 @@ export default function AnalyticsPage() {
             data: stats.eventsPerMonth.map(i => i.count),
             backgroundColor: stats.eventsPerMonth.map(i => i.count === 1 ? '#7CE0D3' : (i.count > 1 ? '#3BA397' : '#E2E8F0')),
             borderRadius: 6,
-            barThickness: 32,
+            maxBarThickness: 30, 
         }]
     };
     const barChartOptions = {
@@ -186,7 +188,15 @@ export default function AnalyticsPage() {
             tooltip: { enabled: true }
         },
         scales: {
-            x: { grid: { display: false }, ticks: { color: '#64748b' } },
+            x: { 
+                grid: { display: false }, 
+                ticks: { 
+                    color: '#64748b',
+                    maxRotation: 45,
+                    minRotation: 45,
+                    font: { size: 11 } 
+                } 
+            },
             y: { 
                 beginAtZero: true, 
                 ticks: { stepSize: 1, color: '#64748b' }, 
@@ -211,8 +221,8 @@ export default function AnalyticsPage() {
         cutout: '70%',
         plugins: { 
             legend: { 
-                position: 'right', 
-                labels: { usePointStyle: true, boxWidth: 8, font: { size: 12 } } 
+                position: 'bottom',
+                labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 }, padding: 15 } 
             } 
         }
     };
@@ -300,22 +310,47 @@ export default function AnalyticsPage() {
                                     <tr>
                                         <th>Участник</th>
                                         <th>Уровень</th>
-                                        <th>Опыт (XP)</th>
+                                        <th>Опыт</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {stats.topUsers.map((u, i) => (
-                                        <tr key={u.id}>
-                                            <td>
-                                                <div className="user-rank">
-                                                    <span className={`rank-badge rank-${i+1}`}>{i+1}</span>
-                                                    {u.name}
-                                                </div>
+                                    {stats.topUsers.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="3" style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>
+                                                Пока нет участников с опытом
                                             </td>
-                                            <td><span className="level-pill">Lvl {u.level}</span></td>
-                                            <td><strong>{u.experience}</strong></td>
                                         </tr>
-                                    ))}
+                                    ) : (
+                                        stats.topUsers.map((u, i) => {
+                                            const xpPercent = ((u.experience % 250) / 250) * 100;
+                                            return (
+                                                <tr key={u.id}>
+                                                    <td>
+                                                        <div className="user-rank-cell">
+                                                            <span className={`rank-badge rank-${i+1}`}>{i+1}</span>
+                                                            <div className="user-avatar-mini">
+                                                                {u.avatarPath ? (
+                                                                    <img src={u.avatarPath} alt={u.name} />
+                                                                ) : (
+                                                                    u.name[0]
+                                                                )}
+                                                            </div>
+                                                            <span className="user-name-text">{u.name}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td><span className="level-pill">Lvl {u.level}</span></td>
+                                                    <td>
+                                                        <div className="xp-cell">
+                                                            <span className="xp-value">{u.experience} XP</span>
+                                                            <div className="xp-mini-bar">
+                                                                <div className="xp-mini-fill" style={{ width: `${xpPercent}%` }}></div>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -337,8 +372,19 @@ export default function AnalyticsPage() {
                                 <tbody>
                                     {stats.topEvents.map((e, i) => (
                                         <tr key={i}>
-                                            <td><div className="event-title-cell">{e.title}</div></td>
-                                            <td>{e.actual} / {e.registered}</td>
+                                            <td>
+                                                <div className="event-title-cell" title={e.title}>
+                                                    {e.title}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className="event-attendance-cell">
+                                                    <span>{e.actual} / {e.registered}</span>
+                                                    <div className="event-mini-bar">
+                                                        <div className="event-mini-fill" style={{ width: `${e.rate}%`, background: e.rate > 75 ? '#10b981' : e.rate > 50 ? '#f59e0b' : '#ef4444' }}></div>
+                                                    </div>
+                                                </div>
+                                            </td>
                                             <td>
                                                 <span className="rate-pill" style={{ 
                                                     background: e.rate > 75 ? '#d1fae5' : e.rate > 50 ? '#fef3c7' : '#fee2e2',
