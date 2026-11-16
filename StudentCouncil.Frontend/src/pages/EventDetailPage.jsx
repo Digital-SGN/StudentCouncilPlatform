@@ -186,11 +186,14 @@ export default function EventDetailPage() {
     );
     if (errorCode) return <ErrorState code={errorCode} />;
 
-    const eventDate = new Date(event.eventDate);
-    const formattedDate = eventDate.toLocaleDateString('ru-RU', {
-        day: 'numeric', month: 'long', year: 'numeric',
-        hour: '2-digit', minute: '2-digit'
-    });
+    const eventDate = event.eventDate ? new Date(event.eventDate) : null;
+    const formattedDate = eventDate 
+        ? eventDate.toLocaleDateString('ru-RU', {
+            day: 'numeric', month: 'long', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        })
+        : <span className="event-info-empty">н/д</span>;    
+        
     const statusText = getStatusText(event.status);
     const statusClass = getStatusClass(event.status);
 
@@ -242,9 +245,9 @@ export default function EventDetailPage() {
                             <div className="event-info-row">
                                 <span className="event-info-icon"><FontAwesomeIcon icon={faMapMarkerAlt} /></span>
                                 <span className="event-info-label">Место:</span>
-                                <span className="event-info-value">{event.location}</span>
+                                <span className="event-info-value">{event.location || <span className="event-info-empty">н/д</span>}</span>
                             </div>
-                            <div className="event-info-row">
+                                <div className="event-info-row">
                                 <span className="event-info-icon"><FontAwesomeIcon icon={faUsers} /></span>
                                 <span className="event-info-label">Посещаемость:</span>
                                 <span className="event-info-value">
