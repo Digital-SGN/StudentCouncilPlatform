@@ -122,11 +122,11 @@ export default function AnalyticsPage() {
             });
 
             const topUsers = users
-                .filter(u => (u.experiencePoints || 0) > 0) // <-- ФИЛЬТРУЕМ НУЛЕВЫХ
+                .filter(u => (u.experiencePoints || 0) > 0)
                 .map(u => ({
                     id: u.id,
                     name: `${u.lastName} ${u.firstName}`,
-                    avatarPath: u.avatarPath, // <-- ДОБАВИЛИ АВАТАРКУ
+                    avatarPath: u.avatarPath,
                     badgeCount: userBadgeCount.get(u.id) || 0,
                     level: Math.floor((u.experiencePoints || 0) / 250) + 1,
                     experience: u.experiencePoints || 0
@@ -221,7 +221,7 @@ export default function AnalyticsPage() {
         cutout: '70%',
         plugins: { 
             legend: { 
-                position: 'bottom', // <-- ОБЯЗАТЕЛЬНО 'bottom' (снизу), иначе на телефоне она всё сломает
+                position: 'bottom',
                 labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 }, padding: 15 } 
             } 
         }
