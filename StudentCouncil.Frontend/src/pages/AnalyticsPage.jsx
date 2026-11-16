@@ -46,8 +46,14 @@ export default function AnalyticsPage() {
                 API.getEvents()
             ]);
 
-            if (!usersResult.ok) { setErrorCode(usersResult.status || 500); return; }
-            if (!eventsResult.ok) { setErrorCode(eventsResult.status || 500); return; }
+            if (!usersResult.ok) {
+                setErrorCode(usersResult.status || 500);
+                return;
+            }
+            if (!eventsResult.ok) {
+                setErrorCode(eventsResult.status || 500);
+                return;
+            }
 
             const users = usersResult.data.users || [];
             const events = eventsResult.data.events || [];
@@ -109,7 +115,6 @@ export default function AnalyticsPage() {
                 if (res.ok && res.data.badges) {
                     userBadgeCount.set(users[idx].id, res.data.badges.length);
                     
-                    // Считаем роли
                     res.data.badges.forEach(b => {
                         roleDistribution[b.role] = (roleDistribution[b.role] || 0) + 1;
                     });
@@ -190,7 +195,6 @@ export default function AnalyticsPage() {
         }
     };
 
-    // Настройки для круговой диаграммы ролей
     const roleLabels = Object.keys(stats.roleDistribution);
     const roleChartData = {
         labels: roleLabels,
@@ -223,7 +227,6 @@ export default function AnalyticsPage() {
                     <p>Ключевые метрики Студенческого совета</p>
                 </div>
 
-                {/* KPI Cards */}
                 <div className="kpi-grid">
                     <div className="kpi-card">
                         <div className="kpi-icon" style={{ background: 'rgba(12, 191, 161, 0.1)', color: '#0CBFA1' }}><FontAwesomeIcon icon={faUsers} /></div>
@@ -262,7 +265,6 @@ export default function AnalyticsPage() {
                     </div>
                 </div>
 
-                {/* Charts Row */}
                 <div className="charts-grid">
                     <div className="chart-card wide">
                         <div className="chart-header">
@@ -287,7 +289,6 @@ export default function AnalyticsPage() {
                     </div>
                 </div>
 
-                {/* Tables Row */}
                 <div className="tables-grid">
                     <div className="table-card">
                         <div className="chart-header">
