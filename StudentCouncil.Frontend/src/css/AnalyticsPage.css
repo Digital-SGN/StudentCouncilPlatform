@@ -108,11 +108,20 @@
     flex-direction: column;
 }
 
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 .chart-header h3 {
     font-size: 18px;
     font-weight: 700;
     color: #1e293b;
-    margin-bottom: 20px;
+    margin: 0;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -120,6 +129,17 @@
 
 .chart-header h3 svg {
     color: #0CBFA1;
+}
+
+.chart-header-stats {
+    display: flex;
+    gap: 20px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.chart-header-stats b {
+    color: #1e293b;
 }
 
 .chart-container {
@@ -132,21 +152,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.doughnut-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    pointer-events: none;
-}
-
-.doughnut-center span {
-    font-size: 28px;
-    font-weight: 800;
-    color: #1e293b;
+    min-height: 280px;
 }
 
 .tables-grid {
@@ -170,15 +176,15 @@
 .analytics-table th {
     text-align: left;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
     color: #64748b;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .analytics-table td {
-    padding: 14px 0;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 16px 0;
+    border-bottom: 1px solid #f1f5f9;
     font-size: 15px;
     color: #1e293b;
 }
@@ -237,25 +243,14 @@
 }
 
 @media (max-width: 1024px) {
-    .kpi-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    .charts-grid {
-        grid-template-columns: 1fr; 
-    }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .charts-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
-    .tables-grid {
-        grid-template-columns: 1fr;
-    }
-    .kpi-grid {
-        grid-template-columns: 1fr;
-    }
-    .kpi-card {
-        padding: 16px;
-    }
-    .analytics-header h1 {
-        font-size: 28px;
-    }
+    .tables-grid { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: 1fr; }
+    .kpi-card { padding: 16px; }
+    .analytics-header h1 { font-size: 28px; }
+    .chart-header-stats { width: 100%; justify-content: space-between; font-size: 12px; }
 }

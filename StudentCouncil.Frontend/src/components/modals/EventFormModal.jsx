@@ -53,7 +53,7 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
                 title: event.title || '',
                 description: event.description || '',
                 budget: event.budget || '',
-                eventDate: toLocalInputValue(event.eventDate),
+                eventDate: event.eventDate ? toLocalInputValue(event.eventDate) : '',
                 location: event.location || '',
                 registeredParticipants: event.registeredParticipants ?? 0,
                 actualParticipants: event.actualParticipants ?? 0,
@@ -117,13 +117,13 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
 
         const data = {
             title: formData.title,
-            description: formData.description,
+            description: formData.description || '', 
             budget: formData.budget ? parseFloat(formData.budget) : null,
-            eventDate: localInputToISO(formData.eventDate),
-            location: formData.location,
+            eventDate: formData.eventDate ? localInputToISO(formData.eventDate) : null,
+            location: formData.location || '',
             registeredParticipants: parseInt(formData.registeredParticipants) || 0,
             actualParticipants: parseInt(formData.actualParticipants) || 0,
-            registrationLink: formData.registrationLink,
+            registrationLink: formData.registrationLink || '',
             responsibleUserId: parseInt(formData.responsibleUserId)
         };
 
@@ -236,11 +236,17 @@ export default function EventFormModal({ isOpen, onClose, eventId, isAdmin, onSu
                             <div className="form-row">
                                 <div className="form-group">
                                     <label>Дата и время *</label>
-                                    <input type="datetime-local" name="eventDate" value={formData.eventDate} onChange={handleChange} required />
+                                    <input type="datetime-local" name="eventDate" value={formData.eventDate} onChange={handleChange} />
                                 </div>
                                 <div className="form-group">
-                                    <label>Место *</label>
-                                    <input type="text" name="location" value={formData.location} onChange={handleChange} required />
+                                    <label>Место</label> 
+                                    <input 
+                                        type="text" 
+                                        name="location" 
+                                        value={formData.location} 
+                                        onChange={handleChange} 
+                                        placeholder="Например: 345 ГУК (или оставьте пустым)"
+                                    /> 
                                 </div>
                             </div>
 

@@ -91,8 +91,8 @@ export default function EventsPage() {
         let aVal = a[sortField];
         let bVal = b[sortField];
         if (sortField === 'eventDate') {
-            aVal = new Date(aVal).getTime();
-            bVal = new Date(bVal).getTime();
+            aVal = aVal ? new Date(aVal).getTime() : 0;
+            bVal = bVal ? new Date(bVal).getTime() : 0;
         } else if (sortField === 'budget') {
             aVal = aVal ?? 0;
             bVal = bVal ?? 0;
@@ -154,7 +154,7 @@ export default function EventsPage() {
         const dataToExport = sortedEvents.map(event => ({
             'Название': event.title,
             'Описание': event.description || '',
-            'Дата и время': new Date(event.eventDate).toLocaleString('ru-RU'),
+            'Дата и время': event.eventDate ? new Date(event.eventDate).toLocaleString('ru-RU') : 'н/д',
             'Место': event.location,
             'Бюджет (₽)': event.budget ? event.budget.toLocaleString() : '',
             'Статус': getStatusText(event.status),
@@ -313,10 +313,14 @@ export default function EventsPage() {
                                                 <div className="event-info-item">
                                                     <span className="event-info-icon"><FontAwesomeIcon icon={faCalendar} /></span>
                                                     <span className="event-info-text">
-                                                        {new Date(event.eventDate).toLocaleDateString('ru-RU', {
-                                                            day: 'numeric', month: 'long', year: 'numeric',
-                                                            hour: '2-digit', minute: '2-digit'
-                                                        })}
+                                                        {event.eventDate ? (
+                                                            new Date(event.eventDate).toLocaleDateString('ru-RU', {
+                                                                day: 'numeric', month: 'long', year: 'numeric',
+                                                                hour: '2-digit', minute: '2-digit'
+                                                            })
+                                                        ) : (
+                                                            <span className="event-info-empty">н/д</span>
+                                                        )}
                                                     </span>
                                                 </div>
                                                 {(isAdmin || isLeader) && event.budget != null && (
@@ -327,7 +331,9 @@ export default function EventsPage() {
                                                 )}
                                                 <div className="event-info-item">
                                                     <span className="event-info-icon"><FontAwesomeIcon icon={faMapMarkerAlt} /></span>
-                                                    <span className="event-info-text">{event.location}</span>
+                                                    <span className="event-info-text">
+                                                        {event.location || <span className="event-info-empty">н/д</span>}
+                                                    </span>
                                                 </div>
                                                 <div className="event-info-item">
                                                     <FontAwesomeIcon icon={faUsers} className="event-info-icon" />
@@ -411,7 +417,13 @@ export default function EventsPage() {
                                         {sortedEvents.map(event => (
                                             <tr key={event.id}>
                                                 <td><strong>{event.title}</strong></td>
-                                                <td>{new Date(event.eventDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                                                <td>
+                                                    {event.eventDate ? (
+                                                        new Date(event.eventDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' })
+                                                    ) : (
+                                                        <span className="event-info-empty">н/д</span>
+                                                    )}
+                                                </td>
                                                 <td>{event.location}</td>
                                                 {(isAdmin || isLeader) && <td>{event.budget ? `${event.budget.toLocaleString()} ₽` : '—'}</td>}
                                                 <td>

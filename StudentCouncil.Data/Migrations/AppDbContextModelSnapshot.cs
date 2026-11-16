@@ -211,7 +211,7 @@ namespace StudentCouncil.Data.Migrations
                         .HasMaxLength(400)
                         .HasColumnType("character varying(400)");
 
-                    b.Property<DateTimeOffset>("EventDate")
+                    b.Property<DateTimeOffset?>("EventDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")

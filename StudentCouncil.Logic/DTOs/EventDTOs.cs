@@ -9,16 +9,15 @@ namespace StudentCouncil.Logic.DTOs
         public string Title { get; set; } = string.Empty;
 
         [MaxLength(400)]
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; }
 
         [Range(0, double.MaxValue)]
         public decimal? Budget { get; set; }
 
-        [Required]
-        public DateTimeOffset EventDate { get; set; }
+        public DateTimeOffset? EventDate { get; set; }
 
-        [Required, MaxLength(100)]
-        public string Location { get; set; } = string.Empty;
+        [MaxLength(100)]
+        public string? Location { get; set; }
 
         [Range(0, int.MaxValue)]
         public int RegisteredParticipants { get; set; }
@@ -27,7 +26,7 @@ namespace StudentCouncil.Logic.DTOs
         public int ActualParticipants { get; set; }
 
         [MaxLength(200)]
-        public string RegistrationLink { get; set; } = string.Empty;
+        public string? RegistrationLink { get; set; }
 
         [Range(1, int.MaxValue)]
         public int ResponsibleUserId { get; set; }
@@ -39,16 +38,15 @@ namespace StudentCouncil.Logic.DTOs
         public string Title { get; set; } = string.Empty;
 
         [MaxLength(400)]
-        public string Description { get; set; } = string.Empty;
+        public string? Description { get; set; } 
 
         [Range(0, double.MaxValue)]
         public decimal? Budget { get; set; }
 
-        [Required]
-        public DateTimeOffset EventDate { get; set; }
+        public DateTimeOffset? EventDate { get; set; }
 
-        [Required, MaxLength(100)]
-        public string Location { get; set; } = string.Empty;
+        [MaxLength(100)]
+        public string? Location { get; set; }
 
         [Range(0, int.MaxValue)]
         public int RegisteredParticipants { get; set; }
@@ -57,7 +55,7 @@ namespace StudentCouncil.Logic.DTOs
         public int ActualParticipants { get; set; }
 
         [MaxLength(200)]
-        public string RegistrationLink { get; set; } = string.Empty;
+        public string? RegistrationLink { get; set; } 
 
         [Range(1, int.MaxValue)]
         public int ResponsibleUserId { get; set; }
@@ -72,7 +70,7 @@ namespace StudentCouncil.Logic.DTOs
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public decimal? Budget { get; set; }
-        public DateTimeOffset EventDate { get; set; }
+        public DateTimeOffset? EventDate { get; set; }
         public string Location { get; set; } = string.Empty;
         public int RegisteredParticipants { get; set; }
         public int ActualParticipants { get; set; }
