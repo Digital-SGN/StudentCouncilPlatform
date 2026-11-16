@@ -5,7 +5,7 @@ import {
     faLeaf, faChartSimple, faGem, faCrown, faDiamond, faInfinity,
     faEnvelope, faUsers, faPhone, faComment, 
     faBirthdayCake, faCalendarAlt,
-    faMoneyBillWave, faCog, faQuoteLeft, faChartLine, faGhost
+    faStar, faCog, faQuoteLeft, faChartLine, faGhost
 } from '@fortawesome/free-solid-svg-icons';
 import {
     Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend
@@ -244,7 +244,7 @@ export default function ProfilePage() {
                                 </div>
                             </div>
                             <div className="balance-card">
-                                <div className="balance-icon"><FontAwesomeIcon icon={faMoneyBillWave} /></div>
+                                <div className="balance-icon"><FontAwesomeIcon icon={faStar} /></div>
                                 <div className="balance-text">
                                     <div className="balance-value">{user.balance}</div>
                                     <div className="balance-label">Баллов</div>

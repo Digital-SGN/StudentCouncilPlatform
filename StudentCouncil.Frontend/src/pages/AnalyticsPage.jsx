@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faUsers, faCalendarAlt, faChartLine, faMoneyBillWave, 
-    faTrophy, faUserCheck, faArrowTrendUp, faLock
+    faTrophy, faUserCheck, faArrowTrendUp, faLock, faChartPie
 } from '@fortawesome/free-solid-svg-icons';
 import {
-    Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement
+    Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement
 } from 'chart.js';
-import { Bar, Doughnut, Line } from 'react-chartjs-2';
+import { Doughnut, Bar } from 'react-chartjs-2';
 import { API } from '../api';
 import { useAuth } from '../context/AuthContext';
 import Bubbles from '../components/Bubbles';
@@ -15,7 +15,7 @@ import ErrorState from '../components/ErrorState';
 import Loader from '../components/Loader';
 import '../css/AnalyticsPage.css';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, PointElement, LineElement);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 export default function AnalyticsPage() {
     const { user } = useAuth();
@@ -28,7 +28,7 @@ export default function AnalyticsPage() {
     const [stats, setStats] = useState({
         totalUsers: 0, activeUsers: 0, totalEvents: 0, totalRegistered: 0, totalActual: 0,
         averageAttendanceRate: 0, totalBudget: 0, avgBudget: 0,
-        topUsers: [], topEvents: [], eventsPerMonth: []
+        topUsers: [], topEvents: [], eventsPerMonth: [], roleDistribution: {}
     });
 
     useEffect(() => {
@@ -46,14 +46,8 @@ export default function AnalyticsPage() {
                 API.getEvents()
             ]);
 
-            if (!usersResult.ok) {
-                setErrorCode(usersResult.status || 500);
-                return;
-            }
-            if (!eventsResult.ok) {
-                setErrorCode(eventsResult.status || 500);
-                return;
-            }
+            if (!usersResult.ok) { setErrorCode(usersResult.status || 500); return; }
+            if (!eventsResult.ok) { setErrorCode(eventsResult.status || 500); return; }
 
             const users = usersResult.data.users || [];
             const events = eventsResult.data.events || [];
@@ -94,19 +88,31 @@ export default function AnalyticsPage() {
                 .sort((a, b) => b.rate - a.rate)
                 .slice(0, 5);
 
-            const sortedMonths = Object.keys(eventsByMonth).sort();
-            const eventsPerMonth = sortedMonths.map(month => ({
-                month,
-                count: eventsByMonth[month]
-            }));
+            const last12Months = [];
+            const now = new Date();
+            for (let i = 11; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                last12Months.push({
+                    key,
+                    label: d.toLocaleDateString('ru-RU', { month: 'short', year: '2-digit' }),
+                    count: eventsByMonth[key] || 0
+                });
+            }
 
             const badgesPromises = users.map(u => API.getBadgesByUser(u.id));
             const badgesResults = await Promise.all(badgesPromises);
             const userBadgeCount = new Map();
-            
+            const roleDistribution = {};
+
             badgesResults.forEach((res, idx) => {
                 if (res.ok && res.data.badges) {
                     userBadgeCount.set(users[idx].id, res.data.badges.length);
+                    
+                    // Считаем роли
+                    res.data.badges.forEach(b => {
+                        roleDistribution[b.role] = (roleDistribution[b.role] || 0) + 1;
+                    });
                 }
             });
 
@@ -115,7 +121,7 @@ export default function AnalyticsPage() {
                     id: u.id,
                     name: `${u.lastName} ${u.firstName}`,
                     badgeCount: userBadgeCount.get(u.id) || 0,
-                    level: u.level || 1,
+                    level: Math.floor((u.experiencePoints || 0) / 250) + 1,
                     experience: u.experiencePoints || 0
                 }))
                 .sort((a, b) => b.experience - a.experience)
@@ -132,7 +138,8 @@ export default function AnalyticsPage() {
                 avgBudget,
                 topUsers,
                 topEvents,
-                eventsPerMonth
+                eventsPerMonth: last12Months,
+                roleDistribution
             });
 
         } catch (err) {
@@ -156,46 +163,54 @@ export default function AnalyticsPage() {
     if (loading) return <Loader text="Сбор аналитики..." />;
     if (errorCode) return <ErrorState code={errorCode} message="Мы не смогли собрать аналитику. Попробуйте обновить страницу через пару минут." />;
 
-    const lineData = {
-        labels: stats.eventsPerMonth.map(i => i.month),
+    const barChartData = {
+        labels: stats.eventsPerMonth.map(i => i.label),
         datasets: [{
             label: 'Мероприятий',
             data: stats.eventsPerMonth.map(i => i.count),
-            borderColor: '#0CBFA1',
-            backgroundColor: 'rgba(12, 191, 161, 0.1)',
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: '#fff',
-            pointBorderColor: '#0CBFA1',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6
+            backgroundColor: stats.eventsPerMonth.map(i => i.count === 1 ? '#7CE0D3' : (i.count > 1 ? '#3BA397' : '#E2E8F0')),
+            borderRadius: 6,
+            barThickness: 32,
         }]
     };
-    const lineOptions = {
+    const barChartOptions = {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: { 
+            legend: { display: false },
+            tooltip: { enabled: true }
+        },
         scales: {
-            x: { grid: { display: false } },
-            y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { borderDash: [5, 5] } }
+            x: { grid: { display: false }, ticks: { color: '#64748b' } },
+            y: { 
+                beginAtZero: true, 
+                ticks: { stepSize: 1, color: '#64748b' }, 
+                grid: { color: '#f1f5f9' } 
+            }
         }
     };
 
-    const doughnutData = {
-        labels: ['Пришли', 'Не пришли'],
+    // Настройки для круговой диаграммы ролей
+    const roleLabels = Object.keys(stats.roleDistribution);
+    const roleChartData = {
+        labels: roleLabels,
         datasets: [{
-            data: [stats.totalActual, stats.totalRegistered - stats.totalActual],
-            backgroundColor: ['#0CBFA1', '#E2E8F0'],
+            data: roleLabels.map(r => stats.roleDistribution[r]),
+            backgroundColor: ['#0CBFA1', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444', '#14b8a6', '#f97316'],
             borderWidth: 0,
             hoverOffset: 4
         }]
     };
-    const doughnutOptions = {
+    const roleChartOptions = {
         responsive: true,
         maintainAspectRatio: false,
-        cutout: '75%',
-        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } }
+        cutout: '70%',
+        plugins: { 
+            legend: { 
+                position: 'right', 
+                labels: { usePointStyle: true, boxWidth: 8, font: { size: 12 } } 
+            } 
+        }
     };
 
     return (
@@ -208,6 +223,7 @@ export default function AnalyticsPage() {
                     <p>Ключевые метрики Студенческого совета</p>
                 </div>
 
+                {/* KPI Cards */}
                 <div className="kpi-grid">
                     <div className="kpi-card">
                         <div className="kpi-icon" style={{ background: 'rgba(12, 191, 161, 0.1)', color: '#0CBFA1' }}><FontAwesomeIcon icon={faUsers} /></div>
@@ -246,29 +262,32 @@ export default function AnalyticsPage() {
                     </div>
                 </div>
 
+                {/* Charts Row */}
                 <div className="charts-grid">
                     <div className="chart-card wide">
                         <div className="chart-header">
-                            <h3><FontAwesomeIcon icon={faArrowTrendUp} /> Динамика мероприятий</h3>
+                            <h3><FontAwesomeIcon icon={faArrowTrendUp} /> Мероприятия по месяцам</h3>
+                            <div className="chart-header-stats">
+                                <span>Всего: <b>{stats.totalEvents}</b></span>
+                                <span>В среднем: <b>{(stats.totalEvents / 12).toFixed(1)}</b> в месяц</span>
+                            </div>
                         </div>
                         <div className="chart-container">
-                            <Line data={lineData} options={lineOptions} />
+                            <Bar data={barChartData} options={barChartOptions} />
                         </div>
                     </div>
 
                     <div className="chart-card">
                         <div className="chart-header">
-                            <h3><FontAwesomeIcon icon={faChartLine} /> Общая явка</h3>
+                            <h3><FontAwesomeIcon icon={faChartPie} /> Распределение ролей</h3>
                         </div>
                         <div className="chart-container doughnut-container">
-                            <Doughnut data={doughnutData} options={doughnutOptions} />
-                            <div className="doughnut-center">
-                                <span>{stats.averageAttendanceRate}%</span>
-                            </div>
+                            <Doughnut data={roleChartData} options={roleChartOptions} />
                         </div>
                     </div>
                 </div>
 
+                {/* Tables Row */}
                 <div className="tables-grid">
                     <div className="table-card">
                         <div className="chart-header">
