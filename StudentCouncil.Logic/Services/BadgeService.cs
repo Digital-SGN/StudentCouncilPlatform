@@ -87,18 +87,21 @@ public class BadgeService : IBadgeService
 
     public async Task CreateBadgeAsync(CreateBadgeDTO dto, IFormFile? file, ClaimsPrincipal currentUser)
     {
-        if (!currentUser.IsAdmin())
-            throw new ForbiddenException("Только администратор может создавать бейджи");
-
         int currentUserId = currentUser.GetUserId();
-
-        User? user = await _context.Users.FindAsync(dto.UserId);
-        if (user == null)
-            throw new NotFoundException("Пользователь не найден");
 
         Event? eventEntity = await _context.Events.FindAsync(dto.EventId);
         if (eventEntity == null)
             throw new NotFoundException("Мероприятие не найдено");
+
+        bool isAdmin = currentUser.IsAdmin();
+        bool isResponsible = eventEntity.ResponsibleUserId == currentUserId;
+
+        if (!isAdmin && !isResponsible)
+            throw new ForbiddenException("Только администратор или ответственный могут добавлять участников");
+
+        User? user = await _context.Users.FindAsync(dto.UserId);
+        if (user == null)
+            throw new NotFoundException("Пользователь не найден");
 
         bool duplicate = await _context.Badges
             .AnyAsync(b => b.UserId == dto.UserId && b.EventId == dto.EventId);
@@ -131,14 +134,21 @@ public class BadgeService : IBadgeService
 
     public async Task UpdateBadgeAsync(int id, UpdateBadgeDTO dto, ClaimsPrincipal currentUser)
     {
-        if (!currentUser.IsAdmin())
-            throw new ForbiddenException("Только администратор может обновлять бейджи");
-
         int currentUserId = currentUser.GetUserId();
 
         Badge? badge = await _context.Badges.FindAsync(id);
         if (badge == null)
             throw new NotFoundException("Бейдж не найден");
+
+        Event? eventEntity = await _context.Events.FindAsync(badge.EventId);
+        if (eventEntity == null)
+            throw new NotFoundException("Мероприятие не найдено");
+
+        bool isAdmin = currentUser.IsAdmin();
+        bool isResponsible = eventEntity.ResponsibleUserId == currentUserId;
+
+        if (!isAdmin && !isResponsible)
+            throw new ForbiddenException("Только администратор или ответственный могут обновлять участников");
 
         Mapper.UpdateBadgeEntity(badge, dto);
         await _context.SaveChangesAsync();
@@ -148,17 +158,23 @@ public class BadgeService : IBadgeService
 
     public async Task DeleteBadgeAsync(int id, ClaimsPrincipal currentUser)
     {
-        if (!currentUser.IsAdmin())
-            throw new ForbiddenException("Только администратор может удалять бейджи");
-
         int currentUserId = currentUser.GetUserId();
 
         Badge? badge = await _context.Badges.FindAsync(id);
         if (badge == null)
             throw new NotFoundException("Бейдж не найден");
 
-        _fileStorage.DeleteFile(badge.FilePath);
+        Event? eventEntity = await _context.Events.FindAsync(badge.EventId);
+        if (eventEntity == null)
+            throw new NotFoundException("Мероприятие не найдено");
 
+        bool isAdmin = currentUser.IsAdmin();
+        bool isResponsible = eventEntity.ResponsibleUserId == currentUserId;
+
+        if (!isAdmin && !isResponsible)
+            throw new ForbiddenException("Только администратор или ответственный могут удалять участников");
+
+        _fileStorage.DeleteFile(badge.FilePath);
         _context.Badges.Remove(badge);
         await _context.SaveChangesAsync();
 
@@ -167,14 +183,21 @@ public class BadgeService : IBadgeService
 
     public async Task UploadBadgeFileAsync(int id, IFormFile file, ClaimsPrincipal currentUser)
     {
-        if (!currentUser.IsAdmin())
-            throw new ForbiddenException("Только администратор может загружать файлы бейджей");
-
         int currentUserId = currentUser.GetUserId();
 
         Badge? badge = await _context.Badges.FindAsync(id);
         if (badge == null)
             throw new NotFoundException("Бейдж не найден");
+
+        Event? eventEntity = await _context.Events.FindAsync(badge.EventId);
+        if (eventEntity == null)
+            throw new NotFoundException("Мероприятие не найдено");
+
+        bool isAdmin = currentUser.IsAdmin();
+        bool isResponsible = eventEntity.ResponsibleUserId == currentUserId;
+
+        if (!isAdmin && !isResponsible)
+            throw new ForbiddenException("Только администратор или ответственный могут загружать бейджи участников");
 
         string? oldPath = badge.FilePath;
 
@@ -210,14 +233,21 @@ public class BadgeService : IBadgeService
 
     public async Task DeleteBadgeFileAsync(int id, ClaimsPrincipal currentUser)
     {
-        if (!currentUser.IsAdmin())
-            throw new ForbiddenException("Только администратор может удалять файлы бейджей");
-
         int currentUserId = currentUser.GetUserId();
 
         Badge? badge = await _context.Badges.FindAsync(id);
         if (badge == null)
             throw new NotFoundException("Бейдж не найден");
+
+        Event? eventEntity = await _context.Events.FindAsync(badge.EventId);
+        if (eventEntity == null)
+            throw new NotFoundException("Мероприятие не найдено");
+
+        bool isAdmin = currentUser.IsAdmin();
+        bool isResponsible = eventEntity.ResponsibleUserId == currentUserId;
+
+        if (!isAdmin && !isResponsible)
+            throw new ForbiddenException("Только администратор или ответственный могут удалять файлы бейджей");
 
         if (string.IsNullOrEmpty(badge.FilePath))
             throw new BadRequestException("У бейджа нет файла для удаления");

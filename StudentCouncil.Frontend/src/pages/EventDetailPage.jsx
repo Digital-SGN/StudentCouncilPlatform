@@ -19,12 +19,10 @@ import AddMemberModal from '../components/modals/AddMemberModal';
 import '../css/EventDetailPage.css';
 
 export default function EventDetailPage() {
-    const { id } = useParams();
+     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
     const { showToast } = useToast();
-    const isAdmin = user?.role === 'Admin';
-    const isLeader = user?.role === 'Leader';
 
     const [event, setEvent] = useState(null);
     const [badges, setBadges] = useState([]);
@@ -43,6 +41,11 @@ export default function EventDetailPage() {
 
     const [confirmDeleteEvent, setConfirmDeleteEvent] = useState(false);
     const [confirmDeleteBadge, setConfirmDeleteBadge] = useState({ isOpen: false, badgeId: null });
+
+    const isAdmin = user?.role === 'Admin';
+    const isLeader = user?.role === 'Leader';
+    const isResponsible = event?.responsibleUserId === user?.id; 
+    const canManageTeam = isAdmin || isResponsible; 
 
     useEffect(() => {
         if (id) {
@@ -302,7 +305,7 @@ export default function EventDetailPage() {
                                     <FontAwesomeIcon icon={faUsers} /> Организаторский состав
                                     {badges.length > 0 && <span className="team-count">{badges.length}</span>}
                                 </h3>
-                                {isAdmin && (
+                                {canManageTeam && (
                                     <button
                                         onClick={() => setShowAddMemberModal(true)}
                                         className="add-member-btn"
@@ -353,26 +356,32 @@ export default function EventDetailPage() {
                                                             </button>
                                                         </>
                                                     )}
-                                                    {isAdmin && (
-                                                        <button
-                                                            onClick={() => uploadBadgeFile(badge.id)}
-                                                            className="team-icon-btn upload"
-                                                            title={badge.filePath ? 'Заменить бейдж' : 'Загрузить бейдж'}
-                                                        >
-                                                            <FontAwesomeIcon icon={faUpload} />
-                                                        </button>
-                                                    )}
-                                                    {isAdmin && (
+                                                    {canManageTeam &&  (
                                                         <>
-                                                            <button onClick={() => openEditRoleModal(badge.id, badge.userId, badge.role)} className="team-icon-btn edit" title="Изменить">
+                                                            <button
+                                                                onClick={() => uploadBadgeFile(badge.id)}
+                                                                className="team-icon-btn upload"
+                                                                title={badge.filePath ? 'Заменить бейдж' : 'Загрузить бейдж'}
+                                                            >
+                                                                <FontAwesomeIcon icon={faUpload} />
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => openEditRoleModal(badge.id, badge.userId, badge.role)} 
+                                                                className="team-icon-btn edit" 
+                                                                title="Изменить"
+                                                            >
                                                                 <FontAwesomeIcon icon={faEdit} />
                                                             </button>
-                                                            <button onClick={() => handleDeleteBadgeClick(badge.id)} className="team-icon-btn delete" title="Удалить">
+                                                            <button 
+                                                                onClick={() => handleDeleteBadgeClick(badge.id)} 
+                                                                className="team-icon-btn delete" 
+                                                                title="Удалить"
+                                                            >
                                                                 <FontAwesomeIcon icon={faTrashAlt} />
                                                             </button>
                                                         </>
                                                     )}
-                                                    {!badge.filePath && !isAdmin && (
+                                                    {!badge.filePath && !canManageTeam && (
                                                         <span className="no-badge">Бейдж не загружен</span>
                                                     )}
                                                 </div>
