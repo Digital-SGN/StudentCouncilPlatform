@@ -33,7 +33,7 @@ public class BadgeService : IBadgeService
         List<Badge> badges = await _context.Badges
             .Include(b => b.User)
             .Include(b => b.Event)
-            .Where(b => b.UserId == userId)
+            .Where(b => b.UserId == userId && !b.Event.IsDeleted)
             .OrderByDescending(b => b.CreatedAt)
             .ToListAsync();
 
