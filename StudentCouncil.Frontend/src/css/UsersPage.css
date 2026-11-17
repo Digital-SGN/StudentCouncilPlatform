@@ -1,4 +1,4 @@
-.users-page {
+﻿.users-page {
     min-height: 100vh;
     background: transparent;
     position: relative;
@@ -575,4 +575,62 @@ th:hover .sort-icon {
 .sort-dropdown-label {
     flex: 1;
     text-align: center;
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 24px 0;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    background: white;
+    border: 1px solid #0CBFA1;
+    color: #0CBFA1;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: #0CBFA1;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(12, 191, 161, 0.2);
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #cbd5e1;
+    color: #94a3b8;
+}
+
+.page-info {
+    color: #475569;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.page-info b {
+    color: #1e293b;
+}
+
+@media (max-width: 768px) {
+    .pagination-controls {
+        padding: 16px 0;
+        gap: 10px;
+    }
+    .page-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
 }

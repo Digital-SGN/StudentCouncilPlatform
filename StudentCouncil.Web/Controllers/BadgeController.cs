@@ -25,7 +25,6 @@ public class BadgeController : BaseController
     }
 
     [HttpGet("~/api/events/{eventId}/badges")]
-    [Authorize]
     public async Task<IActionResult> GetByEvent(int eventId)
     {
         BadgeListResponseDTO result = await _badgeService.GetBadgesByEventAsync(eventId, User);
@@ -40,7 +39,6 @@ public class BadgeController : BaseController
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create([FromForm] CreateBadgeDTO dto, IFormFile? file)
     {
         await _badgeService.CreateBadgeAsync(dto, file, User);
@@ -48,7 +46,6 @@ public class BadgeController : BaseController
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateBadgeDTO dto)
     {
         await _badgeService.UpdateBadgeAsync(id, dto, User);
@@ -56,7 +53,6 @@ public class BadgeController : BaseController
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         await _badgeService.DeleteBadgeAsync(id, User);
@@ -71,7 +67,6 @@ public class BadgeController : BaseController
     }
 
     [HttpPost("{id}/file")]
-    [Authorize(Roles = "Admin")]
     [RequestSizeLimit(10_485_760)]
     public async Task<IActionResult> UploadBadgeFile(int id, IFormFile file)
     {
@@ -80,7 +75,6 @@ public class BadgeController : BaseController
     }
 
     [HttpDelete("{id}/file")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteBadgeFile(int id)
     {
         await _badgeService.DeleteBadgeFileAsync(id, User);

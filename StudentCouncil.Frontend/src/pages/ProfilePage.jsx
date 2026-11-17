@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faLeaf, faChartSimple, faGem, faCrown, faDiamond, faInfinity,
     faEnvelope, faUsers, faPhone, faComment, 
-    faBirthdayCake, faCalendarAlt,
+    faBirthdayCake, faCalendarAlt, faAward,
     faStar, faCog, faQuoteLeft, faChartLine, faGhost
 } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -42,6 +42,8 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [errorCode, setErrorCode] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
+
+    const availableBadges = badges.filter(b => b.filePath);
 
     useEffect(() => {
         loadProfile();
@@ -350,22 +352,30 @@ export default function ProfilePage() {
                             </div>
                         </div>
 
-                        {(isOwnProfile || isAdmin) && badges.length > 0 && (
+                        {(isOwnProfile || isAdmin) && (
                             <div className="badges-section">
                                 <div className="badges-title">Мои бейджи</div>
-                                <div className="badges-list">
-                                    {badges.map(badge => (
-                                        badge.filePath ? (
-                                            <a key={badge.id} href="#" className="badge-link" onClick={(e) => { e.preventDefault(); downloadBadge(badge); }}>
+                                
+                                {badges.filter(b => b.filePath).length > 0 ? (
+                                    <div className="badges-list">
+                                        {badges.filter(b => b.filePath).map(badge => (
+                                            <a 
+                                                key={badge.id} 
+                                                href="#" 
+                                                className="badge-link" 
+                                                onClick={(e) => { e.preventDefault(); downloadBadge(badge); }}
+                                            >
                                                 {badge.eventTitle.toLowerCase()}_{badge.role.toLowerCase()}.pdf
                                             </a>
-                                        ) : (
-                                            <span key={badge.id} className="badge-link pending">
-                                                {badge.eventTitle.toLowerCase()}_{badge.role.toLowerCase()}.pdf (ожидает)
-                                            </span>
-                                        )
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="badges-empty">
+                                        <FontAwesomeIcon icon={faAward} className="badges-empty-icon" />
+                                        <p>К сожалению, у вас пока нет бейджей</p>
+                                        <span>Они появятся здесь, как только организаторы их загрузят</span>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

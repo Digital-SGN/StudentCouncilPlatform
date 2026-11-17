@@ -38,9 +38,16 @@ export default function EventsPage() {
     const [modalState, setModalState] = useState({ isOpen: false, eventId: null });
     const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, eventId: null });
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
     useEffect(() => {
         loadEvents();
     }, []);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, sortField, sortOrder]);
 
     useEffect(() => {
         if (!sortOpen) return;
@@ -104,6 +111,12 @@ export default function EventsPage() {
         if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
         return 0;
     });
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentEvents = sortedEvents.slice(indexOfFirstItem, indexOfLastItem);
+
+    const totalPages = Math.ceil(sortedEvents.length / itemsPerPage);
 
     const handleSort = (field) => {
         if (sortField === field) {
@@ -294,7 +307,7 @@ export default function EventsPage() {
                             </div>
                         ) : viewMode === 'cards' ? (
                             <div className="events-grid">
-                                {sortedEvents.map(event => (
+                                {currentEvents.map(event => (
                                     <div key={event.id} className="event-card">
                                         {event.photoPath && (
                                             <div
@@ -414,7 +427,7 @@ export default function EventsPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {sortedEvents.map(event => (
+                                        {currentEvents.map(event => (
                                             <tr key={event.id}>
                                                 <td><strong>{event.title}</strong></td>
                                                 <td>
@@ -453,6 +466,29 @@ export default function EventsPage() {
                             </div>
                         )}
                     </div>
+                    {totalPages > 1 && (
+                            <div className="pagination-controls">
+                                <button 
+                                    disabled={currentPage === 1} 
+                                    onClick={() => setCurrentPage(prev => prev - 1)}
+                                    className="page-btn"
+                                >
+                                    ← Назад
+                                </button>
+                                
+                                <span className="page-info">
+                                    Страница <b>{currentPage}</b> из {totalPages}
+                                </span>
+                                
+                                <button 
+                                    disabled={currentPage === totalPages} 
+                                    onClick={() => setCurrentPage(prev => prev + 1)}
+                                    className="page-btn"
+                                >
+                                    Вперед →
+                                </button>
+                            </div>
+                        )}
                 </div>
             </div>
 
