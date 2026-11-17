@@ -51,9 +51,16 @@ export default function UsersPage() {
 
     const [openDropdownId, setOpenDropdownId] = useState(null);
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 12; 
+
     useEffect(() => {
         loadUsers();
     }, []);
+
+     useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, sortField, sortOrder]);
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -118,6 +125,11 @@ export default function UsersPage() {
         if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
         return 0;
     });
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentUsers = sortedUsers.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
 
     const handleSort = (field) => {
         if (sortField === field) {
@@ -340,7 +352,7 @@ export default function UsersPage() {
                             </div>
                         ) : viewMode === 'cards' ? (
                             <div className="users-cards">
-                                {sortedUsers.map(user => (
+                                {currentUsers.map(user => (
                                     <div key={user.id} className="user-card">
                                         <div className="user-card-header">
                                             <div className="user-avatar-wrapper">
@@ -419,7 +431,7 @@ export default function UsersPage() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {sortedUsers.map(user => (
+                                        {currentUsers.map(user => (
                                             <tr key={user.id} className={user.role === 'Admin' ? 'admin-row' : (user.role === 'Leader' ? 'leader-row' : '')}>
                                                 <td>{escapeHtml(user.firstName)}</td>
                                                 <td>{escapeHtml(user.lastName)}</td>
@@ -469,6 +481,30 @@ export default function UsersPage() {
                                         ))}
                                     </tbody>
                                 </table>
+                            </div>
+                        )}
+                    
+                        {totalPages > 1 && (
+                            <div className="pagination-controls">
+                                <button 
+                                    disabled={currentPage === 1} 
+                                    onClick={() => setCurrentPage(prev => prev - 1)}
+                                    className="page-btn"
+                                >
+                                    ← Назад
+                                </button>
+                                
+                                <span className="page-info">
+                                    Страница <b>{currentPage}</b> из {totalPages}
+                                </span>
+                                
+                                <button 
+                                    disabled={currentPage === totalPages} 
+                                    onClick={() => setCurrentPage(prev => prev + 1)}
+                                    className="page-btn"
+                                >
+                                    Вперед →
+                                </button>
                             </div>
                         )}
                     </div>

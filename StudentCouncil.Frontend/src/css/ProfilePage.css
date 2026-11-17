@@ -479,3 +479,37 @@
     .chart-wrapper { height: 200px; }
     .timeline-scroll-container { max-height: 250px; }
 }
+
+.badges-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    text-align: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.badges-empty-icon {
+    font-size: 32px;
+    color: #cbd5e1;
+    margin-bottom: 4px;
+}
+
+.badges-empty p {
+    font-size: 16px;
+    font-weight: 600;
+    color: #475569;
+    margin: 0;
+}
+
+.badges-empty span {
+    font-size: 13px;
+    color: #94a3b8;
+    max-width: 300px;
+    line-height: 1.4;
+}
