@@ -29,17 +29,10 @@
     },
 
     /* Работа с сессией */
-    async login(email, password) {
+     async login(email, password) {
         return this.request('/account/login', {
             method: 'POST',
             body: JSON.stringify({ email, password })
-        });
-    },
-
-    async setupTwoFactor(email, code, setupToken) {
-        return this.request('/account/2fa/activation', {
-            method: 'POST',
-            body: JSON.stringify({ email, code, setupToken })
         });
     },
 
@@ -50,8 +43,37 @@
         });
     },
 
+    async verifyEmailCode(email, code) {
+        return this.request('/account/email/verify', {
+            method: 'POST',
+            body: JSON.stringify({ email, code })
+        });
+    },
+
+    async resendEmailCode(email) {
+        return this.request('/account/email/resend', {
+            method: 'POST',
+            body: JSON.stringify({ email })
+        });
+    },
+
     async getTwoFactorStatus() {
         return this.request('/account/2fa/status');
+    },
+
+    async setupTwoFactor() {
+        return this.request('/account/2fa/setup', { method: 'POST' });
+    },
+
+    async confirmTwoFactorSetup(code) {
+        return this.request('/account/2fa/setup/confirm', {
+            method: 'POST',
+            body: JSON.stringify({ code, rememberDevice: false })
+        });
+    },
+
+    async disableTwoFactor() {
+        return this.request('/account/2fa/me', { method: 'DELETE' });
     },
 
     async logout() {
@@ -64,9 +86,7 @@
     },
 
     async resetTwoFactor(userId) {
-        return this.request(`/account/2fa/${userId}`, {
-            method: 'DELETE'
-        });
+        return this.request(`/account/2fa/${userId}`, { method: 'DELETE' });
     },
 
     /* Юзеры */

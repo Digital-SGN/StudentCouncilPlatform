@@ -137,6 +137,10 @@ try
     builder.Services.AddScoped<IBadgeService, BadgeService>();
     builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 
+    builder.Services.AddMemoryCache();
+    builder.Services.AddScoped<LoginCodeService>();
+    builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
+
     WebApplication app = builder.Build();
 
     if (app.Environment.IsDevelopment())

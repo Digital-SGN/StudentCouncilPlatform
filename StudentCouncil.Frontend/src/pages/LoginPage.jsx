@@ -84,12 +84,17 @@ export default function LoginPage({ setUser }) {
     const [password, setPassword] = useState('');
     const [rememberDevice, setRememberDevice] = useState(false);
     const [code, setCode] = useState('');
-    const [qrUri, setQrUri] = useState('');
-    const [setupToken, setSetupToken] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [capsLock, setCapsLock] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(0);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (resendCooldown <= 0) return;
+        const t = setTimeout(() => setResendCooldown(c => c - 1), 1000);
+        return () => clearTimeout(t);
+    }, [resendCooldown]);
 
     if (user) {
         return <Navigate to="/" replace />;
@@ -107,19 +112,20 @@ export default function LoginPage({ setUser }) {
                 return;
             }
 
-            const { status, authenticatorUri, setupToken: token } = result.data;
+            const { status, id } = result.data;
 
-            if (status === 'ok') {
+            if (status === 'emailVerificationRequired') {
+                setStep('email-verify');
+                setResendCooldown(60);
+                setCode('');
+            } else if (status === 'twoFactorRequired') {
+                setStep('verify-totp');
+                setCode('');
+            } else if (id) {
+                // Успешный вход
                 const fullUser = await API.getCurrentUser();
                 setUser(fullUser);
                 navigate('/');
-            } else if (status === 'twoFactorRequired') {
-                setStep('verify');
-            } else if (status === 'twoFactorSetupRequired') {
-                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(authenticatorUri)}`;
-                setQrUri(qrUrl);
-                setSetupToken(token ?? '');
-                setStep('setup');
             } else {
                 showToast('Неожиданный ответ сервера', 'error');
             }
@@ -131,33 +137,46 @@ export default function LoginPage({ setUser }) {
         }
     };
 
-    const handleSetupSubmit = async (event) => {
+    const handleEmailVerifySubmit = async (event) => {
         event.preventDefault();
+        if (code.length !== 6) return;
+        
         setLoading(true);
         try {
-            const result = await API.setupTwoFactor(email, code, setupToken);
+            const result = await API.verifyEmailCode(email, code);
             if (result.ok) {
                 const fullUser = await API.getCurrentUser();
                 setUser(fullUser);
                 navigate('/');
-            } else if (result.status === 401) {
-                setStep('login');
-                setCode('');
-                setSetupToken('');
-                setQrUri('');
-                showToast('Сессия настройки истекла. Войдите заново.', 'error');
             } else {
-                showToast(result.data?.error || 'Неверный код. Попробуйте снова.', 'error');
+                showToast(result.data?.error || 'Неверный код', 'error');
             }
         } catch (err) {
-            showToast('Ошибка при настройке 2FA', 'error');
+            showToast('Ошибка при проверке кода', 'error');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleVerifySubmit = async (event) => {
+    const handleResendEmail = async () => {
+        if (resendCooldown > 0) return;
+        setLoading(true);
+        const result = await API.resendEmailCode(email);
+        setLoading(false);
+        
+        if (result.ok) {
+            showToast('Код отправлен повторно', 'success');
+            setResendCooldown(60);
+            setCode('');
+        } else {
+            showToast(result.data?.error || 'Не удалось отправить код', 'error');
+        }
+    };
+
+    const handleVerifyTotpSubmit = async (event) => {
         event.preventDefault();
+        if (code.length !== 6) return;
+
         setLoading(true);
         try {
             const result = await API.loginWithTwoFactor(code, rememberDevice);
@@ -237,36 +256,49 @@ export default function LoginPage({ setUser }) {
         </form>
     );
 
-    const renderSetupForm = () => (
-        <div className="twofa-setup">
-            <h2>Подтвердите вход</h2>
-            <p>Отсканируйте QR-код и настройте аутентификатор</p>
-            {qrUri && (
-                <div className="qr-container">
-                    <img src={qrUri} alt="QR-код для настройки 2FA" />
-                </div>
-            )}
-            <form onSubmit={handleSetupSubmit}>
-                <div className="form-group">
-                    <label>Код из приложения</label>
-                    <OtpInput value={code} onChange={setCode} disabled={loading} />
-                </div>
-                <button type="submit" disabled={loading}>
-                    {loading ? (
-                        'Проверка...'
-                    ) : (
-                        <>
-                            Подтвердить и войти
-                            <FontAwesomeIcon icon={faArrowRight} className="btn-arrow" />
-                        </>
-                    )}
+    const renderEmailVerifyForm = () => (
+        <form onSubmit={handleEmailVerifySubmit}>
+            <h2 style={{ marginBottom: '12px', color: '#1e293b', fontSize: '22px' }}>
+                Подтвердите почту
+            </h2>
+            <p style={{ marginBottom: '20px', color: '#64748b', fontSize: '15px' }}>
+                Мы отправили код на <strong>{email}</strong>. Введите его ниже.
+            </p>
+            <div className="form-group">
+                <OtpInput value={code} onChange={setCode} disabled={loading} />
+            </div>
+            <button type="submit" disabled={loading || code.length !== 6}>
+                {loading ? (
+                    'Проверка...'
+                ) : (
+                    <>
+                        Подтвердить и войти
+                        <FontAwesomeIcon icon={faArrowRight} className="btn-arrow" />
+                    </>
+                )}
+            </button>
+            <div className="help-row" style={{ marginTop: '16px' }}>
+                <button
+                    type="button"
+                    onClick={handleResendEmail}
+                    disabled={loading || resendCooldown > 0}
+                    style={{ 
+                        background: 'none', border: 'none', 
+                        color: resendCooldown > 0 ? '#94a3b8' : '#0CBFA1', 
+                        cursor: resendCooldown > 0 ? 'default' : 'pointer', 
+                        fontSize: '14px', fontWeight: '500'
+                    }}
+                >
+                    {resendCooldown > 0
+                        ? `Отправить ещё раз через ${resendCooldown} с`
+                        : 'Отправить код ещё раз'}
                 </button>
-            </form>
-        </div>
+            </div>
+        </form>
     );
 
-    const renderVerifyForm = () => (
-        <form onSubmit={handleVerifySubmit}>
+    const renderVerifyTotpForm = () => (
+        <form onSubmit={handleVerifyTotpSubmit}>
             <h2 style={{ marginBottom: '12px', color: '#1e293b', fontSize: '22px' }}>
                 Подтвердите вход
             </h2>
@@ -288,7 +320,7 @@ export default function LoginPage({ setUser }) {
                     Запомнить это устройство
                 </label>
             </div>
-            <button type="submit" disabled={loading}>
+            <button type="submit" disabled={loading || code.length !== 6}>
                 {loading ? (
                     'Вход...'
                 ) : (
@@ -335,8 +367,8 @@ export default function LoginPage({ setUser }) {
                     )}
 
                     {step === 'login' && renderLoginForm()}
-                    {step === 'setup' && renderSetupForm()}
-                    {step === 'verify' && renderVerifyForm()}
+                    {step === 'email-verify' && renderEmailVerifyForm()}
+                    {step === 'verify-totp' && renderVerifyTotpForm()}
                 </div>
             </div>
         </div>
