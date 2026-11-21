@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faLeaf, faChartSimple, faGem, faCrown, faDiamond, faInfinity,
     faEnvelope, faUsers, faPhone, faComment, 
-    faBirthdayCake, faCalendarAlt, faAward, faShieldHalved,
+    faBirthdayCake, faCalendarAlt, faAward,
     faStar, faCog, faQuoteLeft, faChartLine, faGhost
 } from '@fortawesome/free-solid-svg-icons';
 import {
