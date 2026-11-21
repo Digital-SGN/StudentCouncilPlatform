@@ -32,7 +32,7 @@
 - <img src="https://cdn.simpleicons.org/googlecalendar/0CBFA1" width="16" /> **Мероприятия:** создание, регистрация, учёт явки, бюджетирование.
 - <img src="https://cdn.simpleicons.org/openbadges/0CBFA1" width="16" /> **Бейджи:** выдача цифровых подтверждений с возможностью загрузки PDF.
 - <img src="https://cdn.simpleicons.org/chartdotjs/0CBFA1" width="16" /> **Аналитика:** дашборды со статистикой, топами и динамикой по месяцам.
-- <img src="https://cdn.simpleicons.org/letsencrypt/0CBFA1" width="16" /> **Безопасность:** Cookie-аутентификация, поддержка TOTP (2FA), защита от брутфорса (Lockout).
+- <img src="https://cdn.simpleicons.org/letsencrypt/0CBFA1" width="16" /> **Безопасность:** Cookie-аутентификация, **вход по OTP-коду на почту**, опциональная 2FA (TOTP), защита от брутфорса (Lockout).
 - <img src="https://api.iconify.design/fa6-solid/trophy.svg?color=%230CBFA1" width="16" /> **Геймификация:** Система уровней (XP), баланс баллов, кастомные баннеры профиля.
 
 ---
@@ -126,6 +126,9 @@ flowchart TD
 # Применить миграции
 dotnet ef database update --project StudentCouncil.Data --startup-project StudentCouncil.Web
 
+# Настроить SMTP в appsetting.json
+dotnet user-secrets set "Smtp:Password" "ваш_пароль_от_почты" --project StudentCouncil.Web
+
 # Запустить сервер
 dotnet run --project StudentCouncil.Web
 ```
@@ -150,6 +153,7 @@ npm run dev
 ```bash
 # Создать .env файл с паролем для БД
 echo "DB_PASSWORD=ваш_сложный_пароль" > .env
+echo "SMTP_PASSWORD=пароль_от_почты" >> .env
 
 # Поднять контейнеры
 docker compose up -d
