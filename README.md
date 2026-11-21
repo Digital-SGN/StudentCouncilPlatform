@@ -109,13 +109,26 @@ flowchart TD
 
 **Требования:** .NET 8 SDK, Node.js 20+, PostgreSQL 16 (или Docker Desktop).
 
-### 1. Настройка базы данных
-Создайте файл `StudentCouncil.Web/appsettings.Development.json` и укажите строку подключения к вашей локальной БД:
+### 1. Настройка базы данных и почты
+Создайте файл `StudentCouncil.Web/appsettings.Development.json` и укажите настройки подключения к вашей локальной БД, данные для отправки тестовых писем, а также разрешенные источники для CORS:
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=studsovet;Username=postgres;Password=ваш_пароль"
+    "DefaultConnection": "Host=localhost;Port=5432;Database=база_данных;Username=ваш_юзернейм;Password=ваш_пароль"
+  },
+  "Smtp": {
+    "Host": "ваш_хост",
+    "Port": 465,
+    "UseStartTls": false,
+    "User": "ваша_почта@example.com",
+    "Password": "ваш_пароль_от_почты"
+  },
+  "Cors": {
+    "AllowedOrigins": [
+      "http://localhost:5173",
+      "http://localhost:5174"
+    ]
   }
 }
 ```
@@ -125,9 +138,6 @@ flowchart TD
 ```bash
 # Применить миграции
 dotnet ef database update --project StudentCouncil.Data --startup-project StudentCouncil.Web
-
-# Настроить SMTP в appsetting.json
-dotnet user-secrets set "Smtp:Password" "ваш_пароль_от_почты" --project StudentCouncil.Web
 
 # Запустить сервер
 dotnet run --project StudentCouncil.Web
