@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace StudentCouncil.Logic.DTOs
 {
@@ -26,9 +26,7 @@ namespace StudentCouncil.Logic.DTOs
     {
         public string Status { get; set; } = string.Empty; 
         public LoginResponseDTO? User { get; set; }
-        public string? SharedKey { get; set; }
-        public string? AuthenticatorUri { get; set; }
-        public string? SetupToken { get; set; }
+        public string? Error { get; set; }
     }
 
     public class EmailVerificationDTO
