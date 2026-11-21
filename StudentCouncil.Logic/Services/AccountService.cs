@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.DTOs;
@@ -36,7 +36,7 @@ public class AccountService : IAccountService
             return new LoginResultDTO { Status = "error", Error = "Неверный email или пароль" };
         }
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
+        SignInResult result = await _signInManager.PasswordSignInAsync(user, request.Password, isPersistent: false, lockoutOnFailure: true);
 
         if (result.IsLockedOut)
         {
@@ -45,7 +45,10 @@ public class AccountService : IAccountService
         }
 
         if (result.RequiresTwoFactor)
+        {
+            _logger.LogInformation("Требуется 2FA для {Email}", user.Email);
             return new LoginResultDTO { Status = "twoFactorRequired" };
+        }
 
         if (!result.Succeeded)
             return new LoginResultDTO { Status = "error", Error = "Неверный email или пароль" };
