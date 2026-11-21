@@ -1,9 +1,49 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { API } from '../../api.js';
 import { AVAILABLE_BANNERS } from '../../constants/banners.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faShieldHalved, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { QRCodeSVG } from 'qrcode.react';
+import ConfirmModal from './ConfirmDialogModal';
 import '../../css/Modal.css';
+
+function OtpInput({ value, onChange, disabled }) {
+    const [otp, setOtp] = useState(value.split('').slice(0, 6));
+    const inputRefs = useRef([]);
+
+    useEffect(() => {
+        const newOtp = value.split('').slice(0, 6);
+        while (newOtp.length < 6) newOtp.push('');
+        setOtp(newOtp);
+    }, [value]);
+
+    const handleChange = (index, val) => {
+        if (val.length > 1) return;
+        const newOtp = [...otp];
+        newOtp[index] = val;
+        setOtp(newOtp);
+        onChange(newOtp.join(''));
+        if (val && index < 5) inputRefs.current[index + 1]?.focus();
+    };
+
+    return (
+        <div className="otp-container" style={{ gap: '8px', margin: '12px 0' }}>
+            {otp.map((digit, idx) => (
+                <input
+                    key={idx}
+                    ref={(el) => (inputRefs.current[idx] = el)}
+                    type="text"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleChange(idx, e.target.value.replace(/\D/g, ''))}
+                    disabled={disabled}
+                    className="otp-input"
+                    style={{ width: '40px', height: '45px', fontSize: '20px', padding: 0 }}
+                />
+            ))}
+        </div>
+    );
+}
 
 export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLeader, isOwnProfile, onSuccess }) {
     const [formData, setFormData] = useState({
@@ -20,13 +60,24 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
     const [avatarPreview, setAvatarPreview] = useState(null);
     const [removeAvatar, setRemoveAvatar] = useState(false);
 
+    const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+    const [twoFactorSetupData, setTwoFactorSetupData] = useState(null);
+    const [twoFactorCode, setTwoFactorCode] = useState('');
+    const [is2faLoading, setIs2faLoading] = useState(false);
+    const [showDisable2FAConfirm, setShowDisable2FAConfirm] = useState(false); 
+
     const isEditMode = !!userId;
     const canEditRoleAndStatus = isAdmin && !isOwnProfile;
     const canEditStats = isAdmin && !isOwnProfile;
     const showStatsForSelf = isAdmin && isOwnProfile;
 
     useEffect(() => {
-        if (isOpen && userId) loadUser();
+        if (isOpen && userId) {
+            loadUser();
+            if (isOwnProfile) {
+                loadTwoFactorStatus();
+            }
+        }
         if (!isOpen) resetForm();
     }, [isOpen, userId]);
 
@@ -61,6 +112,11 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
         setInitialLoading(false);
     };
 
+    const loadTwoFactorStatus = async () => {
+        const r = await API.getTwoFactorStatus();
+        if (r.ok) setTwoFactorEnabled(r.data.enabled);
+    };
+
     const resetForm = () => {
         setFormData({
             firstName: '', lastName: '', patronymic: '', email: '', password: '',
@@ -72,6 +128,8 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
         setAvatarPreview(null);
         setRemoveAvatar(false);
         setError('');
+        setTwoFactorSetupData(null);
+        setTwoFactorCode('');
     };
 
     const handleChange = (e) => {
@@ -94,6 +152,45 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
         setAvatarFile(null);
         setAvatarPreview(null);
         setRemoveAvatar(true);
+    };
+
+    const startTwoFactorSetup = async () => {
+        setIs2faLoading(true);
+        setError('');
+        const r = await API.setupTwoFactor();
+        setIs2faLoading(false);
+        if (!r.ok) return setError(r.data?.error || 'Ошибка инициализации 2FA');
+        setTwoFactorSetupData(r.data);
+    };
+
+    const confirmTwoFactorSetup = async () => {
+        if (twoFactorCode.length !== 6) return;
+        setIs2faLoading(true);
+        setError('');
+        const r = await API.confirmTwoFactorSetup(twoFactorCode);
+        setIs2faLoading(false);
+        if (!r.ok) return setError(r.data?.error || 'Неверный код');
+        
+        setTwoFactorEnabled(true);
+        setTwoFactorSetupData(null);
+        setTwoFactorCode('');
+    };
+
+     const promptDisableTwoFactor = () => {
+        setShowDisable2FAConfirm(true);
+    };
+
+    const executeDisableTwoFactor = async () => {
+        setShowDisable2FAConfirm(false);
+        setIs2faLoading(true);
+        setError('');
+        
+        const r = await API.disableTwoFactor();
+        setIs2faLoading(false);
+        
+        if (!r.ok) return setError(r.data?.error || 'Ошибка отключения 2FA');
+        
+        setTwoFactorEnabled(false);
     };
 
     const handleSubmit = async (e) => {
@@ -241,8 +338,66 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
                             </div>
                             <div className="form-group"><label>Дата рождения</label><input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} /></div>
 
+                            {isOwnProfile && (
+                                <div className="form-group" style={{ marginTop: '24px', padding: '16px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#1e293b' }}>
+                                        <FontAwesomeIcon icon={faShieldHalved} style={{ color: '#0CBFA1' }} />
+                                        Двухфакторная защита (2FA)
+                                    </label>
+                                    
+                                    {twoFactorSetupData ? (
+                                        <div style={{ textAlign: 'center' }}>
+                                            <p style={{ fontSize: '14px', color: '#475569', marginBottom: '12px' }}>
+                                                Отсканируйте QR-код в приложении (Google Authenticator, Яндекс Ключ и т.д.)
+                                            </p>
+                                            <div style={{ background: 'white', padding: '12px', display: 'inline-block', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                                <QRCodeSVG value={twoFactorSetupData.authenticatorUri} size={140} />
+                                            </div>
+                                            <p style={{ fontSize: '14px', color: '#475569', marginTop: '12px' }}>Введите код из приложения:</p>
+                                            <OtpInput value={twoFactorCode} onChange={setTwoFactorCode} disabled={is2faLoading} />
+                                            <button 
+                                                type="button" 
+                                                onClick={confirmTwoFactorSetup} 
+                                                disabled={is2faLoading || twoFactorCode.length !== 6}
+                                                style={{ padding: '8px 16px', background: '#0CBFA1', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+                                            >
+                                                {is2faLoading ? 'Проверка...' : 'Подтвердить'}
+                                            </button>
+                                        </div>
+                                    ) : twoFactorEnabled ? (
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0CBFA1', fontSize: '14px', fontWeight: '500' }}>
+                                                <FontAwesomeIcon icon={faCircleCheck} /> 2FA включена
+                                            </span>
+                                            <button 
+                                                type="button" 
+                                                onClick={promptDisableTwoFactor} 
+                                                disabled={is2faLoading}
+                                                style={{ padding: '6px 12px', background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
+                                            >
+                                                {is2faLoading ? 'Отключение...' : 'Отключить'}
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                                            <span style={{ color: '#64748b', fontSize: '14px' }}>
+                                                Дополнительная защита аккаунта
+                                            </span>
+                                            <button 
+                                                type="button" 
+                                                onClick={startTwoFactorSetup} 
+                                                disabled={is2faLoading}
+                                                style={{ padding: '6px 12px', background: '#0CBFA1', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
+                                            >
+                                                {is2faLoading ? 'Загрузка...' : 'Настроить 2FA'}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             {canEditRoleAndStatus && (
-                                <div className="form-row">
+                                <div className="form-row" style={{ marginTop: '16px' }}>
                                     <div className="form-group"><label>Роль</label>
                                         <select name="role" value={formData.role} onChange={handleChange}>
                                             <option value="Member">Участник</option>
@@ -278,6 +433,16 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
                     )}
                 </div>
             </div>
+
+            <ConfirmModal
+                isOpen={showDisable2FAConfirm}
+                onClose={() => setShowDisable2FAConfirm(false)}
+                onConfirm={executeDisableTwoFactor}
+                title="Отключение 2FA"
+                message="Вы уверены, что хотите отключить двухфакторную аутентификацию? Это снизит безопасность вашего аккаунта."
+                confirmText="Да, отключить"
+                cancelText="Отмена"
+            />
         </div>
     );
 }

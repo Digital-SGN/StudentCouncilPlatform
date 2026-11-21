@@ -20,7 +20,8 @@ public static class SeedData
             }
         }
 
-        string adminEmail = "testing@gmail.com";
+        string adminEmail = "demonrux201@gmail.com";
+
         if (await userManager.FindByEmailAsync(adminEmail) == null)
         {
             User admin = new User
@@ -29,8 +30,9 @@ public static class SeedData
                 Email = adminEmail,
                 FirstName = "Главный",
                 LastName = "Администратор",
-                JoinedAt = DateTime.UtcNow,
-                IsActive = true
+                JoinedAt = DateTimeOffset.UtcNow, 
+                IsActive = true,
+                EmailConfirmed = true 
             };
 
             IdentityResult result = await userManager.CreateAsync(admin, "test123");

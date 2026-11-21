@@ -211,12 +211,13 @@ export default function ProfilePage() {
                                 <span className="profile-role-badge">
                                     {user.role === 'Admin' ? 'Администратор' : (user.role === 'Leader' ? 'Руководитель' : 'Участник')}
                                 </span>
-                                
+
                                 {canEdit && (
                                     <button className="btn-settings" onClick={() => setShowEditModal(true)}>
                                         <FontAwesomeIcon icon={faCog} /> Настройки
                                     </button>
                                 )}
+                                
                             </div>
                         </div>
 

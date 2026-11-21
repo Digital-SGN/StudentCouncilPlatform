@@ -24,12 +24,26 @@ namespace StudentCouncil.Logic.DTOs
 
     public class LoginResultDTO
     {
-        public string Status { get; set; } = string.Empty;
-
+        public string Status { get; set; } = string.Empty; 
         public LoginResponseDTO? User { get; set; }
-
         public string? SharedKey { get; set; }
         public string? AuthenticatorUri { get; set; }
         public string? SetupToken { get; set; }
+    }
+
+    public class EmailVerificationDTO
+    {
+        [Required, EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required, StringLength(6, MinimumLength = 6)]
+        [RegularExpression(@"^\d{6}$", ErrorMessage = "Код должен состоять из 6 цифр")]
+        public string Code { get; set; } = string.Empty;
+    }
+
+    public class ResendEmailCodeDTO
+    {
+        [Required, EmailAddress]
+        public string Email { get; set; } = string.Empty;
     }
 }
