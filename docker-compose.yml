@@ -23,6 +23,7 @@ services:
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=studsovet;Username=studsovet_admin;Password=${DB_PASSWORD}
       - DataProtection__KeysPath=/app/DataProtection-Keys
+      - Smtp__Password=${SMTP_PASSWORD}
     depends_on:
       - postgres
     volumes:
