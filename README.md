@@ -32,7 +32,7 @@
 - <img src="https://cdn.simpleicons.org/googlecalendar/0CBFA1" width="16" /> **Мероприятия:** создание, регистрация, учёт явки, бюджетирование.
 - <img src="https://cdn.simpleicons.org/openbadges/0CBFA1" width="16" /> **Бейджи:** выдача цифровых подтверждений с возможностью загрузки PDF.
 - <img src="https://cdn.simpleicons.org/chartdotjs/0CBFA1" width="16" /> **Аналитика:** дашборды со статистикой, топами и динамикой по месяцам.
-- <img src="https://cdn.simpleicons.org/letsencrypt/0CBFA1" width="16" /> **Безопасность:** Cookie-аутентификация, поддержка TOTP (2FA), защита от брутфорса (Lockout).
+- <img src="https://cdn.simpleicons.org/letsencrypt/0CBFA1" width="16" /> **Безопасность:** Cookie-аутентификация, **вход по OTP-коду на почту**, опциональная 2FA (TOTP), защита от брутфорса (Lockout).
 - <img src="https://api.iconify.design/fa6-solid/trophy.svg?color=%230CBFA1" width="16" /> **Геймификация:** Система уровней (XP), баланс баллов, кастомные баннеры профиля.
 
 ---
@@ -109,13 +109,26 @@ flowchart TD
 
 **Требования:** .NET 8 SDK, Node.js 20+, PostgreSQL 16 (или Docker Desktop).
 
-### 1. Настройка базы данных
-Создайте файл `StudentCouncil.Web/appsettings.Development.json` и укажите строку подключения к вашей локальной БД:
+### 1. Настройка базы данных и почты
+Создайте файл `StudentCouncil.Web/appsettings.Development.json` и укажите настройки подключения к вашей локальной БД, данные для отправки тестовых писем, а также разрешенные источники для CORS:
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=studsovet;Username=postgres;Password=ваш_пароль"
+    "DefaultConnection": "Host=localhost;Port=5432;Database=база_данных;Username=ваш_юзернейм;Password=ваш_пароль"
+  },
+  "Smtp": {
+    "Host": "ваш_хост",
+    "Port": 465,
+    "UseStartTls": false,
+    "User": "ваша_почта@example.com",
+    "Password": "ваш_пароль_от_почты"
+  },
+  "Cors": {
+    "AllowedOrigins": [
+      "http://localhost:5173",
+      "http://localhost:5174"
+    ]
   }
 }
 ```
@@ -150,6 +163,7 @@ npm run dev
 ```bash
 # Создать .env файл с паролем для БД
 echo "DB_PASSWORD=ваш_сложный_пароль" > .env
+echo "SMTP_PASSWORD=пароль_от_почты" >> .env
 
 # Поднять контейнеры
 docker compose up -d

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.DTOs;
