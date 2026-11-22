@@ -55,7 +55,6 @@ public class AccountService : IAccountService
 
         if (!result.Succeeded)
             return new LoginResultDTO { Status = LoginStatus.Error, Error = "Неверный email или пароль" };
-        }
 
         if (!user.EmailConfirmed)
         {

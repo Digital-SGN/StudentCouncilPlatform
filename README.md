@@ -42,6 +42,7 @@
 **Backend:**
 - <img src="https://cdn.simpleicons.org/dotnet/0CBFA1" width="16" /> ASP.NET Core 8 (C#)
 - <img src="https://cdn.simpleicons.org/postgresql/0CBFA1" width="16" /> PostgreSQL 16 (EF Core)
+- <img src="https://cdn.simpleicons.org/xdotnet/0CBFA1" width="16" /> xUnit, EF Core InMemory (тестирование сервисов)
 
 **Frontend:**
 - <img src="https://cdn.simpleicons.org/react/0CBFA1" width="16" /> React 19 + Vite
@@ -62,6 +63,7 @@
 - **`StudentCouncil.Logic`** — DTO, бизнес-логика (сервисы), интерфейсы, кастомные исключения.
 - **`StudentCouncil.Web`** — REST API контроллеры, middleware для обработки ошибок, настройка DI.
 - **`StudentCouncil.Frontend`** — SPA на React, взаимодействует с API.
+- **`StudentCouncil.Tests`** — unit-тесты сервисов Account, User, Event и Badge.
 
 ```mermaid
 flowchart TD
@@ -110,8 +112,8 @@ flowchart TD
 **Требования:** .NET 8 SDK, Node.js 20+, PostgreSQL 16 (или Docker Desktop).
 
 ### 1. Настройка базы данных и почты
-Создайте файл `StudentCouncil.Web/appsettings.Development.json` и укажите настройки подключения к вашей локальной БД, данные для отправки тестовых писем, а также разрешенные источники для CORS:
 
+Создайте файл `StudentCouncil.Web/appsettings.Development.json` и укажите настройки подключения к вашей локальной БД, данные для отправки тестовых писем, а также разрешённые источники для CORS:
 ```json
 {
   "ConnectionStrings": {
@@ -153,6 +155,32 @@ npm install
 npm run dev
 ```
 Сайт откроется на `http://localhost:5173`.
+
+---
+
+## Тестирование
+
+Backend-тесты используют xUnit и EF Core InMemory. Они проверяют основные сценарии сервисов:
+
+- вход и получение профиля пользователя;
+- права пользователя на изменение других профилей;
+- создание и обновление пользователей;
+- создание и обновление мероприятий;
+- получение публичных мероприятий;
+- создание, изменение, удаление и скачивание бейджей;
+- обработку удалённых мероприятий и дубликатов.
+
+Запуск всех тестов:
+
+```bash
+dotnet test StudentCouncil.Tests/StudentCouncil.Tests.csproj
+```
+
+Проверка сборки всего решения:
+
+```bash
+dotnet build
+```
 
 ---
 
