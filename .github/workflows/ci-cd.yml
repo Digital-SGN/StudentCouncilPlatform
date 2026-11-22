@@ -63,14 +63,4 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             set -e
-            cd ~/StudentCouncilPlatform
-            git pull --ff-only origin main
-            docker compose up -d --build backend
-            docker compose build frontend
-            docker run --rm \
-              -v /var/www/studsovetsgn:/dest \
-              studentcouncilplatform-frontend \
-              sh -c "cp -r /usr/share/nginx/html/. /dest"
-            chown -R www-data:www-data /var/www/studsovetsgn
-            systemctl reload nginx
-            docker image prune -f
+            bash ./deploy.sh
