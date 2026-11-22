@@ -42,7 +42,7 @@
 **Backend:**
 - <img src="https://cdn.simpleicons.org/dotnet/0CBFA1" width="16" /> ASP.NET Core 8 (C#)
 - <img src="https://cdn.simpleicons.org/postgresql/0CBFA1" width="16" /> PostgreSQL 16 (EF Core)
-- <img src="https://cdn.simpleicons.org/xdotnet/0CBFA1" width="16" /> xUnit, EF Core InMemory (тестирование сервисов)
+- <img src="https://cdn.simpleicons.org/dotnet/0CBFA1" width="16" /> xUnit, EF Core InMemory (тестирование)
 
 **Frontend:**
 - <img src="https://cdn.simpleicons.org/react/0CBFA1" width="16" /> React 19 + Vite
