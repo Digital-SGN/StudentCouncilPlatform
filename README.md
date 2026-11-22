@@ -216,12 +216,10 @@ docker logs studentcouncil_backend --tail 50
 
 Деплой автоматизирован через GitHub Actions:
 
-- при pull request в `main` workflow запускает restore/build backend и frontend;
-- все xUnit-тесты выполняются до деплоя;
+- при PR в `main` workflow запускает restore/build backend и frontend;
+- все unit-тесты выполняются до деплоя;
 - после push в `main` workflow подключается к VPS по SSH;
 - на сервере обновляются Docker-контейнеры backend/frontend, статические файлы копируются в каталог Nginx, после чего Nginx перезагружается.
-
-Конфигурация находится в `.github/workflows/ci-cd.yml`. Доступы VPS хранятся в GitHub Actions Repository secrets и не попадают в публичный репозиторий.
 
 ```mermaid
 flowchart LR
