@@ -59,11 +59,11 @@
 
 Проект представляет собой **слоистый монолит**. Backend разделён на три слоя:
 
-- **`StudentCouncil.Data`** — модели, `AppDbContext`, миграции EF Core.
-- **`StudentCouncil.Logic`** — DTO, бизнес-логика (сервисы), интерфейсы, кастомные исключения.
-- **`StudentCouncil.Web`** — REST API контроллеры, middleware для обработки ошибок, настройка DI.
-- **`StudentCouncil.Frontend`** — SPA на React, взаимодействует с API.
-- **`StudentCouncil.Tests`** — unit-тесты сервисов Account, User, Event и Badge.
+- **`StudentCouncil.Data`** — сущности, `AppDbContext` и миграции EF Core.
+- **`StudentCouncil.Logic`** — DTO, сервисы, интерфейсы, Identity-сценарии, почтовая отправка и кастомные исключения.
+- **`StudentCouncil.Web`** — REST API-контроллеры, middleware обработки ошибок и настройка DI.
+- **`StudentCouncil.Frontend`** — SPA на React, взаимодействующее с backend API.
+- **`StudentCouncil.Tests`** — unit-тесты сервисов с xUnit и EF Core InMemory.
 
 ```mermaid
 flowchart TD
@@ -213,6 +213,15 @@ docker logs studentcouncil_backend --tail 50
 ---
 
 ## Деплой
+
+Деплой автоматизирован через GitHub Actions:
+
+- при pull request в `main` workflow запускает restore/build backend и frontend;
+- все xUnit-тесты выполняются до деплоя;
+- после push в `main` workflow подключается к VPS по SSH;
+- на сервере обновляются Docker-контейнеры backend/frontend, статические файлы копируются в каталог Nginx, после чего Nginx перезагружается.
+
+Конфигурация находится в `.github/workflows/ci-cd.yml`. Доступы VPS хранятся в GitHub Actions Repository secrets и не попадают в публичный репозиторий.
 
 ```mermaid
 flowchart LR

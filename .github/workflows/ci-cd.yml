@@ -46,3 +46,31 @@ jobs:
       - name: Build frontend
         working-directory: StudentCouncil.Frontend
         run: npm run build
+
+  deploy:
+    name: Deploy to VPS
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            set -e
+            cd ~/StudentCouncilPlatform
+            git pull --ff-only origin main
+            docker compose up -d --build backend
+            docker compose build frontend
+            docker run --rm \
+              -v /var/www/studsovetsgn:/dest \
+              studentcouncilplatform-frontend \
+              sh -c "cp -r /usr/share/nginx/html/. /dest"
+            chown -R www-data:www-data /var/www/studsovetsgn
+            systemctl reload nginx
+            docker image prune -f
