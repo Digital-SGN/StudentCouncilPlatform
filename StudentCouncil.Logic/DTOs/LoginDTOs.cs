@@ -2,6 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StudentCouncil.Logic.DTOs
 {
+     public enum LoginStatus
+     {
+        Success,
+        Error,
+        Locked,
+        TwoFactorRequired,
+        EmailVerificationRequired
+     }
+
     public class LoginRequestDTO
     {
         [Required(ErrorMessage = "Email не может быть пустым")]
@@ -24,7 +33,7 @@ namespace StudentCouncil.Logic.DTOs
 
     public class LoginResultDTO
     {
-        public string Status { get; set; } = string.Empty; 
+        public LoginStatus Status { get; set; }
         public LoginResponseDTO? User { get; set; }
         public string? Error { get; set; }
     }
