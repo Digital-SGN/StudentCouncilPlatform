@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using StudentCouncil.Data.Models;
 using StudentCouncil.Logic.DTOs;
@@ -33,6 +33,7 @@ public class AccountService : IAccountService
         if (user == null || !user.IsActive)
         {
             _logger.LogWarning("Вход: несуществующий/неактивный email {Email}", request.Email);
+
             return new LoginResultDTO { Status = LoginStatus.Error, Error = "Неверный email или пароль" };
         }
 
@@ -41,7 +42,9 @@ public class AccountService : IAccountService
         if (result.IsLockedOut)
         {
             _logger.LogWarning("Аккаунт {Email} заблокирован после неудачных попыток", user.Email);
+
             return new LoginResultDTO { Status = LoginStatus.Locked, Error = "Слишком много неудачных попыток. Попробуйте через 5 минут." };
+
         }
 
         if (result.RequiresTwoFactor)
@@ -52,6 +55,7 @@ public class AccountService : IAccountService
 
         if (!result.Succeeded)
             return new LoginResultDTO { Status = LoginStatus.Error, Error = "Неверный email или пароль" };
+        }
 
         if (!user.EmailConfirmed)
         {
