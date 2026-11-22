@@ -6,5 +6,6 @@
   </Folder>
   <Project Path="StudentCouncil.Data/StudentCouncil.Data.csproj" />
   <Project Path="StudentCouncil.Logic/StudentCouncil.Logic.csproj" />
+  <Project Path="StudentCouncil.Tests/StudentCouncil.Tests.csproj" Id="afd9bdfa-57e3-4d77-b8d8-8c4d47e7020a" />
   <Project Path="StudentCouncil.Web/StudentCouncil.Web.csproj" Id="37e39664-f760-4819-8298-658f0b2a0295" />
 </Solution>
