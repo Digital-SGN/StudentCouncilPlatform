@@ -92,6 +92,7 @@ public class EventService : IEventService
         }
 
         Event ev = Mapper.ToEventEntity(dto);
+        ev.ResponsibleUser = responsibleUser;
 
         _context.Events.Add(ev);
         await _context.SaveChangesAsync();
@@ -223,9 +224,11 @@ public class EventService : IEventService
         if (ev == null)
             throw new NotFoundException("Мероприятие не найдено");
 
-        _fileStorage.DeleteFile(ev.PhotoPath);
+        string? oldPhotoPath = ev.PhotoPath;
         ev.PhotoPath = null;
+
         await _context.SaveChangesAsync();
+        _fileStorage.DeleteFile(oldPhotoPath);
 
         _logger.LogInformation("Фото мероприятия {EventId} удалено пользователем {CurrentUserId}",
             id, currentUserId);

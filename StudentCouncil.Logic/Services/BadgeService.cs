@@ -89,7 +89,7 @@ public class BadgeService : IBadgeService
     {
         int currentUserId = currentUser.GetUserId();
 
-        Event? eventEntity = await _context.Events.FindAsync(dto.EventId);
+        Event? eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == dto.EventId && !e.IsDeleted);
         if (eventEntity == null)
             throw new NotFoundException("Мероприятие не найдено");
 
@@ -126,7 +126,19 @@ public class BadgeService : IBadgeService
         Badge badge = Mapper.ToBadgeEntity(dto, filePath);
 
         _context.Badges.Add(badge);
-        await _context.SaveChangesAsync();
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            if (!string.IsNullOrEmpty(filePath))
+                _fileStorage.DeleteFile(filePath);
+
+            throw new ConflictException(
+                "Бейдж для этого пользователя и мероприятия уже существует");
+        }
 
         _logger.LogInformation("Бейдж создан пользователем {CurrentUserId}: UserId={UserId}, EventId={EventId}",
             currentUserId, dto.UserId, dto.EventId);
@@ -140,7 +152,7 @@ public class BadgeService : IBadgeService
         if (badge == null)
             throw new NotFoundException("Бейдж не найден");
 
-        Event? eventEntity = await _context.Events.FindAsync(badge.EventId);
+        Event? eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == badge.EventId && !e.IsDeleted);
         if (eventEntity == null)
             throw new NotFoundException("Мероприятие не найдено");
 
@@ -164,7 +176,7 @@ public class BadgeService : IBadgeService
         if (badge == null)
             throw new NotFoundException("Бейдж не найден");
 
-        Event? eventEntity = await _context.Events.FindAsync(badge.EventId);
+        Event? eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == badge.EventId && !e.IsDeleted);
         if (eventEntity == null)
             throw new NotFoundException("Мероприятие не найдено");
 
@@ -174,9 +186,9 @@ public class BadgeService : IBadgeService
         if (!isAdmin && !isResponsible)
             throw new ForbiddenException("Только администратор или ответственный могут удалять участников");
 
-        _fileStorage.DeleteFile(badge.FilePath);
         _context.Badges.Remove(badge);
         await _context.SaveChangesAsync();
+        _fileStorage.DeleteFile(badge.FilePath);
 
         _logger.LogInformation("Бейдж {BadgeId} удалён пользователем {CurrentUserId}", id, currentUserId);
     }
@@ -189,7 +201,7 @@ public class BadgeService : IBadgeService
         if (badge == null)
             throw new NotFoundException("Бейдж не найден");
 
-        Event? eventEntity = await _context.Events.FindAsync(badge.EventId);
+        Event? eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == badge.EventId && !e.IsDeleted);
         if (eventEntity == null)
             throw new NotFoundException("Мероприятие не найдено");
 
@@ -239,7 +251,7 @@ public class BadgeService : IBadgeService
         if (badge == null)
             throw new NotFoundException("Бейдж не найден");
 
-        Event? eventEntity = await _context.Events.FindAsync(badge.EventId);
+        Event? eventEntity = await _context.Events.FirstOrDefaultAsync(e => e.Id == badge.EventId && !e.IsDeleted);
         if (eventEntity == null)
             throw new NotFoundException("Мероприятие не найдено");
 
@@ -252,9 +264,10 @@ public class BadgeService : IBadgeService
         if (string.IsNullOrEmpty(badge.FilePath))
             throw new BadRequestException("У бейджа нет файла для удаления");
 
-        _fileStorage.DeleteFile(badge.FilePath);
+        string oldFilePath = badge.FilePath;
         badge.FilePath = null;
         await _context.SaveChangesAsync();
+        _fileStorage.DeleteFile(oldFilePath);
 
         _logger.LogInformation("Файл бейджа {BadgeId} удалён пользователем {CurrentUserId}", id, currentUserId);
     }
