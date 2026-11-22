@@ -20,8 +20,7 @@ public class UserService : IUserService
 
     public const string avatarsFolder = "avatars";
     public static readonly string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif" };
-    private static readonly HashSet<string> AllowedRoles = new(StringComparer.OrdinalIgnoreCase)
-        { "Admin", "Leader", "Member" };
+    private static readonly HashSet<string> AllowedRoles = new(StringComparer.OrdinalIgnoreCase) { "Admin", "Leader", "Member" };
 
     public UserService(
         UserManager<User> userManager,
@@ -40,13 +39,8 @@ public class UserService : IUserService
         HashSet<int> adminIds = (await _userManager.GetUsersInRoleAsync("Admin")).Select(u => u.Id).ToHashSet();
         HashSet<int> leaderIds = (await _userManager.GetUsersInRoleAsync("Leader")).Select(u => u.Id).ToHashSet();
 
-        string ResolveRole(User u) =>
-            adminIds.Contains(u.Id) ? "Admin"
-          : leaderIds.Contains(u.Id) ? "Leader"
-          : "Member";
-
         List<UserDTO> result = users
-            .Select(u => Mapper.ToUserDTO(u, ResolveRole(u)))
+            .Select(u => Mapper.ToUserDTO(u, ResolveRole(u, adminIds, leaderIds)))
             .ToList();
 
         return new UserListResponseDTO
@@ -123,10 +117,12 @@ public class UserService : IUserService
                 IList<string> currentRoles = await _userManager.GetRolesAsync(user);
                 string currentRole = currentRoles.FirstOrDefault() ?? "Member";
 
-                if (!string.IsNullOrEmpty(dto.Role)
-                    && dto.Role != "Admin" && dto.Role != "Leader" && dto.Role != "Member")
+                string? role = dto.Role?.Trim();
+
+                if (!string.IsNullOrEmpty(role) && !AllowedRoles.Contains(role))
                 {
-                    throw new BadRequestException("Недопустимая роль");
+                    throw new BadRequestException(
+                        $"Недопустимая роль. Разрешены: {string.Join(", ", AllowedRoles)}");
                 }
 
                 if (dto.IsActive == false && currentRole == "Admin")
@@ -140,7 +136,7 @@ public class UserService : IUserService
                     }
                 }
 
-                if (currentRole == "Admin" && !string.IsNullOrEmpty(dto.Role) && dto.Role != "Admin")
+                if (currentRole == "Admin" && !string.IsNullOrEmpty(role) && role != "Admin")
                 {
                     IList<User> admins = await _userManager.GetUsersInRoleAsync("Admin");
                     int activeAdmins = admins.Count(a => a.IsActive);
@@ -176,10 +172,17 @@ public class UserService : IUserService
 
                 Mapper.UpdateUserEntity(user, dto, applyAdminFields: true);
 
-                if (!string.IsNullOrEmpty(dto.Role) && dto.Role != currentRole)
+                if (!string.IsNullOrEmpty(role) && role != currentRole)
                 {
-                    await _userManager.RemoveFromRolesAsync(user, currentRoles);
-                    await _userManager.AddToRoleAsync(user, dto.Role);
+                    IdentityResult removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+
+                    if (!removeResult.Succeeded)
+                        throw new BadRequestException($"Не удалось снять прежние роли: {string.Join(", ", removeResult.Errors.Select(e => e.Description))}");
+
+                    IdentityResult addResult = await _userManager.AddToRoleAsync(user, role);
+
+                    if (!addResult.Succeeded)
+                        throw new BadRequestException($"Не удалось назначить роль: {string.Join(", ", addResult.Errors.Select(e => e.Description))}");
                 }
 
                 if (wasActive && !user.IsActive)
@@ -212,17 +215,17 @@ public class UserService : IUserService
         _logger.LogInformation("Пользователь {CurrentUserId} изменил профиль {TargetId}", currentUserId, id);
     }
 
-    public async Task DeleteUserAsync(int id, ClaimsPrincipal currentUser)
+    public async Task DeleteUserAsync(int userId, ClaimsPrincipal currentUser)
     {
         int currentUserId = currentUser.GetUserId();
 
         if (!currentUser.IsAdmin())
             throw new ForbiddenException("Доступ запрещен");
 
-        if (currentUserId == id)
+        if (currentUserId == userId)
             throw new ForbiddenException("Вы не можете удалить самого себя");
 
-        User? user = await _userManager.FindByIdAsync(id.ToString());
+        User? user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
             throw new NotFoundException("Пользователь не найден");
 
@@ -255,12 +258,12 @@ public class UserService : IUserService
             {
                 if (pgEx.ConstraintName == "FK_Events_AspNetUsers_ResponsibleUserId")
                 {
-                    _logger.LogWarning("Пользователь {UserId} не удалён: ответственный за мероприятия", id);
+                    _logger.LogWarning("Пользователь {UserId} не удалён: ответственный за мероприятия", userId);
                     throw new ConflictException("Нельзя удалить пользователя: он назначен ответственным за мероприятия");
                 }
 
                 _logger.LogWarning("Пользователь {UserId} не удалён: FK violation. Constraint: {ConstraintName}",
-                    id, pgEx.ConstraintName);
+                    userId, pgEx.ConstraintName);
                 throw new ConflictException("Нельзя удалить: с пользователем связаны другие данные.");
             }
 
@@ -328,12 +331,17 @@ public class UserService : IUserService
         if (user == null)
             throw new NotFoundException("Пользователь не найден");
 
-        if (currentUserId != userId && !currentUser.IsAdminOrLeader())
-            throw new ForbiddenException("У вас нет прав на удаление аватара этого пользователя");
-
-        _fileStorage.DeleteFile(user.AvatarPath);
+        string? oldAvatarPath = user.AvatarPath;
         user.AvatarPath = null;
-        await _userManager.UpdateAsync(user);
+
+        IdentityResult updateResult = await _userManager.UpdateAsync(user);
+
+        if (!updateResult.Succeeded)
+        {
+            throw new BadRequestException($"Не удалось удалить аватар: {string.Join(", ", updateResult.Errors.Select(error => error.Description))}");
+        }
+
+        _fileStorage.DeleteFile(oldAvatarPath);
 
         _logger.LogInformation("Пользователь {UserId} удалил аватар", userId);
     }
@@ -359,5 +367,16 @@ public class UserService : IUserService
         }
 
         _logger.LogInformation("Пароль сброшен для {UserId} администратором {AdminId}", userId, currentUserId);
+    }
+
+    private static string ResolveRole(User user, IReadOnlySet<int> adminIds, IReadOnlySet<int> leaderIds)
+    {
+        if (adminIds.Contains(user.Id))
+            return "Admin";
+
+        if (leaderIds.Contains(user.Id))
+            return "Leader";
+
+        return "Member";
     }
 }

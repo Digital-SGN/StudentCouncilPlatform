@@ -24,11 +24,11 @@ public class AccountController : BaseController
 
         return result.Status switch
         {
-            "locked" => StatusCode(429, new { error = result.Error }),
-            "error" => Unauthorized(new { error = result.Error }),
-            "twoFactorRequired" => Ok(new { status = "twoFactorRequired" }),
-            "emailVerificationRequired" => Ok(new { status = "emailVerificationRequired" }),
-            "success" => Ok(result.User),
+            LoginStatus.Locked => StatusCode(429, new { error = result.Error }),
+            LoginStatus.Error => Unauthorized(new { error = result.Error }),
+            LoginStatus.TwoFactorRequired => Ok(new { status = "twoFactorRequired" }),
+            LoginStatus.EmailVerificationRequired => Ok(new { status = "emailVerificationRequired" }),
+            LoginStatus.Success => Ok(result.User),
             _ => StatusCode(500, new { error = "Внутренняя ошибка сервера" })
         };
     }

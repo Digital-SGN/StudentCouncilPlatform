@@ -33,7 +33,8 @@ public class AccountService : IAccountService
         if (user == null || !user.IsActive)
         {
             _logger.LogWarning("Вход: несуществующий/неактивный email {Email}", request.Email);
-            return new LoginResultDTO { Status = "error", Error = "Неверный email или пароль" };
+
+            return new LoginResultDTO { Status = LoginStatus.Error, Error = "Неверный email или пароль" };
         }
 
         SignInResult result = await _signInManager.PasswordSignInAsync(user, request.Password, isPersistent: false, lockoutOnFailure: true);
@@ -41,30 +42,33 @@ public class AccountService : IAccountService
         if (result.IsLockedOut)
         {
             _logger.LogWarning("Аккаунт {Email} заблокирован после неудачных попыток", user.Email);
-            return new LoginResultDTO { Status = "locked", Error = "Слишком много неудачных попыток. Попробуйте через 5 минут." };
+
+            return new LoginResultDTO { Status = LoginStatus.Locked, Error = "Слишком много неудачных попыток. Попробуйте через 5 минут." };
+
         }
 
         if (result.RequiresTwoFactor)
         {
             _logger.LogInformation("Требуется 2FA для {Email}", user.Email);
-            return new LoginResultDTO { Status = "twoFactorRequired" };
+            return new LoginResultDTO { Status = LoginStatus.TwoFactorRequired };
         }
 
         if (!result.Succeeded)
-            return new LoginResultDTO { Status = "error", Error = "Неверный email или пароль" };
+            return new LoginResultDTO { Status = LoginStatus.Error, Error = "Неверный email или пароль" };
+        }
 
         if (!user.EmailConfirmed)
         {
             await _loginCodes.SendCodeAsync(user.Email!);
             _logger.LogInformation("Пользователь {UserId} направлен на подтверждение email", user.Id);
-            return new LoginResultDTO { Status = "emailVerificationRequired" };
+            return new LoginResultDTO { Status = LoginStatus.EmailVerificationRequired };
         }
 
         await _signInManager.SignInAsync(user, isPersistent: false);
         await _userManager.ResetAccessFailedCountAsync(user);
 
         LoginResponseDTO response = await CreateSuccessLoginResponse(user);
-        return new LoginResultDTO { Status = "success", User = response };
+        return new LoginResultDTO { Status = LoginStatus.Success, User = response };
     }
 
     public async Task<LoginResponseDTO> VerifyEmailCodeAsync(EmailVerificationDTO dto)
