@@ -4,12 +4,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
     faHome, faFish, faUser, faUsers, 
     faCalendarAlt, faChartLine, faSignOutAlt, 
-    faQuestionCircle, faSignInAlt 
+    faQuestionCircle, faSignInAlt, faMoon, faSun
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import MusicButton from './MusicButton';
 
-export default function Header({ onLogout }) { 
+export default function Header({ onLogout, theme, onToggleTheme }) {
     const { user, loading } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const meowAudioRef = useRef(null);
@@ -118,7 +118,17 @@ export default function Header({ onLogout }) {
                             </>
                         )}
                     </ul>
-                    <div className="header-actions">
+                    <div className="header-controls">
+                        <button
+                            className="theme-toggle"
+                            type="button"
+                            onClick={onToggleTheme}
+                            aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}
+                            aria-pressed={theme === 'dark'}
+                            title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+                        >
+                            <FontAwesomeIcon icon={theme === 'dark' ? faSun : faMoon} />
+                        </button>
                         <MusicButton />
                     </div>
                 </div>

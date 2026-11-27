@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -29,6 +30,18 @@ function AppContent() {
     const { user, setUser, loading } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+    const [theme, setTheme] = useState(() =>
+        localStorage.getItem('site-theme') === 'dark' ? 'dark' : 'light'
+    );
+
+    useEffect(() => {
+        document.documentElement.dataset.theme = theme;
+        localStorage.setItem('site-theme', theme);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme(currentTheme => currentTheme === 'dark' ? 'light' : 'dark');
+    };
 
     const handleLogout = async () => {
         await API.logout();
@@ -43,7 +56,7 @@ function AppContent() {
     return (
         <div className={`app-wrapper ${isLoginPage ? 'app-wrapper-login' : ''}`}>
             <CustomCursor />
-            <Header onLogout={handleLogout} />
+            <Header onLogout={handleLogout} theme={theme} onToggleTheme={toggleTheme} />
             <main className={isLoginPage ? 'main-login' : ''}>
                 {isLoginPage ? (
                     <LoginPage setUser={setUser} />

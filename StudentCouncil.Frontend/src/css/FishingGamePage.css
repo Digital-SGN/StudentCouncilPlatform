@@ -50,7 +50,7 @@
   align-items: center;
   gap: 8px;
   font-size: 1.5rem;
-  background: #ffffff;
+  background: var(--surface);
   padding: 8px 24px 12px;      
   border-radius: 20px;
   color: #0CBFA1;
@@ -472,7 +472,7 @@
 }
 
 .mobile-warning-card {
-  background: white;
+  background: var(--surface);
   border-radius: 24px;
   padding: 40px;
   text-align: center;
@@ -497,18 +497,18 @@
   right: -10px;
   font-size: 28px;
   color: #f59e0b;
-  background: white;
+  background: var(--surface);
   border-radius: 50%;
 }
 
 .mobile-warning-card h1 {
   font-size: 24px;
-  color: #1e293b;
+  color: var(--text-primary);
   margin-bottom: 16px;
 }
 
 .mobile-warning-card p {
   font-size: 16px;
-  color: #64748b;
+  color: var(--text-muted);
   line-height: 1.6;
 }

@@ -339,21 +339,21 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
                             <div className="form-group"><label>Дата рождения</label><input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} /></div>
 
                             {isOwnProfile && (
-                                <div className="form-group" style={{ marginTop: '24px', padding: '16px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#1e293b' }}>
+                                <div className="form-group" style={{ marginTop: '24px', padding: '16px', background: 'var(--surface-subtle)', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: 'var(--text-primary)' }}>
                                         <FontAwesomeIcon icon={faShieldHalved} style={{ color: '#0CBFA1' }} />
                                         Двухфакторная защита (2FA)
                                     </label>
                                     
                                     {twoFactorSetupData ? (
                                         <div style={{ textAlign: 'center' }}>
-                                            <p style={{ fontSize: '14px', color: '#475569', marginBottom: '12px' }}>
+                                            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
                                                 Отсканируйте QR-код в приложении (Google Authenticator, Яндекс Ключ и т.д.)
                                             </p>
-                                            <div style={{ background: 'white', padding: '12px', display: 'inline-block', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                            <div style={{ background: 'var(--surface)', padding: '12px', display: 'inline-block', borderRadius: '8px', border: '1px solid var(--border)' }}>
                                                 <QRCodeSVG value={twoFactorSetupData.authenticatorUri} size={140} />
                                             </div>
-                                            <p style={{ fontSize: '14px', color: '#475569', marginTop: '12px' }}>Введите код из приложения:</p>
+                                            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '12px' }}>Введите код из приложения:</p>
                                             <OtpInput value={twoFactorCode} onChange={setTwoFactorCode} disabled={is2faLoading} />
                                             <button 
                                                 type="button" 
@@ -373,14 +373,14 @@ export default function UserFormModal({ isOpen, onClose, userId, isAdmin, isLead
                                                 type="button" 
                                                 onClick={promptDisableTwoFactor} 
                                                 disabled={is2faLoading}
-                                                style={{ padding: '6px 12px', background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
+                                                style={{ padding: '6px 12px', background: 'var(--danger-surface)', color: 'var(--danger-text)', border: '1px solid var(--danger-border)', borderRadius: '8px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
                                             >
                                                 {is2faLoading ? 'Отключение...' : 'Отключить'}
                                             </button>
                                         </div>
                                     ) : (
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-                                            <span style={{ color: '#64748b', fontSize: '14px' }}>
+                                            <span style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
                                                 Дополнительная защита аккаунта
                                             </span>
                                             <button 

@@ -8,7 +8,7 @@
 }
 
 .error-state-container {
-    background: white;
+    background: var(--surface);
     border-radius: 32px;
     padding: 60px 40px;
     text-align: center;
@@ -23,7 +23,7 @@
     font-size: 120px;
     font-weight: 900;
     line-height: 1;
-    color: #1e293b;
+    color: var(--text-primary);
     margin-bottom: 10px;
     display: flex;
     justify-content: center;
@@ -42,20 +42,20 @@
 
 .error-icon {
     font-size: 60px;
-    color: #cbd5e1;
+    color: var(--border);
     margin-bottom: 20px;
     transform: rotate(-15deg);
 }
 
 .error-state-container h1 {
     font-size: 32px;
-    color: #1e293b;
+    color: var(--text-primary);
     margin-bottom: 16px;
 }
 
 .error-state-container p {
     font-size: 16px;
-    color: #64748b;
+    color: var(--text-muted);
     line-height: 1.6;
     margin-bottom: 32px;
 }
