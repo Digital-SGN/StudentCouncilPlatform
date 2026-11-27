@@ -338,7 +338,7 @@ export default function EventDetailPage() {
                                                         </Link>
                                                         <span
                                                             className="team-role-badge"
-                                                            style={ROLE_STYLES[badge.role] || { background: '#e2e8f0', color: '#2d3748' }}
+                                                            style={ROLE_STYLES[badge.role] || { background: 'var(--surface-hover)', color: 'var(--text-primary)' }}
                                                         >
                                                             {badge.role}
                                                         </span>

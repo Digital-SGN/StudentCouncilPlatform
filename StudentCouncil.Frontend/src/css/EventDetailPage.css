@@ -14,7 +14,7 @@
 }
 
 .event-detail-card {
-    background: white;
+    background: var(--surface);
     border-radius: 24px;
     overflow: hidden;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
@@ -106,7 +106,7 @@
 }
 
 .event-info-grid {
-    background: #f8fafc;
+    background: var(--surface-subtle);
     border-radius: 16px;
     padding: 20px 24px;
     margin-bottom: 24px;
@@ -117,7 +117,7 @@
     align-items: flex-start;
     gap: 16px;
     padding: 12px 0;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border);
 }
 
 .event-info-row:last-child {
@@ -172,14 +172,14 @@
 
 .event-description-section p {
     font-size: 18px;
-    color: #475569;
+    color: var(--text-secondary);
     line-height: 1.6;
 }
 
 .event-team-section {
     margin: 24px 0;
     padding-top: 16px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--border);
 }
 
 .event-team-header {
@@ -236,10 +236,10 @@
 }
 
 .no-team-message {
-    color: #94a3b8;
+    color: var(--text-muted);
     text-align: center;
     padding: 20px;
-    background: #f8fafc;
+    background: var(--surface-subtle);
     border-radius: 12px;
 }
 
@@ -253,16 +253,16 @@
     display: flex;
     flex-direction: column;
     gap: 8px;                       
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: var(--surface-subtle);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 10px;                  
     transition: background 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
 .team-member-card:hover {
-    background: #ffffff;
-    border-color: #cbd5e0;
+    background: var(--surface);
+    border-color: var(--border);
     box-shadow: 0 4px 14px rgba(12, 191, 161, 0.08);
 }
 
@@ -309,7 +309,7 @@
 .team-member-name {
     font-size: 15px;
     font-weight: 600;
-    color: #2d3748;
+    color: var(--text-primary);
     text-decoration: none;
     white-space: nowrap;
     overflow: hidden;
@@ -359,11 +359,11 @@
     font-size: 12px;              
 }
 
-.team-icon-btn.view     { background: #dbeafe; color: #1e40af; }
-.team-icon-btn.download { background: #e2e8f0; color: #2d3748; }
-.team-icon-btn.upload   { background: #fef3c7; color: #92400e; }
+.team-icon-btn.view     { background: var(--info-surface); color: var(--info-text); }
+.team-icon-btn.download { background: var(--surface-hover); color: var(--text-primary); }
+.team-icon-btn.upload   { background: var(--warning-surface); color: var(--warning-text); }
 .team-icon-btn.edit     { background: #e0e7ff; color: #4338ca; }
-.team-icon-btn.delete   { background: #fee2e2; color: #dc2626; }
+.team-icon-btn.delete   { background: var(--danger-surface); color: var(--danger-text); }
 
 .team-icon-btn:hover {
     transform: translateY(-1px);
@@ -377,7 +377,7 @@
 
 .no-badge {
     grid-column: 1 / -1;
-    color: #94a3b8;
+    color: var(--text-muted);
     font-size: 12px;
     font-style: italic;
     text-align: center;
@@ -389,7 +389,7 @@
     gap: 16px;
     margin-top: 24px;
     padding-top: 16px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--border);
 }
 
 .event-edit-btn,
@@ -421,12 +421,12 @@
 }
 
 .event-delete-btn {
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--danger-surface);
+    color: var(--danger-text);
 }
 
 .event-delete-btn:hover {
-    background: #fecaca;
+    background: var(--danger-border);
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(220, 38, 38, 0.2);
 }
@@ -459,7 +459,7 @@
     .event-info-label {
         width: auto;
         font-size: 13px;
-        color: #718096;
+        color: var(--text-muted);
         font-weight: 500;
     }
     .event-info-value {
@@ -537,7 +537,7 @@
 
 .form-hint {
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--text-muted);
     margin-top: 4px;
     display: inline-block;
 }
@@ -561,8 +561,8 @@
 }
 
 .btn-cancel {
-    background: #f1f5f9;
-    color: #475569;
+    background: var(--surface-hover);
+    color: var(--text-secondary);
     text-decoration: none;
     padding: 12px 28px;
     border-radius: 40px;
@@ -574,9 +574,9 @@
 }
 
 .btn-cancel:hover {
-    background: #e2e8f0;
+    background: var(--surface-hover);
     text-decoration: none;
-    color: #1e293b;
+    color: var(--text-primary);
     transform: translateY(-1px);
 }
 
@@ -670,7 +670,7 @@
 
 .event-detail-title-plain h1 {
     margin: 0;
-    color: #1e293b;
+    color: var(--text-primary);
     font-weight: 700;
     font-size: 28px;
     flex: 1 1 auto;

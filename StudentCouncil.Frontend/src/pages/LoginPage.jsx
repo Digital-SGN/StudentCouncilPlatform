@@ -258,10 +258,10 @@ export default function LoginPage({ setUser }) {
 
     const renderEmailVerifyForm = () => (
         <form onSubmit={handleEmailVerifySubmit}>
-            <h2 style={{ marginBottom: '12px', color: '#1e293b', fontSize: '22px' }}>
+            <h2 style={{ marginBottom: '12px', color: 'var(--text-primary)', fontSize: '22px' }}>
                 Подтвердите почту
             </h2>
-            <p style={{ marginBottom: '20px', color: '#64748b', fontSize: '15px' }}>
+            <p style={{ marginBottom: '20px', color: 'var(--text-muted)', fontSize: '15px' }}>
                 Мы отправили код на <strong>{email}</strong>. Введите его ниже.
             </p>
             <div className="form-group">
@@ -284,7 +284,7 @@ export default function LoginPage({ setUser }) {
                     disabled={loading || resendCooldown > 0}
                     style={{ 
                         background: 'none', border: 'none', 
-                        color: resendCooldown > 0 ? '#94a3b8' : '#0CBFA1', 
+                        color: resendCooldown > 0 ? 'var(--text-muted)' : '#0CBFA1',
                         cursor: resendCooldown > 0 ? 'default' : 'pointer', 
                         fontSize: '14px', fontWeight: '500'
                     }}
@@ -299,10 +299,10 @@ export default function LoginPage({ setUser }) {
 
     const renderVerifyTotpForm = () => (
         <form onSubmit={handleVerifyTotpSubmit}>
-            <h2 style={{ marginBottom: '12px', color: '#1e293b', fontSize: '22px' }}>
+            <h2 style={{ marginBottom: '12px', color: 'var(--text-primary)', fontSize: '22px' }}>
                 Подтвердите вход
             </h2>
-            <p style={{ marginBottom: '20px', color: '#64748b', fontSize: '15px' }}>
+            <p style={{ marginBottom: '20px', color: 'var(--text-muted)', fontSize: '15px' }}>
                 Введите код из вашего приложения-аутентификатора.
             </p>
             <div className="form-group">

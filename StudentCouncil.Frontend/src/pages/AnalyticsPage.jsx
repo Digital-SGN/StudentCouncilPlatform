@@ -170,12 +170,17 @@ export default function AnalyticsPage() {
     if (loading) return <Loader text="Сбор аналитики..." />;
     if (errorCode) return <ErrorState code={errorCode} message="Мы не смогли собрать аналитику. Попробуйте обновить страницу через пару минут." />;
 
+    const themeStyles = getComputedStyle(document.documentElement);
+    const textMuted = themeStyles.getPropertyValue('--text-muted').trim();
+    const borderColor = themeStyles.getPropertyValue('--border').trim();
+    const surfaceHover = themeStyles.getPropertyValue('--surface-hover').trim();
+
     const barChartData = {
         labels: stats.eventsPerMonth.map(i => i.label),
         datasets: [{
             label: 'Мероприятий',
             data: stats.eventsPerMonth.map(i => i.count),
-            backgroundColor: stats.eventsPerMonth.map(i => i.count === 1 ? '#7CE0D3' : (i.count > 1 ? '#3BA397' : '#E2E8F0')),
+            backgroundColor: stats.eventsPerMonth.map(i => i.count === 1 ? '#7CE0D3' : (i.count > 1 ? '#3BA397' : surfaceHover)),
             borderRadius: 6,
             maxBarThickness: 30, 
         }]
@@ -191,7 +196,7 @@ export default function AnalyticsPage() {
             x: { 
                 grid: { display: false }, 
                 ticks: { 
-                    color: '#64748b',
+                    color: textMuted,
                     maxRotation: 45,
                     minRotation: 45,
                     font: { size: 11 } 
@@ -199,8 +204,8 @@ export default function AnalyticsPage() {
             },
             y: { 
                 beginAtZero: true, 
-                ticks: { stepSize: 1, color: '#64748b' }, 
-                grid: { color: '#f1f5f9' } 
+                ticks: { stepSize: 1, color: textMuted },
+                grid: { color: borderColor }
             }
         }
     };
@@ -222,7 +227,7 @@ export default function AnalyticsPage() {
         plugins: { 
             legend: { 
                 position: 'bottom',
-                labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 }, padding: 15 } 
+                labels: { usePointStyle: true, boxWidth: 8, font: { size: 11 }, padding: 15, color: textMuted }
             } 
         }
     };
@@ -316,7 +321,7 @@ export default function AnalyticsPage() {
                                 <tbody>
                                     {stats.topUsers.length === 0 ? (
                                         <tr>
-                                            <td colSpan="3" style={{ textAlign: 'center', padding: '30px', color: '#94a3b8' }}>
+                                            <td colSpan="3" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)' }}>
                                                 Пока нет участников с опытом
                                             </td>
                                         </tr>

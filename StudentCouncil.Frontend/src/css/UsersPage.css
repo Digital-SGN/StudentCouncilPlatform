@@ -31,7 +31,7 @@
 }
 
 .users-card {
-    background: white;
+    background: var(--surface);
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     overflow: hidden;
@@ -50,13 +50,13 @@
 }
 
 .users-table th, .users-table td {
-    color: #1a202c;
+    color: var(--text-primary);
     font-size: 16px;
     font-weight: bold;
     padding: 16px;
     text-align: left;
     vertical-align: middle;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border);
 }
 
 th {
@@ -92,7 +92,7 @@ th:hover .sort-icon {
 
 .role-badge.leader {
     background: linear-gradient(135deg, #ffc107, #e0a800);
-    color: #1a202c;
+    color: var(--text-primary);
 }
 
 .role-badge.member {
@@ -132,8 +132,8 @@ th:hover .sort-icon {
     border-radius: 8px;
     font-size: 12px;
     font-weight: bold;
-    background: #f1f5f9;
-    color: #334155;
+    background: var(--surface-hover);
+    color: var(--text-primary);
     white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s;
@@ -144,7 +144,7 @@ th:hover .sort-icon {
 .action-btn:hover,
 .dropdown summary:hover {
     transform: translateY(-1px);
-    background: #e2e8f0;
+    background: var(--surface-hover);
 }
 
 .action-btn.view {
@@ -153,13 +153,13 @@ th:hover .sort-icon {
 }
 
 .action-btn.edit {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--warning-surface);
+    color: var(--warning-text);
 }
 
 .action-btn.delete {
-    background: #fee2e2;
-    color: #dc2626;
+    background: var(--danger-surface);
+    color: var(--danger-text);
 }
 
 .action-btn.reset-pwd {
@@ -181,7 +181,7 @@ th:hover .sort-icon {
     position: absolute;
     right: 0;
     top: calc(100% + 4px);
-    background: white;
+    background: var(--surface);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     min-width: 160px;
@@ -203,13 +203,13 @@ th:hover .sort-icon {
     font-size: 14px;
     font-weight: 500;
     text-align: left;
-    color: #1e293b;
+    color: var(--text-primary);
     transition: background 0.2s;
 }
 
-.dropdown-item:hover { background-color: #f1f5f9; }
+.dropdown-item:hover { background: var(--surface-hover); }
 .dropdown-item.delete { color: #dc2626; }
-.dropdown-item.delete:hover { background-color: #fee2e2; }
+.dropdown-item.delete:hover { background-color: var(--danger-surface); }
 
 .users-table tr.admin-row {
     background: #fff5f5;
@@ -220,7 +220,7 @@ th:hover .sort-icon {
 }
 
 .users-table tr:hover {
-    background: #f7fafc;
+    background: var(--surface-subtle);
 }
 
 .header-actions {
@@ -241,7 +241,7 @@ th:hover .sort-icon {
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: #94a3b8;
+    color: var(--text-muted);
     pointer-events: none;
 }
 
@@ -249,11 +249,11 @@ th:hover .sort-icon {
     height: 40px;
     padding: 0 12px 0 36px;
     border-radius: 40px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--border);
     width: 260px;
     font-size: 14px;
     outline: none;
-    background: white;
+    background: var(--surface);
 }
 
 .search-input:focus {
@@ -287,7 +287,7 @@ th:hover .sort-icon {
 }
 
 .view-btn.active {
-    background: white;
+    background: var(--surface);
     color: #0CBFA1;
     opacity: 1;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -311,7 +311,7 @@ th:hover .sort-icon {
     justify-content: center;
     gap: 8px;
     cursor: pointer;
-    background: white;
+    background: var(--surface);
     color: #0CBFA1;
     border: none;
     min-width: 0;
@@ -323,7 +323,7 @@ th:hover .sort-icon {
 .create-btn:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    background: #f8fafc;
+    background: var(--surface-subtle);
 }
 
 .users-cards {
@@ -337,7 +337,7 @@ th:hover .sort-icon {
     display: flex;
     flex-direction: column;
     min-width: 0;
-    background: #ffffff;
+    background: var(--surface);
     border-radius: 16px;
     padding: 16px;
     border: 1px solid #04b194;
@@ -367,7 +367,7 @@ th:hover .sort-icon {
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    border: 2px solid #e2e8f0;
+    border: 2px solid var(--border);
     object-fit: cover;
 }
 
@@ -394,7 +394,7 @@ th:hover .sort-icon {
 .user-name {
     font-size: 16px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -407,7 +407,7 @@ th:hover .sort-icon {
     gap: 8px;
     margin-bottom: 14px;
     font-size: 13px;
-    color: #475569;
+    color: var(--text-secondary);
 }
 
 .user-card-body > div {
@@ -429,7 +429,7 @@ th:hover .sort-icon {
 .user-card-footer {
     display: flex;
     gap: 8px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--border);
     padding-top: 12px;
     margin-top: auto;
 }
@@ -456,16 +456,16 @@ th:hover .sort-icon {
 }
 .empty-icon {
     font-size: 48px;
-    color: #cbd5e1;
+    color: var(--border);
     margin-bottom: 16px;
 }
 .empty-state h3 {
     font-size: 20px;
-    color: #1e293b;
+    color: var(--text-primary);
     margin-bottom: 8px;
 }
 .empty-state p {
-    color: #64748b;
+    color: var(--text-muted);
     font-size: 15px;
 }
 
@@ -558,7 +558,7 @@ th:hover .sort-icon {
     height: 40px;
     padding: 0 16px;
     border-radius: 40px;
-    background: white;
+    background: var(--surface);
     color: #0CBFA1;
     border: none;
     font-size: 14px;
@@ -583,13 +583,13 @@ th:hover .sort-icon {
     align-items: center;
     gap: 20px;
     padding: 24px 0;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--border);
     margin-top: 10px;
     flex-wrap: wrap;
 }
 
 .page-btn {
-    background: white;
+    background: var(--surface);
     border: 1px solid #0CBFA1;
     color: #0CBFA1;
     padding: 8px 20px;
@@ -610,18 +610,18 @@ th:hover .sort-icon {
 .page-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    border-color: #cbd5e1;
-    color: #94a3b8;
+    border-color: var(--border);
+    color: var(--text-muted);
 }
 
 .page-info {
-    color: #475569;
+    color: var(--text-secondary);
     font-size: 14px;
     font-weight: 500;
 }
 
 .page-info b {
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 @media (max-width: 768px) {

@@ -8,7 +8,7 @@
 }
 
 .loader-card {
-    background: white;
+    background: var(--surface);
     border-radius: 32px;
     padding: 50px 60px;
     display: flex;
@@ -58,7 +58,7 @@
 .loader-text {
     font-size: 16px;
     font-weight: 600;
-    color: #1e293b;
+    color: var(--text-primary);
     margin: 0;
     letter-spacing: 0.5px;
 }

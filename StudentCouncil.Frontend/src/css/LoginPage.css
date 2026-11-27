@@ -80,7 +80,7 @@
 }
 
 .login-container {
-    background: white;
+    background: var(--surface);
     border-radius: 24px;
     text-align: center;
     box-shadow:
@@ -96,7 +96,7 @@
 .login-container h1 {
     text-align: center;
     margin-bottom: 30px;
-    color: #1e293b;
+    color: var(--text-primary);
     font-size: 26px;
 }
 
@@ -107,7 +107,7 @@
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    color: #555;
+    color: var(--text-secondary);
     font-weight: 500;
     text-align: left;
 }
@@ -115,7 +115,7 @@
 .form-group input {
     width: 100%;
     padding: 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     border-radius: 8px;
     font-size: 16px;
     transition: border-color 0.2s, box-shadow 0.2s;
@@ -204,9 +204,9 @@
     text-align: center;
     font-size: 28px;
     font-weight: 600;
-    border: 2px solid #e2e8f0;
+    border: 2px solid var(--border);
     border-radius: 12px;
-    background: white;
+    background: var(--surface);
     transition: all 0.2s ease;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
@@ -219,8 +219,8 @@
 }
 
 .otp-input:disabled {
-    background-color: #f1f5f9;
-    color: #94a3b8;
+    background: var(--surface-hover);
+    color: var(--text-muted);
 }
 
 .twofa-setup {
@@ -230,7 +230,7 @@
 .qr-container {
     margin: 20px auto;
     display: inline-block;
-    background: white;
+    background: var(--surface);
     padding: 10px;
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -253,7 +253,7 @@
     align-items: center;
     gap: 8px;
     cursor: pointer;
-    color: #4a5568;
+    color: var(--text-secondary);
 }
 
 .checkbox-group input {
@@ -283,7 +283,7 @@
     transform: translateY(-50%);
     background: transparent;
     border: none;
-    color: #94a3b8;
+    color: var(--text-muted);
     cursor: pointer;
     width: 24px;
     height: 24px;
@@ -304,7 +304,7 @@
     background: transparent !important;
     border: none !important;
     border-radius: 0 !important;
-    color: #94a3b8;
+    color: var(--text-muted);
     font-size: 18px;
     transition: none !important;
     top: 50%;
@@ -338,9 +338,9 @@ button:disabled {
     margin-top: 8px;
     padding: 8px 12px;
     border-radius: 8px;
-    background: #fffbeb;
-    border: 1px solid #fcd34d;
-    color: #92400e;
+    background: var(--warning-surface);
+    border: 1px solid var(--warning-border);
+    color: var(--warning-text);
     font-size: 13px;
     font-weight: 500;
     animation: slideIn 0.2s ease;

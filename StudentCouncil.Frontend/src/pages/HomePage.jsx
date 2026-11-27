@@ -174,13 +174,13 @@ export default function HomePage() {
             </div>
 
             <svg className="board-strings" viewBox="0 0 1000 800" preserveAspectRatio="none">
-              <line x1="500" y1="160" x2="150" y2="280" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="5,5" opacity="0.5" />
-              <line x1="500" y1="160" x2="850" y2="280" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="5,5" opacity="0.5" />
+              <line x1="500" y1="160" x2="150" y2="280" stroke="var(--border)" strokeWidth="2" strokeDasharray="5,5" opacity="0.5" />
+              <line x1="500" y1="160" x2="850" y2="280" stroke="var(--border)" strokeWidth="2" strokeDasharray="5,5" opacity="0.5" />
               
-              <line x1="500" y1="160" x2="120" y2="550" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="5,5" opacity="0.4" />
-              <line x1="500" y1="160" x2="380" y2="550" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="5,5" opacity="0.6" />
-              <line x1="500" y1="160" x2="620" y2="550" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="5,5" opacity="0.6" />
-              <line x1="500" y1="160" x2="880" y2="550" stroke="#cbd5e1" strokeWidth="2" strokeDasharray="5,5" opacity="0.4" />
+              <line x1="500" y1="160" x2="120" y2="550" stroke="var(--border)" strokeWidth="2" strokeDasharray="5,5" opacity="0.4" />
+              <line x1="500" y1="160" x2="380" y2="550" stroke="var(--border)" strokeWidth="2" strokeDasharray="5,5" opacity="0.6" />
+              <line x1="500" y1="160" x2="620" y2="550" stroke="var(--border)" strokeWidth="2" strokeDasharray="5,5" opacity="0.6" />
+              <line x1="500" y1="160" x2="880" y2="550" stroke="var(--border)" strokeWidth="2" strokeDasharray="5,5" opacity="0.4" />
             </svg>
 
             <div className="board-grid">

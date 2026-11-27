@@ -38,7 +38,7 @@
 }
 
 .kpi-card {
-    background: white;
+    background: var(--surface);
     border-radius: 20px;
     padding: 20px;
     display: flex;
@@ -72,7 +72,7 @@
 .kpi-label {
     font-size: 13px;
     font-weight: 600;
-    color: #64748b;
+    color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 4px;
@@ -81,14 +81,14 @@
 .kpi-value {
     font-size: 24px;
     font-weight: 800;
-    color: #1e293b;
+    color: var(--text-primary);
     line-height: 1;
     margin-bottom: 4px;
 }
 
 .kpi-sub {
     font-size: 12px;
-    color: #94a3b8;
+    color: var(--text-muted);
     font-weight: 500;
 }
 
@@ -100,7 +100,7 @@
 }
 
 .chart-card {
-    background: white;
+    background: var(--surface);
     border-radius: 20px;
     padding: 24px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
@@ -120,7 +120,7 @@
 .chart-header h3 {
     font-size: 18px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--text-primary);
     margin: 0;
     display: flex;
     align-items: center;
@@ -135,11 +135,11 @@
     display: flex;
     gap: 20px;
     font-size: 14px;
-    color: #64748b;
+    color: var(--text-muted);
 }
 
 .chart-header-stats b {
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .chart-container {
@@ -162,7 +162,7 @@
 }
 
 .table-card {
-    background: white;
+    background: var(--surface);
     border-radius: 20px;
     padding: 24px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
@@ -177,16 +177,16 @@
     text-align: left;
     font-size: 13px;
     font-weight: 600;
-    color: #64748b;
+    color: var(--text-muted);
     padding-bottom: 16px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--border);
 }
 
 .analytics-table td {
     padding: 12px 0;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--border);
     font-size: 15px;
-    color: #1e293b;
+    color: var(--text-primary);
     vertical-align: middle;
 }
 
@@ -198,8 +198,8 @@
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: #f1f5f9;
-    color: #64748b;
+    background: var(--surface-hover);
+    color: var(--text-muted);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -207,13 +207,13 @@
     font-weight: 800;
 }
 
-.rank-1 { background: #fef3c7; color: #d97706; }
-.rank-2 { background: #e2e8f0; color: #475569; }
-.rank-3 { background: #ffedd5; color: #c2410c; }
+.rank-1 { background: var(--warning-surface); color: var(--warning-text); }
+.rank-2 { background: var(--surface-hover); color: var(--text-secondary); }
+.rank-3 { background: var(--warning-surface); color: var(--warning-text); }
 
 .level-pill {
-    background: #e0f2fe;
-    color: #0369a1;
+    background: var(--info-surface);
+    color: var(--info-text);
     padding: 4px 10px;
     border-radius: 12px;
     font-size: 12px;
@@ -286,7 +286,7 @@
 .xp-mini-bar {
     width: 80px;
     height: 4px;
-    background: #e2e8f0;
+    background: var(--surface-hover);
     border-radius: 2px;
     overflow: hidden;
 }
@@ -306,13 +306,13 @@
 .event-attendance-cell span {
     font-size: 14px;
     font-weight: 600;
-    color: #475569;
+    color: var(--text-secondary);
 }
 
 .event-mini-bar {
     width: 80px;
     height: 4px;
-    background: #e2e8f0;
+    background: var(--surface-hover);
     border-radius: 2px;
     overflow: hidden;
 }

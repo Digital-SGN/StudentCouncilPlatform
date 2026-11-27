@@ -163,6 +163,9 @@ export default function ProfilePage() {
     };
 
     const barData = badges.length > 0 ? getRoleData() : null;
+    const themeStyles = getComputedStyle(document.documentElement);
+    const textMuted = themeStyles.getPropertyValue('--text-muted').trim();
+    const borderColor = themeStyles.getPropertyValue('--border').trim();
     const barOptions = {
         responsive: true, 
         maintainAspectRatio: false,
@@ -171,12 +174,14 @@ export default function ProfilePage() {
             title: { display: false } 
         },
         scales: { 
-            y: { beginAtZero: true, ticks: { stepSize: 1 } },
+            y: { beginAtZero: true, ticks: { stepSize: 1, color: textMuted }, grid: { color: borderColor } },
             x: { 
                 ticks: {
                     maxRotation: 45, 
-                    minRotation: 0  
-                }
+                    minRotation: 0,
+                    color: textMuted
+                },
+                grid: { color: borderColor }
             }
         }
     };
