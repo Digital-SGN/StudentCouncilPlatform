@@ -58,6 +58,7 @@
 ## Архитектура
 <img width="2160" height="1380" src="https://github.com/Digital-SGN/Handbook/blob/main/assets/student-council-architecture%20(2).png" />
 
+
 Проект представляет собой **слоистый монолит**. Backend разделён на три слоя:
 
 - **`StudentCouncil.Data`** — сущности, `AppDbContext` и миграции EF Core.
@@ -182,29 +183,7 @@ docker logs studentcouncil_backend --tail 50
 - после push в `main` workflow подключается к VPS по SSH;
 - на сервере обновляются Docker-контейнеры backend/frontend, статические файлы копируются в каталог Nginx, после чего Nginx перезагружается.
 
-```mermaid
-flowchart LR
-    Dev([Разработчик]) -->|git push| GitHub[(GitHub)]
-    GitHub -->|SSH| VPS[VPS Сервер]
-    
-    subgraph Script ["Скрипт deploy.sh"]
-        direction LR
-        Step1[1. git pull] --> Step2[2. Docker build] --> Step3[3. Docker up] --> Step4[4. Reload Nginx]
-    end
-    
-    VPS --> Script
-
-    %% Стили
-    classDef dev fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f;
-    classDef git fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
-    classDef vps fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0c4a6e;
-    classDef step fill:#ccfbf1,stroke:#0d9488,stroke-width:2px,color:#115e59;
-
-    class Dev dev;
-    class GitHub git;
-    class VPS vps;
-    class Step1,Step2,Step3,Step4 step;
-```
+<img src="https://github.com/Digital-SGN/Handbook/blob/main/assets/deploy-pipeline-architecture.png" />
 
 ## Документация API
 
