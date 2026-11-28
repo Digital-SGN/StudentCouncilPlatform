@@ -56,7 +56,7 @@
 ---
 
 ## Архитектура
-<img width="2160" height="1380" alt="student-council-architecture (1)" src="https://github.com/user-attachments/assets/692923ad-9a13-42c1-9716-121f49b3247f" />
+<img width="2160" height="1380" src="https://github.com/Digital-SGN/Handbook/blob/main/assets/student-council-architecture%20(2).png" />
 
 Проект представляет собой **слоистый монолит**. Backend разделён на три слоя:
 
