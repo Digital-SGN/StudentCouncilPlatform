@@ -56,6 +56,7 @@
 ---
 
 ## Архитектура
+<img width="2160" height="1380" alt="student-council-architecture (1)" src="https://github.com/user-attachments/assets/692923ad-9a13-42c1-9716-121f49b3247f" />
 
 Проект представляет собой **слоистый монолит**. Backend разделён на три слоя:
 
@@ -64,46 +65,6 @@
 - **`StudentCouncil.Web`** — REST API-контроллеры, middleware обработки ошибок и настройка DI.
 - **`StudentCouncil.Frontend`** — SPA на React, взаимодействующее с backend API.
 - **`StudentCouncil.Tests`** — unit-тесты сервисов с xUnit и EF Core InMemory.
-
-```mermaid
-flowchart TD
-    User([Пользователь])
-    
-    subgraph VPS ["VPS (Ubuntu 22.04)"]
-        Nginx["Nginx"]
-        
-        subgraph Docker ["Docker Network"]
-            Frontend["React SPA<br/>(Frontend)"]
-            Backend["ASP.NET Core<br/>(Backend)"]
-            
-            subgraph Storage ["Хранилище"]
-                DB[("PostgreSQL")]
-                Vol[("Docker Volume")]
-            end
-        end
-    end
-
-    User -->|HTTPS| Nginx
-    Nginx -->|Отдаёт сайт| Frontend
-    Nginx <-->|/api| Backend
-    
-    Backend <-->|EF Core| DB
-    Backend <-->|Чтение/Запись| Vol
-
-    classDef user fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f;
-    classDef infra fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#334155;
-    classDef frontend fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0c4a6e;
-    classDef backend fill:#ccfbf1,stroke:#0d9488,stroke-width:2px,color:#115e59;
-    classDef db fill:#e0e7ff,stroke:#6366f1,stroke-width:2px,color:#312e81;
-    classDef vol fill:#ffe4e6,stroke:#f43f5e,stroke-width:2px,color:#881337;
-
-    class User user;
-    class Nginx infra;
-    class Frontend frontend;
-    class Backend backend;
-    class DB db;
-    class Vol vol;
-```
 
 ---
 
